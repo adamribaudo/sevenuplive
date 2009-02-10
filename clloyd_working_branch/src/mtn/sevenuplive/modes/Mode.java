@@ -1,6 +1,5 @@
 package mtn.sevenuplive.modes;
 
-import mtn.sevenuplive.main.MonomeUp;
 
 public abstract class Mode implements ModeConstants{
 	
@@ -25,7 +24,7 @@ public abstract class Mode implements ModeConstants{
 		this.myNavRow = navRow;
 		displayGrid = new int[grid_width - 1][grid_height];
 		navGrid = new int[grid_height];
-		navGrid[myNavRow] = MonomeUp.SOLID;
+		navGrid[myNavRow] = DisplayGrid.SOLID;
 	}
 	
 	public int[][] getDisplayGrid()
@@ -42,13 +41,13 @@ public abstract class Mode implements ModeConstants{
 	{
 		for(int i=0;i<displayGrid.length;i++)
 			for(int j=0;j<displayGrid[0].length;j++)
-				displayGrid[i][j] = MonomeUp.OFF;
+				displayGrid[i][j] = DisplayGrid.OFF;
 	}
 	
 	protected void clearNavGrid()
 	{
 		for(int i=0;i<navGrid.length;i++)
-			navGrid[i] = MonomeUp.OFF;
+			navGrid[i] = DisplayGrid.OFF;
 	}
 	
 	protected int getYCoordFromSubMenu(int subMenuNum)

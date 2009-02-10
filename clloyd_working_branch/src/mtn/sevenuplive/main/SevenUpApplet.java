@@ -9,6 +9,7 @@
  */
 
 package mtn.sevenuplive.main;
+import mtn.sevenuplive.modes.AllModes;
 import mtn.sevenuplive.scales.Scale;
 import mtn.sevenuplive.scales.ScaleName;
 
@@ -304,18 +305,18 @@ public class SevenUpApplet extends processing.core.PApplet
 	}
 
 	public void setMelody1ClipMode(boolean b) {
-		m.melodizer1.clipMode = b;
+		AllModes.getInstance().getMelodizer1().clipMode = b;
 	}
 	public void setMelody2ClipMode(boolean b) {
-		m.melodizer2.clipMode = b;
+		AllModes.getInstance().getMelodizer2().clipMode = b;
 	}
 	public boolean getMelody1ClipMode()
 	{
-		return m.melodizer1.clipMode;
+		return AllModes.getInstance().getMelodizer1().clipMode;
 	}
 	public boolean getMelody2ClipMode()
 	{
-		return m.melodizer2.clipMode;
+		return AllModes.getInstance().getMelodizer2().clipMode;
 	}
 
 	public void setLooperMute(boolean mute) {

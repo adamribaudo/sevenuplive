@@ -59,14 +59,14 @@ public class Looper extends Mode {
 	private void updateNavGrid()
 	{
 		clearNavGrid();
-		navGrid[myNavRow] = MonomeUp.SOLID;
+		navGrid[myNavRow] = DisplayGrid.SOLID;
 	   //Iterate through the loops and set them all to their coordesponding values
  	   for(int i=0;i<loops.length;i++)
        {
      			 if(looperViewModes[i] == PLAY_VIEW_MODE)
-     				  navGrid[getYCoordFromSubMenu(i)] = MonomeUp.FASTBLINK;
+     				  navGrid[getYCoordFromSubMenu(i)] = DisplayGrid.FASTBLINK;
      			 else if(looperViewModes[i] == RES_VIEW_MODE)
-     				  navGrid[getYCoordFromSubMenu(i)] = MonomeUp.OFF;
+     				  navGrid[getYCoordFromSubMenu(i)] = DisplayGrid.OFF;
        }
 	}
 	
@@ -80,14 +80,14 @@ public class Looper extends Mode {
 		   if(looperViewModes[i] == PLAY_VIEW_MODE)
 		   {
 			   if(loops[i].isPlaying())
-				   displayGrid[i][loops[i].getStep()] = MonomeUp.SOLID;
+				   displayGrid[i][loops[i].getStep()] = DisplayGrid.SOLID;
 		   }
 		   else if(looperViewModes[i] == RES_VIEW_MODE)
 		   {
 			   //Display resolution
 			   for(int k=7;k>=0;k--)
 	  				if(7 - k <=  loops[i].getResolution())
-	  					displayGrid[i][k] = MonomeUp.SOLID;	 
+	  					displayGrid[i][k] = DisplayGrid.SOLID;	 
 		   }
 	    }
 	}
@@ -101,7 +101,7 @@ public class Looper extends Mode {
 	public void press(int x, int y)
 	{
 	  
-		if(x == MonomeUp.NAVCOL)
+		if(x == DisplayGrid.NAVCOL)
 		{
 			pressNavCol(y);
 			updateNavGrid();
@@ -118,7 +118,7 @@ public class Looper extends Mode {
 		//Inverse the mode of the corresponding loop
 		if(looperViewModes[loopIndex] == PLAY_VIEW_MODE)
 		{
-			if(!m.loopRecorder.isLoopSequencePlaying(loopIndex))
+			if(!AllModes.getInstance().getLoopRecorder().isLoopSequencePlaying(loopIndex))
 				loops[loopIndex].stop();
 			looperViewModes[loopIndex] = RES_VIEW_MODE;
 		}

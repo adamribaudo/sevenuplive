@@ -39,7 +39,7 @@ public class DisplayGrid {
 	private Monome monome;
 	private AllModes allmodes;
 
-	public DisplayGrid(Monome monome, AllModes allmodes, int start_row, int start_column, int grid_width, int grid_height) {
+	public DisplayGrid(Monome monome, AllModes allmodes, int start_column, int start_row, int grid_width, int grid_height) {
 		this.start_row = start_row;
 		this.start_column = start_column;
 		this.grid_width = grid_width;

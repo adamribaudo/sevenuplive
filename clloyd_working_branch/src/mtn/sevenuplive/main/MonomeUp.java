@@ -114,11 +114,10 @@ public final class MonomeUp extends MonomeOSC {
 	 SevenUpApplet SevenUpApplet;
 	 
 	 private DisplayGrid[] grids;
-	 private processing.core.PApplet listener;          
+	  
 	 
 	 MonomeUp (processing.core.PApplet listener, ConnectionSettings _sevenUpConnections, Scale monomeScale, promidi.MidiIO _midiIO, SevenUpPanel _parentPanel) {
 	     super(listener, _sevenUpConnections.oscPrefix, _sevenUpConnections.oscHostAddress, _sevenUpConnections.oscHostPort, _sevenUpConnections.oscListenPort);
-	     this.listener = listener;
 	     SevenUpApplet = (SevenUpApplet)listener;
 	     sevenUpConnections = _sevenUpConnections;
 	     
@@ -140,7 +139,12 @@ public final class MonomeUp extends MonomeOSC {
 	    		 new Masterizer(ModeConstants.MASTER_MODE, midiMelodyOut, midiMelody2Out, midiMasterOut, this, GRID_WIDTH, GRID_HEIGHT));
 
 		 //Set initial display grids
-	     // @TODO clloyd..when we are ready, lets try multiple displays
+	     /* 
+	      * @TODO clloyd..Unfortunately Monomic Communication Layer only supports to 40h
+	      * So we get ArrayIndexOutOfBounds if we move beyond 8 here.
+	      * 
+	      * Should be possible to extend monomic without too much effort, so I think worth to leave the capability
+	     */
 	     grids=new DisplayGrid[]{ 
 	    		 new DisplayGrid(this, allmodes, 0, 0, 8 ,8)
 	     }; 
@@ -197,8 +201,7 @@ public final class MonomeUp extends MonomeOSC {
 		 int x = targetd.getX_translated();
 		 int y = targetd.getY_translated();
 		 
-		targetd.getDisplay().monomePressed(x, y);
-	   
+		 targetd.getDisplay().monomePressed(x, y);
 	 }
 
 	 void monomeReleased(int raw_x, int raw_y)

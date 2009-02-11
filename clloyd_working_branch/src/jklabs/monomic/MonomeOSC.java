@@ -1,7 +1,9 @@
 package jklabs.monomic;
 
 import netP5.NetAddress;
-import oscP5.*;
+import oscP5.OscIn;
+import oscP5.OscMessage;
+import oscP5.OscP5;
 
 public class MonomeOSC extends Monome {
 

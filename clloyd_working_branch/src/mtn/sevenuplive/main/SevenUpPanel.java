@@ -124,11 +124,10 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        		}
 	        );
 			
-			
 			c.gridx = 0; c.gridy = 0; firstPanel.add(lblSetScale, c);
 			c.gridx = 1; firstPanel.add(drpScaleChoices1, c);
 	        
-	        //Melodizer 2 Scale
+			//Melodizer 2 Scale
 	        lblSetScale = new JLabel("Melodizer 2 scale");
 	        lblSetScale.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        

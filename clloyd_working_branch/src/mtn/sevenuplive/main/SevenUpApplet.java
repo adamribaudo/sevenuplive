@@ -30,6 +30,8 @@ public class SevenUpApplet extends processing.core.PApplet
 	private ConnectionSettings sevenUpConnections;
 	private SevenUpPanel parentPanel;
 	
+	private int monomeType = MonomeUp.MONOME_64;
+	
 	public SevenUpApplet(ConnectionSettings _sevenUpConnections, SevenUpPanel _parentPanel)
 	{
 		sevenUpConnections = _sevenUpConnections;
@@ -47,7 +49,30 @@ public class SevenUpApplet extends processing.core.PApplet
 	   midiIO = MidiIO.getInstance(this);
 	   midiIO.printDevices();
 	   monomeScale = new Scale(ScaleName.Major);
-	   m = new MonomeUp(this, sevenUpConnections, monomeScale, midiIO, parentPanel);
+	   
+	   // Get the type of monome selected
+	   monomeType = sevenUpConnections.monomeType;
+		   
+	   // Figure out dimensions of monome grid
+	   int x_grids = 1;
+	   int y_grids = 1;
+	   switch (monomeType) {
+	   case 0:
+		   x_grids=1; y_grids=1;
+		   break;
+	   case 1:
+		   x_grids=2; y_grids=1;
+		   break;
+	   case 2:
+		   x_grids=1; y_grids=2;
+		   break;
+	   case 3:
+		   x_grids=2; y_grids=2;
+		   break;
+			   
+	   };
+	   
+	   m = new MonomeUp(this, x_grids, y_grids, sevenUpConnections, monomeScale, midiIO, parentPanel);
 	   m.lightsOff();
 	   this.online = false;
 	   
@@ -302,6 +327,14 @@ public class SevenUpApplet extends processing.core.PApplet
 
 	public String getPatchTitle() {
 		return m.getPatchTitle();
+	}
+	
+	public void setMonomeType(int monomeType) {
+		this.monomeType = monomeType;
+	}
+	
+	public int getMonomeType() {
+		return monomeType;
 	}
 
 	public void setMelody1ClipMode(boolean b) {

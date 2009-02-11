@@ -42,6 +42,12 @@ public final class MonomeUp extends MonomeOSC {
 	 private String patchTitle = "";
 	 
 	
+	 // Monome 
+	 public static final int MONOME_64 = 0;
+	 public static final int MONOME_128H = 1;
+	 public static final int MONOME_128V = 2;
+	 public static final int MONOME_256 = 3;
+	 
 	 public static final int STOPPED = 0;
 	 public static final int PLAYING = 1;
 	 public static final int CUED = 2;
@@ -114,10 +120,9 @@ public final class MonomeUp extends MonomeOSC {
 	 SevenUpApplet SevenUpApplet;
 	 
 	 private DisplayGrid[] grids;
-	  
 	 
-	 MonomeUp (processing.core.PApplet listener, ConnectionSettings _sevenUpConnections, Scale monomeScale, promidi.MidiIO _midiIO, SevenUpPanel _parentPanel) {
-	     super(listener, 16, 8, _sevenUpConnections.oscPrefix, _sevenUpConnections.oscHostAddress, _sevenUpConnections.oscHostPort, _sevenUpConnections.oscListenPort);
+	 MonomeUp (processing.core.PApplet listener, int x_grids, int y_grids, ConnectionSettings _sevenUpConnections, Scale monomeScale, promidi.MidiIO _midiIO, SevenUpPanel _parentPanel) {
+	     super(listener, x_grids * 8, y_grids * 8, _sevenUpConnections.oscPrefix, _sevenUpConnections.oscHostAddress, _sevenUpConnections.oscHostPort, _sevenUpConnections.oscListenPort);
 	     SevenUpApplet = (SevenUpApplet)listener;
 	     sevenUpConnections = _sevenUpConnections;
 	     
@@ -125,7 +130,7 @@ public final class MonomeUp extends MonomeOSC {
 	     parentPanel = _parentPanel;
 	     
 	     midiIO = _midiIO;
-	   
+	     
 	     // Init midi communications
 	     initializeMidi(listener);
 	     

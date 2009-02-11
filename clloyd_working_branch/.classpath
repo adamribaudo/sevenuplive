@@ -8,6 +8,5 @@
 	<classpathentry kind="var" path="SEVENUP_HOME/lib/oscP5.jar"/>
 	<classpathentry kind="var" path="SEVENUP_HOME/lib/promidi.jar"/>
 	<classpathentry kind="var" path="SEVENUP_HOME/lib/proxml.jar"/>
-	<classpathentry kind="var" path="SEVENUP_HOME/lib/monomic_modified.jar" sourcepath="/MONOMIC_HOME/src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

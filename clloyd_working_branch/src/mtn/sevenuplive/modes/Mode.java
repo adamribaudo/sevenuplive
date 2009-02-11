@@ -13,6 +13,7 @@ public abstract class Mode implements ModeConstants{
 	/**
 	 * Abstract class for each mode
 	 * @param navRow The row to use for navigation
+	 * @param the mode  
 	 * @param grid_width total width of the monome grid
 	 * @param grid_height total height of the monome grid
 	 */
@@ -27,6 +28,10 @@ public abstract class Mode implements ModeConstants{
 		navGrid[myNavRow] = DisplayGrid.SOLID;
 	}
 	
+	public int getMyNavRow() {
+		return myNavRow;
+	}
+
 	public int[][] getDisplayGrid()
 	{
 		return displayGrid;

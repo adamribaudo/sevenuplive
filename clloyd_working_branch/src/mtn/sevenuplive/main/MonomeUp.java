@@ -117,7 +117,7 @@ public final class MonomeUp extends MonomeOSC {
 	  
 	 
 	 MonomeUp (processing.core.PApplet listener, ConnectionSettings _sevenUpConnections, Scale monomeScale, promidi.MidiIO _midiIO, SevenUpPanel _parentPanel) {
-	     super(listener, _sevenUpConnections.oscPrefix, _sevenUpConnections.oscHostAddress, _sevenUpConnections.oscHostPort, _sevenUpConnections.oscListenPort);
+	     super(listener, 16, 8, _sevenUpConnections.oscPrefix, _sevenUpConnections.oscHostAddress, _sevenUpConnections.oscHostPort, _sevenUpConnections.oscListenPort);
 	     SevenUpApplet = (SevenUpApplet)listener;
 	     sevenUpConnections = _sevenUpConnections;
 	     
@@ -139,16 +139,13 @@ public final class MonomeUp extends MonomeOSC {
 	    		 new Masterizer(ModeConstants.MASTER_MODE, midiMelodyOut, midiMelody2Out, midiMasterOut, this, GRID_WIDTH, GRID_HEIGHT));
 
 		 //Set initial display grids
-	     /* 
-	      * @TODO clloyd..Unfortunately Monomic Communication Layer only supports to 40h
-	      * So we get ArrayIndexOutOfBounds if we move beyond 8 here.
-	      * 
-	      * Should be possible to extend monomic without too much effort, so I think worth to leave the capability
-	     */
 	     grids=new DisplayGrid[]{ 
-	    		 new DisplayGrid(this, allmodes, 0, 0, 8 ,8)
+	    		 new DisplayGrid(this, allmodes, 0, 0, 8 ,8, allmodes.getPatternizer()),
+	    		 new DisplayGrid(this, allmodes, 8, 0, 8 ,8, allmodes.getSequencer())
 	     }; 
 
+	     // Turn on to debug monome OSC connection */
+	     // this.setDebug(Monome.FINE);
 	 } 
 	 
 	 private void initializeMidi(processing.core.PApplet listener)

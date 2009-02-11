@@ -39,7 +39,7 @@ public class DisplayGrid {
 	private Monome monome;
 	private AllModes allmodes;
 
-	public DisplayGrid(Monome monome, AllModes allmodes, int start_column, int start_row, int grid_width, int grid_height) {
+	public DisplayGrid(Monome monome, AllModes allmodes, int start_column, int start_row, int grid_width, int grid_height, Mode defaultMode) {
 		this.start_row = start_row;
 		this.start_column = start_column;
 		this.grid_width = grid_width;
@@ -52,24 +52,24 @@ public class DisplayGrid {
 		curDisplayGrid = new int[this.grid_width][this.grid_height];
 
 		//Pressed buttons
-		pressedButtonsLength = new int[8][8];
+		pressedButtonsLength = new int[grid_width][grid_height];
 
-		//@TODO clloyd Figure out how to set the default mode...maybe we pass it in
-		curDisplayGrid = allmodes.patternizer.getDisplayGrid();
-		navGrid = allmodes.patternizer.getNavGrid();
+		curDisplayGrid = defaultMode.getDisplayGrid();
+		navGrid = defaultMode.getNavGrid();
+		curMode = defaultMode.getMyNavRow();
 	}
 
 	public int translateX(int x) {
-		return x+start_column;
+		return x-start_column;
 	}
 
 	public int translateY(int y) {
-		return y+start_column;
+		return y-start_row;
 	}
 
 	public boolean hitTest(int x, int y) {
-		if (x >= start_column && x <= start_column + grid_width) {
-			if (y >= start_row && y <= start_row + grid_height)
+		if (x >= start_column && x < start_column + grid_width) {
+			if (y >= start_row && y < start_row + grid_height)
 				return true;
 		}
 		return false;
@@ -81,9 +81,9 @@ public class DisplayGrid {
 		//TODO: need to be able to handle multiple press and release
 
 		//draw the display grid
-		for (int x = 0; x<7;x++)
+		for (int x = 0; x<grid_width-1;x++)
 		{
-			for (int y = 0; y<8;y++)
+			for (int y = 0; y<grid_height;y++)
 			{
 				switch(curDisplayGrid[x][y])
 				{
@@ -115,7 +115,7 @@ public class DisplayGrid {
 		}
 
 		//Draw navbar
-		for (int y = 0; y<8;y++)
+		for (int y = 0; y<grid_height;y++)
 		{
 			switch(navGrid[y])
 			{
@@ -145,8 +145,8 @@ public class DisplayGrid {
 		}
 
 		//Loop through pressedNotesLength and increment the number of frames each pressed note has been held
-		for(int i=0;i<8;i++)
-			for(int j=0;j<8;j++)
+		for(int i=0;i<grid_width;i++)
+			for(int j=0;j<grid_height;j++)
 			{
 				if(pressedButtonsLength[i][j] >= 1)
 				{
@@ -179,7 +179,7 @@ public class DisplayGrid {
 				//If they hit the same menu mode then move back to submenu
 				if (y == curMode)
 				{
-					navGrid = new int[8];
+					navGrid = new int[grid_height];
 					navGrid[curMode] = DisplayGrid.SOLID;
 					menuLevel = SUBMENU;
 
@@ -377,7 +377,10 @@ public class DisplayGrid {
 		//Only show the beat blips in current pattern mode
         if ((curMode == ModeConstants.PATTERN_MODE && allmodes.getSequencer().isPatternPlaying(allmodes.getPatternizer().selectedPattern)) )
         {
-        	monome.invertRow(allmodes.getPatternizer().curPatternRow);
+        	if (this.start_column >= 8)
+        		monome.invertRowSecondByte(allmodes.getPatternizer().curPatternRow);
+        	else
+        		monome.invertRowFirstByte(allmodes.getPatternizer().curPatternRow);
         }
         else if(curMode == ModeConstants.MASTER_MODE)
         {
@@ -387,7 +390,10 @@ public class DisplayGrid {
         else if(curMode == ModeConstants.SEQ_MODE && allmodes.getPatternizer().curPatternRow % 4 == 0)
         {
         	// 	show bar blips in sequence mode
-        	monome.invertRow(allmodes.getSequencer().curSeqRow);
+        	if (this.start_column >= 8)
+        		monome.invertRowSecondByte(allmodes.getSequencer().curSeqRow);
+        	else
+        		monome.invertRowFirstByte(allmodes.getSequencer().curSeqRow);
         }
         
         allmodes.getSequencer().step(c7);

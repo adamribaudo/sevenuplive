@@ -144,11 +144,51 @@ public final class MonomeUp extends MonomeOSC {
 	    		 new Masterizer(ModeConstants.MASTER_MODE, midiMelodyOut, midiMelody2Out, midiMasterOut, this, GRID_WIDTH, GRID_HEIGHT));
 
 		 //Set initial display grids
-	     grids=new DisplayGrid[]{ 
-	    		 new DisplayGrid(this, allmodes, 0, 0, 8 ,8, allmodes.getPatternizer()),
-	    		 new DisplayGrid(this, allmodes, 8, 0, 8 ,8, allmodes.getSequencer())
-	     }; 
-
+	     if (x_grids == 1) {
+	    	 switch (y_grids) {
+		    	 case 1:
+		    		 grids=new DisplayGrid[]{ 
+				    		 new DisplayGrid(this, allmodes, 0, 0, 8 ,8, allmodes.getPatternizer()),
+			    		 };
+		    		 break;
+		    	 case 2:
+		    		 grids=new DisplayGrid[]{ 
+				    		 new DisplayGrid(this, allmodes, 0, 0, 8 ,8, allmodes.getPatternizer()),
+				    		 new DisplayGrid(this, allmodes, 0, 8, 8 ,8, allmodes.getSequencer()),
+			    		 };
+		    		 break;
+		    	 default:
+		    		 grids=new DisplayGrid[]{ 
+			    		 	new DisplayGrid(this, allmodes, 0, 0, 8 ,8, allmodes.getPatternizer()),
+		    	 		};
+	    	 }
+	     } else if (x_grids == 2) {
+	    	 switch (y_grids) {
+		    	 case 1:
+		    		 grids=new DisplayGrid[]{ 
+		    				 new DisplayGrid(this, allmodes, 0, 0, 8 ,8, allmodes.getPatternizer()),
+				    		 new DisplayGrid(this, allmodes, 8, 0, 8 ,8, allmodes.getSequencer()),
+			    		 };
+		    		 break;
+		    	 case 2:
+		    		 grids=new DisplayGrid[]{ // 256
+		    				 new DisplayGrid(this, allmodes, 0, 0, 8 ,8, allmodes.getPatternizer()),
+				    		 new DisplayGrid(this, allmodes, 8, 0, 8 ,8, allmodes.getSequencer()),
+				    		 new DisplayGrid(this, allmodes, 8, 8, 8 ,8, allmodes.getMasterizer()),
+				    		 new DisplayGrid(this, allmodes, 0, 8, 8 ,8, allmodes.getMelodizer1()),
+			    		 };
+		    		 break;
+		    	 default:
+		    		 grids=new DisplayGrid[]{ 
+			    		 	new DisplayGrid(this, allmodes, 0, 0, 8 ,8, allmodes.getPatternizer()),
+		    	 		};
+	    	 } 
+	      } else { // fall through t0 64
+	     	 grids=new DisplayGrid[]{ 
+	    		 	new DisplayGrid(this, allmodes, 0, 0, 8 ,8, allmodes.getPatternizer()),
+    	 		};
+	     }
+	     
 	     // Turn on to debug monome OSC connection */
 	     // this.setDebug(Monome.FINE);
 	 } 

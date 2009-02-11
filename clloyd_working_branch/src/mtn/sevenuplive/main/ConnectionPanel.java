@@ -68,7 +68,7 @@ public class ConnectionPanel extends JPanel
 	private static final String MELODIZER2_OUTPUT_DEVICE = "Melodizer 2 Output Device";
 	private static final String MELODIZER2_OUTPUT_DEVICE_PROP = "melodizer.2.output.device";
 	
-	private static final String MONOME_TYPE = "Monome Type";
+	private static final String MONOME_TYPE = "Monome";
 	private static final String MONOME_TYPE_PROP = "monome.type";
 	
 	public ConnectionPanel(mtn.sevenuplive.main.MainApp parentFrame)
@@ -80,7 +80,7 @@ public class ConnectionPanel extends JPanel
 		// Read our connections at startup
 		readConnections(sevenUpConnections);
 		
-		JLabel lblSetMonomeType = new JLabel("Monome");
+		JLabel lblSetMonomeType = new JLabel(MONOME_TYPE);
 		lblSetMonomeType.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 		Vector<String> monomeChoices = new Vector<String>();
         monomeChoices.add("64");

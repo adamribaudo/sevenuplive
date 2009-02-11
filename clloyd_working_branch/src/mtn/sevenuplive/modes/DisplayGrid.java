@@ -367,12 +367,7 @@ public class DisplayGrid {
 	}
 	
 	
-	/**
-	 * @TODO clloyd try to factor this out
-	 * Weird special case..
-	 * @param c7
-	 */
-	public void noteOnPitchC7(int c7) {
+	public void displayCursor() {
 		
 		//Only show the beat blips in current pattern mode
         if ((curMode == ModeConstants.PATTERN_MODE && allmodes.getSequencer().isPatternPlaying(allmodes.getPatternizer().selectedPattern)) )
@@ -384,7 +379,7 @@ public class DisplayGrid {
         }
         else if(curMode == ModeConstants.MASTER_MODE)
         {
-	      //blip the masterizer
+	        //blip the masterizer
         	allmodes.getMasterizer().updatePatternBeat(allmodes.getPatternizer().curPatternRow);
         }
         else if(curMode == ModeConstants.SEQ_MODE && allmodes.getPatternizer().curPatternRow % 4 == 0)
@@ -395,8 +390,6 @@ public class DisplayGrid {
         	else
         		monome.invertRowFirstByte(allmodes.getSequencer().curSeqRow);
         }
-        
-        allmodes.getSequencer().step(c7);
         
         if(curMode == ModeConstants.MASTER_MODE)
         	allmodes.getMasterizer().updateDisplayGrid();

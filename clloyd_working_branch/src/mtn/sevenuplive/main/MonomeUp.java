@@ -226,9 +226,10 @@ public final class MonomeUp extends MonomeOSC {
 		  if (noteOnPitch == C7)
 	      {
 			  for (DisplayGrid grid : grids) {
-				  // @TODO clloyd, try to get this out of DisplayGrid class
-				  grid.noteOnPitchC7(C7);
+				  grid.displayCursor();
 			  }
+			  // Make sure we only step once
+			  allmodes.getSequencer().step(noteOnPitch);
 	      }
 	      else if(noteOnPitch == E7)
 	      {

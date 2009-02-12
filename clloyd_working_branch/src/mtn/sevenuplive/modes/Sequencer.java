@@ -24,7 +24,7 @@ public class Sequencer extends Mode {
 		updateDisplay();
 	}
 	
-	public void step(int pitch)
+	public void step()
 	{			
 		//Step through patterns.  If the pattern rolls over, increment sequence row
 		if(AllModes.patternizer.step(sequenceBanks[curSequenceBank].getRow(curSeqRow)))
@@ -82,8 +82,8 @@ public class Sequencer extends Mode {
 		
 		//Update display grid
 		super.clearDisplayGrid();
-		for(int i=0;i<8;i++)
-			for(int j=0;j<7;j++)
+		for(int i=0;i<grid_height;i++)
+			for(int j=0;j<grid_width-1;j++)
 				if(sequenceBanks[curSequenceBank].getRow(i)[j])
 					displayGrid[j][i] = DisplayGrid.SOLID;
 				else

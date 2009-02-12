@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import jklabs.monomic.Monome;
 import jklabs.monomic.MonomeOSC;
 import mtn.sevenuplive.modes.AllModes;
 import mtn.sevenuplive.modes.Controller;
@@ -143,7 +144,7 @@ public final class MonomeUp extends MonomeOSC {
 	    		 new LoopRecorder(ModeConstants.LOOP_RECORD_MODE, this, GRID_WIDTH, GRID_HEIGHT), 
 	    		 new Masterizer(ModeConstants.MASTER_MODE, midiMelodyOut, midiMelody2Out, midiMasterOut, this, GRID_WIDTH, GRID_HEIGHT));
 
-		 //Set initial display grids
+	     //Set initial display grids
 	     if (x_grids == 1) {
 	    	 switch (y_grids) {
 		    	 case 1:
@@ -184,13 +185,13 @@ public final class MonomeUp extends MonomeOSC {
 		    	 		};
 	    	 } 
 	      } else { // fall through t0 64
-	     	 grids=new DisplayGrid[]{ 
+	      	 grids=new DisplayGrid[]{ 
 	    		 	new DisplayGrid(this, allmodes, 0, 0, 8 ,8, allmodes.getPatternizer()),
     	 		};
 	     }
 	     
 	     // Turn on to debug monome OSC connection */
-	     // this.setDebug(Monome.FINE);
+	     //this.setDebug(Monome.FINE);
 	 } 
 	 
 	 private void initializeMidi(processing.core.PApplet listener)
@@ -274,7 +275,7 @@ public final class MonomeUp extends MonomeOSC {
 				  grid.displayCursor();
 			  }
 			  // Make sure we only step once
-			  allmodes.getSequencer().step(noteOnPitch);
+			  allmodes.getSequencer().step();
 	      }
 	      else if(noteOnPitch == E7)
 	      {

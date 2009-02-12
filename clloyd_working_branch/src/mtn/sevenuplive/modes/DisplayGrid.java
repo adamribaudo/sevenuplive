@@ -49,8 +49,6 @@ public class DisplayGrid {
 		this.allmodes = allmodes;
 		menuLevel = SUBMENU;
 
-		curDisplayGrid = new int[this.grid_width][this.grid_height];
-
 		//Pressed buttons
 		pressedButtonsLength = new int[grid_width][grid_height];
 
@@ -77,6 +75,7 @@ public class DisplayGrid {
 
 	public void draw()
 	{
+		
 		//if a button is being held, count to the holdtime and fire a heldevent
 		//TODO: need to be able to handle multiple press and release
 
@@ -257,7 +256,7 @@ public class DisplayGrid {
 				//if they hit the curMenuPoint button again, change back main menu
 				if (y == curMode)
 				{
-					navGrid = new int[8];
+					navGrid = new int[grid_height];
 					navGrid[curMode] = DisplayGrid.SOLID;
 					menuLevel = MAINMENU;
 				}
@@ -267,7 +266,6 @@ public class DisplayGrid {
 					if(curMode == ModeConstants.PATTERN_MODE)
 					{
 						allmodes.getPatternizer().press(x, y);
-						//TODO how do i get it to keep the display grid as a reference?
 						curDisplayGrid = allmodes.getPatternizer().getDisplayGrid();
 					}
 					else if(curMode == ModeConstants.CONTROL_MODE)
@@ -277,7 +275,6 @@ public class DisplayGrid {
 					else if(curMode == ModeConstants.SEQ_MODE)
 					{
 						allmodes.getSequencer().press(x, y);
-						//TODO how do i get it to keep the display grid as a reference?
 						curDisplayGrid = allmodes.getSequencer().getDisplayGrid();
 					}
 					else if(curMode == ModeConstants.LOOP_MODE)
@@ -372,10 +369,14 @@ public class DisplayGrid {
 		//Only show the beat blips in current pattern mode
         if ((curMode == ModeConstants.PATTERN_MODE && allmodes.getSequencer().isPatternPlaying(allmodes.getPatternizer().selectedPattern)) )
         {
-        	if (this.start_column >= 8)
-        		monome.invertRowSecondByte(allmodes.getPatternizer().curPatternRow);
-        	else
-        		monome.invertRowFirstByte(allmodes.getPatternizer().curPatternRow);
+        	// @TODO temp until we get invert working reliably in monomic as commented out below
+        	invertRow(allmodes.getPatternizer().curPatternRow);
+        	
+        	/*if (this.start_column >= 8) {
+        		//monome.invertRowSecondByte(allmodes.getPatternizer().curPatternRow + start_row); System.out.println("#1 Invert 2nd byte row [" + (allmodes.getPatternizer().curPatternRow + start_row) + "]");
+        	} else {
+        		monome.invertRowFirstByte(allmodes.getPatternizer().curPatternRow + start_row); System.out.println("#1 Invert 1st byte row [" + (allmodes.getPatternizer().curPatternRow + start_row) + "]" );
+        	}*/	
         }
         else if(curMode == ModeConstants.MASTER_MODE)
         {
@@ -384,15 +385,26 @@ public class DisplayGrid {
         }
         else if(curMode == ModeConstants.SEQ_MODE && allmodes.getPatternizer().curPatternRow % 4 == 0)
         {
-        	// 	show bar blips in sequence mode
-        	if (this.start_column >= 8)
-        		monome.invertRowSecondByte(allmodes.getSequencer().curSeqRow);
-        	else
-        		monome.invertRowFirstByte(allmodes.getSequencer().curSeqRow);
+        	// show bar blips in sequence mode
+        	
+        	// @TODO temp until we get invert working reliably in monomic as commented out below
+        	invertRow(allmodes.getSequencer().curSeqRow);
+
+        	/*if (this.start_column >= 8) {
+        		monome.invertRowSecondByte(allmodes.getSequencer().curSeqRow + start_row); System.out.println("#2 Invert 2nd byte row [" + (allmodes.getSequencer().curSeqRow + start_row) + "]" );
+        	} else {
+        		monome.invertRowFirstByte(allmodes.getSequencer().curSeqRow + start_row); System.out.println("#2 Invert 1st byte row [" + (allmodes.getSequencer().curSeqRow + start_row) + "]" );
+        	}*/	
         }
         
         if(curMode == ModeConstants.MASTER_MODE)
         	allmodes.getMasterizer().updateDisplayGrid();
+	}
+	
+	private void invertRow(int y) {
+		for (int x = 0; x < grid_width ;x++ ) {
+			monome.setValue(x+start_column, y+start_row, monome.isLit(x+start_column, y+start_row) == true ? 0 : 1);
+		}
 	}
 
 

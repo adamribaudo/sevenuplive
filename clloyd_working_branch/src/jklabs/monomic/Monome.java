@@ -264,7 +264,7 @@ public class Monome {
 		setCol(i, bytes); 
 	}
 	
-	public void invertSecondFirstByte(int i) {
+	public void invertColSecondByte(int i) {
 		byte[] bytes = getColValues(i);
 		
 		bytes[1] = (byte)(0xff-bytes[1]); 

@@ -9,7 +9,6 @@ public class MonomeOSC extends Monome {
 
 	// oscP5 instance for the osc communication
 	private OscP5 oscP5;
-	private String oscP5event;
 	private String boxName = "box";
 
 	// osc constants
@@ -147,8 +146,6 @@ public class MonomeOSC extends Monome {
 	}
 
 	private void initOsc(Object parent, String host, int sendPort, int receivePort) {
-		oscP5event = "oscEvent";
-		//oscP5 = new OscP5(this, host, sendPort, receivePort, oscP5event);
 		myRemoteLocation = new NetAddress(host, sendPort);
 		oscP5 = new OscP5(parent, receivePort);
 	}
@@ -196,7 +193,7 @@ public class MonomeOSC extends Monome {
 	////////////////////////////////////////////////// cleanup
 
 	protected void finalize() throws Throwable {
-		oscP5.disconnectFromTEMP();
+		oscP5.disconnectFromTEMP();                                                                                                                
 		oscP5 = null;
 		super.finalize();
 	}

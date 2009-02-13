@@ -369,14 +369,7 @@ public class DisplayGrid {
 		//Only show the beat blips in current pattern mode
         if ((curMode == ModeConstants.PATTERN_MODE && allmodes.getSequencer().isPatternPlaying(allmodes.getPatternizer().selectedPattern)) )
         {
-        	// @TODO temp until we get invert working reliably in monomic as commented out below
-        	invertRow(allmodes.getPatternizer().curPatternRow);
-        	
-        	/*if (this.start_column >= 8) {
-        		//monome.invertRowSecondByte(allmodes.getPatternizer().curPatternRow + start_row); System.out.println("#1 Invert 2nd byte row [" + (allmodes.getPatternizer().curPatternRow + start_row) + "]");
-        	} else {
-        		monome.invertRowFirstByte(allmodes.getPatternizer().curPatternRow + start_row); System.out.println("#1 Invert 1st byte row [" + (allmodes.getPatternizer().curPatternRow + start_row) + "]" );
-        	}*/	
+        	monome.invertRowByte(allmodes.getPatternizer().curPatternRow + start_row, Math.abs(start_column / 8)); 
         }
         else if(curMode == ModeConstants.MASTER_MODE)
         {
@@ -385,27 +378,12 @@ public class DisplayGrid {
         }
         else if(curMode == ModeConstants.SEQ_MODE && allmodes.getPatternizer().curPatternRow % 4 == 0)
         {
-        	// show bar blips in sequence mode
-        	
-        	// @TODO temp until we get invert working reliably in monomic as commented out below
-        	invertRow(allmodes.getSequencer().curSeqRow);
-
-        	/*if (this.start_column >= 8) {
-        		monome.invertRowSecondByte(allmodes.getSequencer().curSeqRow + start_row); System.out.println("#2 Invert 2nd byte row [" + (allmodes.getSequencer().curSeqRow + start_row) + "]" );
-        	} else {
-        		monome.invertRowFirstByte(allmodes.getSequencer().curSeqRow + start_row); System.out.println("#2 Invert 1st byte row [" + (allmodes.getSequencer().curSeqRow + start_row) + "]" );
-        	}*/	
+        	monome.invertRowByte(allmodes.getSequencer().curSeqRow + start_row, Math.abs(start_column / 8)); 	
         }
         
         if(curMode == ModeConstants.MASTER_MODE)
         	allmodes.getMasterizer().updateDisplayGrid();
 	}
 	
-	private void invertRow(int y) {
-		for (int x = 0; x < grid_width ;x++ ) {
-			monome.setValue(x+start_column, y+start_row, monome.isLit(x+start_column, y+start_row) == true ? 0 : 1);
-		}
-	}
-
 
 }

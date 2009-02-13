@@ -38,10 +38,10 @@ public class Monome {
 		this(listener, 8, 8); // default to 40h monome
 	}
 	
-	protected Monome(Object listener, int y_dim, int x_dim) {
+	protected Monome(Object listener, int y_bytes, int x_bytes) {
 		this.listener = listener;
-		this.x_dim = x_dim;
-		this.y_dim = y_dim;
+		this.x_dim = x_bytes * 8;
+		this.y_dim = y_bytes * 8;
 		
 		if (y_dim > 8) {
 			this.ledVals = new byte[y_dim][2];
@@ -207,22 +207,14 @@ public class Monome {
 		setRow(i, bytes);	
 	}
 	
-	public void invertRowFirstByte(int i) {
+	public void invertRowByte(int i, int byteIndex) {
 		byte[] bytes = getRowValues(i);
 		
-		bytes[0] = (byte)(0xff-bytes[0]); 
+		bytes[byteIndex] = (byte)(0xff-bytes[byteIndex]); 
 		
 		setRow(i, bytes);	
 	}
 	
-	public void invertRowSecondByte(int i) {
-		byte[] bytes = getRowValues(i);
-		
-		bytes[1] = (byte)(0xff-bytes[1]); 
-		
-		setRow(i, bytes);	
-	}
-
 	public void setRow(int i, int[] vals) {
 		setRow(i, pack(vals));
 	}
@@ -256,21 +248,13 @@ public class Monome {
 		setCol(i, bytes); 
 	}
 	
-	public void invertColFirstByte(int i) {
+	public void invertColByte(int i, int byteIndex) {
 		byte[] bytes = getColValues(i);
 		
-		bytes[0] = (byte)(0xff-bytes[0]); 
+		bytes[byteIndex] = (byte)(0xff-bytes[byteIndex]); 
 		
-		setCol(i, bytes); 
-	}
-	
-	public void invertColSecondByte(int i) {
-		byte[] bytes = getColValues(i);
-		
-		bytes[1] = (byte)(0xff-bytes[1]); 
-		
-		setCol(i, bytes); 
-	}
+		setCol(i, bytes);	
+	}	
 	
 	public void setCol(int i, int[] vals) {
 		setCol(i, pack(vals));
@@ -392,12 +376,12 @@ public class Monome {
 	private byte[] pack(int[] values) {
 		byte b[] = new byte[Math.abs(values.length / 8)];
 		
-		int bindex = -1;
-		for (int i = 0; i < values.length && i < values.length; i++) {
+		int bindex = b.length;
+		for (int i = 0; i < values.length; i++) {
 			if (i % 8 == 0)
-				bindex++;
+				bindex--;
 			
-			b[bindex] += values[values.length - 1 - i] << values.length-1-i;
+			b[bindex] += values[values.length - 1 - i] << (7 - (i % 8));
 		}	
 		return b;
 	}
@@ -405,12 +389,13 @@ public class Monome {
 	private byte[] pack(boolean[] values) {
 		byte b[] = new byte[Math.abs(values.length / 8)];
 		
-		int bindex = -1;
-		for (int i = 0; i < values.length && i < values.length; i++) {
+		int bindex = b.length;
+		for (int i = 0; i < values.length; i++) {
 			if (i % 8 == 0)
-				bindex++;
+				bindex--;
 				
-			b[bindex] += (values[values.length - 1 - i]?1:0) << values.length-1-i;
+			b[bindex] += (values[values.length - 1 - i]?1:0) << (7 - (i % 8));
+			
 		}
 		return b;
 	}

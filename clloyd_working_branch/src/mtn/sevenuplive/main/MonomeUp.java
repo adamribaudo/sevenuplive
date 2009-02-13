@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import jklabs.monomic.Monome;
 import jklabs.monomic.MonomeOSC;
 import mtn.sevenuplive.modes.AllModes;
 import mtn.sevenuplive.modes.Controller;
@@ -123,7 +122,7 @@ public final class MonomeUp extends MonomeOSC {
 	 private DisplayGrid[] grids;
 	 
 	 MonomeUp (processing.core.PApplet listener, int x_grids, int y_grids, ConnectionSettings _sevenUpConnections, Scale monomeScale, promidi.MidiIO _midiIO, SevenUpPanel _parentPanel) {
-	     super(listener, x_grids * 8, y_grids * 8, _sevenUpConnections.oscPrefix, _sevenUpConnections.oscHostAddress, _sevenUpConnections.oscHostPort, _sevenUpConnections.oscListenPort);
+	     super(listener, x_grids, y_grids, _sevenUpConnections.oscPrefix, _sevenUpConnections.oscHostAddress, _sevenUpConnections.oscHostPort, _sevenUpConnections.oscListenPort);
 	     SevenUpApplet = (SevenUpApplet)listener;
 	     sevenUpConnections = _sevenUpConnections;
 	     

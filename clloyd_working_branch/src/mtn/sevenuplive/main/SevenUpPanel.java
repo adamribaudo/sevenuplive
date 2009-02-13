@@ -32,13 +32,14 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	JComboBox drpScaleChoices1;
 	JComboBox drpScaleChoices2;
 	JComboBox drpLoopChoke;
-	JComboBox drpLoopMultiplier;
+	JComboBox drpLoopLength;
 	JComboBox drpGateLoopChoke;
 	JComboBox drpMelRecMode;
 	JButton btnPrevPatch;
 	JButton btnNextPatch;
 	JCheckBox chkMuteLooper;
 	JFrame parentFrame;
+	JPanel secondPanel;
 	
     public SevenUpPanel(ConnectionSettings sevenUpConnections, JFrame _parent) 
     {
@@ -82,7 +83,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			c.gridy = 0;
 			
 			JPanel firstPanel = new JPanel(twocolumn);
-			JPanel secondPanel = new JPanel(fourcolumn);
+			secondPanel = new JPanel(fourcolumn);
 			JPanel thirdPanel = new JPanel(twocolumnstraight);
 			
 			//Scale
@@ -159,7 +160,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        );
 	        
 	        c.gridx = 0; c.gridy = 1; firstPanel.add(lblSetScale, c);
-	        c.gridx = 1; firstPanel.add(drpScaleChoices2, c);
+	        c.gridx = 1; firstPanel.add(drpScaleChoices2, c);	        
 	        
 	        //Melodizer record mode
 	        JLabel lblMelRecMode = new JLabel("Melodizer Rec Mode");
@@ -184,7 +185,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        
 	        //Loops
 	        JLabel lblSetLoopGate;
-	        JLabel lblSetLoopMultiplier;
+	        JLabel lblSetLoopLength;
 	        
 	        for(Integer i=0; i<7;i++)
 	        {
@@ -192,39 +193,38 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	            lblSetLoopGate.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	            String[] chokeChoices = { "Nope", "1", "2", "3", "4", "5", "6", "7"};
 	            drpLoopChoke = new JComboBox(chokeChoices);
-	            drpLoopChoke.setName(i.toString());
+	            drpLoopChoke.setName(i.toString() + "choke");
 	            drpLoopChoke.setSelectedIndex(0);
 	            drpLoopChoke.addActionListener(
 	            		new ActionListener(){
 	            			public void actionPerformed(ActionEvent e) {
 	            				JComboBox cb = (JComboBox)e.getSource();
 	            				if(cb.getSelectedIndex() == 0)
-	            					sevenUpApplet.setLoopChokeGroup(Integer.parseInt(cb.getName()), -1);
+	            					sevenUpApplet.setLoopChokeGroup(Integer.parseInt(cb.getName().substring(0,1)), -1);
 	            				else 
-	            					sevenUpApplet.setLoopChokeGroup(Integer.parseInt(cb.getName()), cb.getSelectedIndex());
+	            					sevenUpApplet.setLoopChokeGroup(Integer.parseInt(cb.getName().substring(0,1)), cb.getSelectedIndex());
 	            			}
 	            		}
 	            );
-	            // Loop multiplier choices
-	            lblSetLoopMultiplier = new JLabel("Multipler");
-	            lblSetLoopMultiplier.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
-	            String[] multiplierChoices = { "1", "2", "3", "4", "5", "6", "7", "8"};
-	            drpLoopMultiplier = new JComboBox(multiplierChoices);
-	            drpLoopMultiplier.setName(i.toString());
-	            drpLoopMultiplier.setSelectedIndex(0);
-	            drpLoopMultiplier.addActionListener(
+	            // Loop length choices
+	            lblSetLoopLength = new JLabel("Length");
+	            lblSetLoopLength.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
+	            String[] lengthChoices = { ".5", "1", "2", "4", "8", "16", "32"};
+	            drpLoopLength = new JComboBox(lengthChoices);
+	            drpLoopLength.setName(i.toString()+"length");
+	            drpLoopLength.setSelectedIndex(1);
+	            drpLoopLength.addActionListener(
 	            		new ActionListener(){
 	            			public void actionPerformed(ActionEvent e) {
 	            				JComboBox cb = (JComboBox)e.getSource();
-	            				sevenUpApplet.setLoopMultiplier(Integer.parseInt(cb.getName()), cb.getSelectedIndex() + 1);
+	            				sevenUpApplet.setLoopLength(Integer.parseInt(cb.getName().substring(0,1)), Float.parseFloat(cb.getSelectedItem().toString()));
 	            			}
 	            		}
 	            );
 	            c.gridx = 0; c.gridy = 3 + i; secondPanel.add(lblSetLoopGate, c);
 	            c.gridx = 1; secondPanel.add(drpLoopChoke, c);
-	            c.gridx = 2; secondPanel.add(lblSetLoopMultiplier, c);
-	            c.gridx = 3; secondPanel.add(drpLoopMultiplier, c);
-	        
+	            c.gridx = 2; secondPanel.add(lblSetLoopLength, c);
+	            c.gridx = 3; secondPanel.add(drpLoopLength, c);
 	        }
 	        
 	        JLabel lblGateLoopChoke = new JLabel("Gate choked loops?");
@@ -313,6 +313,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
     private void updateGui()
     {
     	int chokeGroup;
+    	Float length;
     	boolean gateLoopChokes;
     	
     	//Update melody 1 gui based on patch settings
@@ -341,19 +342,46 @@ public class SevenUpPanel extends JPanel implements ActionListener
         	if(drpScaleChoices2.getItemAt(i).toString().equals(melodyScale.label.toString()))
         		drpScaleChoices2.setSelectedIndex(i);
         }
-    		
+        
     	for(Integer i =0;i<7;i++)
     	{
     		chokeGroup = sevenUpApplet.getLoopChokeGroup(i);
+    		length = sevenUpApplet.getLoopLength(i);
     		if(chokeGroup == -1)chokeGroup = 0;
-    		for(int k=0; k<this.getComponentCount();k++)
-    			if(this.getComponent(k).getName() != null)
-    			if(this.getComponent(k).getName().equals(i.toString()))
+    		
+    		for(int k=0; k<secondPanel.getComponentCount();k++)
+    		{
+    			
+    			if(secondPanel.getComponent(k).getName() != null)
     			{
-    				drpLoopChoke = (JComboBox)this.getComponent(k);
-    				drpLoopChoke.setSelectedIndex(chokeGroup);
-    			}    		
-    	}
+	    			if(secondPanel.getComponent(k).getName().equals(i.toString()+"length"))
+	    			{
+	    				drpLoopLength = (JComboBox)secondPanel.getComponent(k);
+	    				if(length == .5)
+	    					drpLoopLength.setSelectedIndex(0);
+	    				else if(length == 1)
+	    					drpLoopLength.setSelectedIndex(1);
+	    				else if(length == 2)
+	    					drpLoopLength.setSelectedIndex(2);
+	    				else if(length == 4)
+	    					drpLoopLength.setSelectedIndex(3);
+	    				else if(length == 8)
+	    					drpLoopLength.setSelectedIndex(4);
+	    				else if(length == 16)
+	    					drpLoopLength.setSelectedIndex(5);
+	    				else if(length == 32)
+	    					drpLoopLength.setSelectedIndex(6);
+	    				
+	    				drpLoopLength.setSelectedItem(length.toString());
+	    			}   
+	    			else if(secondPanel.getComponent(k).getName().equals(i.toString()+"choke"))
+	    			{
+	    				drpLoopChoke = (JComboBox)secondPanel.getComponent(k);
+	    				drpLoopChoke.setSelectedIndex(chokeGroup);
+	    			}
+    			}
+			}
+		}
     	
     	gateLoopChokes = sevenUpApplet.getGateLoopChokes();
     	if(gateLoopChokes)

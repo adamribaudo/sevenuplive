@@ -541,12 +541,16 @@ public final class MonomeUp extends MonomeOSC {
 		allmodes.getMasterizer().setMelRecMode(melRecMode);
 	}
 	
-	public void setLoopMultiplier(int loopNum, int multiplier) {
-		allmodes.getLooper().getLoop(loopNum).setResMultiplier(multiplier);
+	public void setLoopLength(int loopNum, float length) {
+		allmodes.getLooper().getLoop(loopNum).setLength(length);
 	}
 
 	public void extNoteOn(Note note, int channel) {
 		allmodes.getMelodizer2().extNoteOn(note, channel);
+	}
+
+	public float getLoopLength(int loopNum) {
+		return allmodes.getLooper().getLoop(loopNum).getLength();
 	}
 
 	}

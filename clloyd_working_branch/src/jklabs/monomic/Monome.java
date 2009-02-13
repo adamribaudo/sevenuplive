@@ -19,6 +19,7 @@ public class Monome {
 	private byte[][] buttonVals;
 	private byte[][] ledVals;
 
+	/** Listener that will receive OSC events from the monome */ 
 	protected Object listener;
 
 	// for efficient method calling using reflection
@@ -34,6 +35,10 @@ public class Monome {
 	
 	boolean tempRow[];
 
+	protected Monome() {
+		this(null, 8, 8); // default to 40h monome, need to set listener on init
+	}
+	
 	protected Monome(Object listener) {
 		this(listener, 8, 8); // default to 40h monome
 	}
@@ -58,7 +63,7 @@ public class Monome {
 		
 		initMatrices();
 		
-		getMethods(listener);
+		getMethods(listener == null ? this : listener);
 	}
 	
 	/**

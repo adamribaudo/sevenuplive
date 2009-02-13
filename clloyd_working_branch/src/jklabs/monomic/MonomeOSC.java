@@ -28,30 +28,33 @@ public class MonomeOSC extends Monome {
 	// osc addresses for this instance
 	private String led, row, col, shutdown, button, test, adc, adc_enable, intensity;
 
-	public MonomeOSC(Object parent) {
-		this(parent, "box");
-//		this(parent, null);
+	public MonomeOSC() {
+		this(null, "box");
+	}
+	
+	public MonomeOSC(Object listener) {
+		this(listener, "box");
 	}
 
-	public MonomeOSC(Object parent, String boxName) {
-		this(parent, boxName, "127.0.0.1");
+	public MonomeOSC(Object listener, String boxName) {
+		this(listener, boxName, "127.0.0.1");
 	}
 
-	public MonomeOSC(Object parent, String boxName, String host) {
-		this(parent, 8, 8, boxName, host, 8080, 8000);
+	public MonomeOSC(Object listener, String boxName, String host) {
+		this(listener, 8, 8, boxName, host, 8080, 8000);
 	}
 
-	public MonomeOSC(Object parent, int x_dim, int y_dim, String boxName, String host, int sendPort, int receivePort) {
-		super(parent, x_dim, y_dim);
-		initOsc(parent, host, sendPort, receivePort);
+	public MonomeOSC(Object listener, int x_dim, int y_dim, String boxName, String host, int sendPort, int receivePort) {
+		super(listener, x_dim, y_dim);
+		initOsc(host, sendPort, receivePort);
 		
-		
+		// @TODO remove as unnecessary dependency on MonomeSerial
 		/*if (boxName == null) {
 			String[] monomes = MonomeSerial.getMonomes();
 			if (monomes.length > 0)
 				boxName = monomes[0];
 		}*/
-
+		
 		setBoxName(boxName);
 		super.init();
 	}
@@ -145,9 +148,9 @@ public class MonomeOSC extends Monome {
 		oscP5.send(m, myRemoteLocation);
 	}
 
-	private void initOsc(Object parent, String host, int sendPort, int receivePort) {
+	private void initOsc(String host, int sendPort, int receivePort) {
 		myRemoteLocation = new NetAddress(host, sendPort);
-		oscP5 = new OscP5(parent, receivePort);
+		oscP5 = new OscP5(this.listener, receivePort);
 	}
 
 	public void oscEvent(OscIn oscIn) {

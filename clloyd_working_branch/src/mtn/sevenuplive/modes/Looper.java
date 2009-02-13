@@ -90,7 +90,7 @@ public class Looper extends Mode {
 			pressDisplay(x,y);
 
 		updateDisplayGrid();
-		updateNavGrid();
+		//updateNavGrid(); // @TODO clloyd not needed, done in play and stop functions
 	}
 	
 	private void pressNavCol(int y)
@@ -120,6 +120,8 @@ public class Looper extends Mode {
 	public void stopLoop(int loopNum)
 	{
 		loops[loopNum].stop();
+		updateNavGrid();
+		AllModes.loopRecorder.updateNavGrid();
 		midiOut.sendNoteOff(new Note(MonomeUp.C3+loopNum,127, 0));
 	}
 	
@@ -132,6 +134,8 @@ public class Looper extends Mode {
 	{
 		loops[loopNum].setStep(step);
 		loops[loopNum].setPressedRow(step);
+		updateNavGrid();
+		AllModes.loopRecorder.updateNavGrid();
 	}
 	
 	private void pressDisplay(int x, int y)

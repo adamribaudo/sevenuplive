@@ -105,7 +105,6 @@ public class Looper extends Mode {
 		}
 		else
 		{
-			System.out.println("playing loop " + loopIndex);
 			playLoop(loopIndex, 0);
 		}
 		

@@ -213,8 +213,11 @@ public class SevenUpApplet extends processing.core.PApplet
 	}
 
 	public void noteOn(Note note){
-		//144 = noteOn
-		if (note.getStatus() == 144)
+		//status 144 = noteOn
+		//status 128 = noteOff? note 123 = stop?
+		if(note.getPitch() == 123 && note.getStatus() == 128)
+			m.reset();
+		else if (note.getStatus() == 144)
 			m.noteOn(note.getPitch());
 	}
 	

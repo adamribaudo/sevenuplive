@@ -552,4 +552,32 @@ public final class MonomeUp extends MonomeOSC {
 		return allmodes.getLooper().getLoop(loopNum).getLength();
 	}
 
+	public void reset() {
+		for(int i=0;i<7;i++)
+		{
+			//If the loop is already playing, set the step to 0
+			if(allmodes.getLoopRecorder().isLoopSequencePlaying(i))
+			{
+				allmodes.getLoopRecorder().stopLoopSequence(i);
+				allmodes.getLoopRecorder().playLoopSequence(i);
+			} else if(allmodes.getLooper().isLoopPlaying(i))
+				allmodes.getLooper().getLoop(i).setStep(0);
+			
+			if(allmodes.getMelodizer1().getSeqStatus(i) == MonomeUp.PLAYING)
+			{
+				allmodes.getMelodizer1().stopSeq(i);
+				allmodes.getMelodizer1().playSeq(i);
+			}	
+			
+			if(allmodes.getMelodizer2().getSeqStatus(i) == MonomeUp.PLAYING)
+			{
+				allmodes.getMelodizer2().stopSeq(i);
+				allmodes.getMelodizer2().playSeq(i);
+			}	
+		}
+			
+		allmodes.getPatternizer().curPatternRow = 0;
+		allmodes.getSequencer().curSeqRow = 0;
+	}
+
 	}

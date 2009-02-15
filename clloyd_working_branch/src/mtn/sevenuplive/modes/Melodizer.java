@@ -361,7 +361,7 @@ public class Melodizer extends Mode {
 						//System.out.println("Releasing note " + note.getPitch());
 						midiMelodyOut[index].sendNoteOff(note);
 						if(index == curSeqBank)
-							displayNote[note.getPitch()] = DisplayGrid.SOLID;
+							displayNote[note.getPitch()] = DisplayGrid.OFF;
 					}
 					if(index == curSeqBank)
 						updateDisplayGrid();

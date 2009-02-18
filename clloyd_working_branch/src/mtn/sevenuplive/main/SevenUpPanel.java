@@ -100,6 +100,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        scaleChoices.add("Minor");
 	        scaleChoices.add("Minor Seven");
 	        scaleChoices.add("Mullnixian");
+	        scaleChoices.add("Yorkian");
 	        scaleChoices.add("Pentatonic");
 	        scaleChoices.add("Pentatonic (Minor)");
 	        scaleChoices.add("Ultra Locrian");
@@ -142,6 +143,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        scaleChoices.add("Minor");
 	        scaleChoices.add("Minor Seven");
 	        scaleChoices.add("Mullnixian");
+	        scaleChoices.add("Yorkian");
 	        scaleChoices.add("Pentatonic");
 	        scaleChoices.add("Pentatonic (Minor)");
 	        scaleChoices.add("Ultra Locrian");

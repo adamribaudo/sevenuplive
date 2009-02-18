@@ -17,7 +17,6 @@ public class Looper extends Mode {
 	private final static int OFFSET_START_CTRL = 96;
 	
 	private MidiOut midiOut;
-	private MonomeUp m;
 	private Boolean gateLoopChokes = true;
 	private boolean muteNotes = false;
 
@@ -33,8 +32,6 @@ public class Looper extends Mode {
 			loops[i] = new Loop();
 		
 		midiOut = _midiOut;
-	
-		m = _m;
 	}
 	
 	public int getNumLoops()

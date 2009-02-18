@@ -45,12 +45,9 @@ public class Masterizer extends Mode {
 	//MASTER
 	private MidiOut midiMasterOut;
 	
-	private mtn.sevenuplive.main.MonomeUp m;
-	
 	public Masterizer(int _navRow, MidiOut _midiMelodyOut[], MidiOut _midiMelody2Out[],MidiOut _midiMasterOut, mtn.sevenuplive.main.MonomeUp _m,  int grid_width, int grid_height)
 	{
 		super(_navRow, grid_width, grid_height);
-		m = _m;
 		displayGrid = new int[7][8];
 		
 		sequencerRows = new int[8];

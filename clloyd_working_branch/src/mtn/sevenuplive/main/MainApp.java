@@ -91,6 +91,9 @@ public class MainApp extends JFrame
     protected JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
+        // Handle different OS accelerators
+        int mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        
         //Set up the menu.
         menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_D);
@@ -107,12 +110,18 @@ public class MainApp extends JFrame
         
         //Create recents menu item..it gets populated later
         recentsMenu = new JMenu("Open Recent");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke( 
+                KeyEvent.VK_O, mask));
         recentsMenu.setEnabled(false);
         menu.add(recentsMenu);
         
         //Save patch menu item
         menuItem = new JMenuItem("Save");
         menuItem.setActionCommand("save");
+        menuItem.setAccelerator( 
+                KeyStroke.getKeyStroke( 
+                KeyEvent.VK_S, mask)); 
         menuItem.setEnabled(false);
         menuItem.addActionListener(this);
         menu.add(menuItem);
@@ -120,6 +129,9 @@ public class MainApp extends JFrame
         //Save patch menu item
         menuItem = new JMenuItem("Save As...");
         menuItem.setActionCommand("saveas");
+        menuItem.setAccelerator( 
+        KeyStroke.getKeyStroke( 
+        KeyEvent.VK_S, mask + KeyEvent.SHIFT_MASK)); 
         menuItem.setEnabled(false);
         menuItem.addActionListener(this);
         menu.add(menuItem);
@@ -155,6 +167,7 @@ public class MainApp extends JFrame
     		String filename = fc.getFile() == null ? null : fc.getDirectory() + fc.getFile();
     		if (filename != null) {
     			lastFile = new File(filename); 
+    			lastDirectory = new File(fc.getDirectory());
     			loadPatch(lastFile); // load the patch
     		}	
         } else if ("save".equals(e.getActionCommand())) {

@@ -107,7 +107,13 @@
   	<copy todir="${out.folder}/SevenUpLive.app" flatten="false">
         <fileset dir="${resources.folder}/osx/SevenUpLive.app"/>
     </copy>
-    
+	  
+	<!-- Need to do string substituition in info.plist for #RELEASE.VERSION# in Mac Application package -->   
+    <replaceregexp file="${out.folder}/SevenUpLive.app/Contents/info.plist"
+		               match="#RELEASE\.VERSION#"
+                       replace="${release.version}"
+                       byline="true"/>
+                       
     <mkdir dir="${out.folder}/SevenUpLive.app/Contents/Resources/Java"/>
   	
   	<copy todir="${out.folder}/SevenUpLive.app/Contents/Resources/Java" flatten="false">

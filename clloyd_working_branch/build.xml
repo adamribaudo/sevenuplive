@@ -113,6 +113,12 @@
 		               match="#RELEASE\.VERSION#"
                        replace="${release.version}"
                        byline="true"/>
+	<!-- need exacute permissions -->  
+	<chmod  perm="755">
+		<fileset dir="${out.folder}/SevenUpLive.app/Contents/MacOS">
+			<include name="JavaApplicationStub"/>
+		</fileset>
+    </chmod>  
                        
     <mkdir dir="${out.folder}/SevenUpLive.app/Contents/Resources/Java"/>
   	

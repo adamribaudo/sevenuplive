@@ -228,6 +228,11 @@ public final class MonomeUp extends MonomeOSC implements MonomeListener {
 	
 	 public void monomePressed(int raw_x, int raw_y)
 	 {
+		 // Dirty flag for any action on a patch
+		 if (!parentPanel.isDirty()) {
+			 parentPanel.setDirty(true);
+		 }
+		 
 		 GridCoordinateTarget targetd = Displays.translate(grids, raw_x, raw_y);
 		 int x = targetd.getX_translated();
 		 int y = targetd.getY_translated();
@@ -517,6 +522,10 @@ public final class MonomeUp extends MonomeOSC implements MonomeListener {
 
 	public String getPatchTitle() {
 		return patchTitle;
+	}
+
+	public void setPatchTitle(String patchTitle) {
+		this.patchTitle = patchTitle;
 	}
 
 	public void setLooperMute(boolean mute) {

@@ -23,10 +23,10 @@ public class StartupMode extends Mode {
 	public StartupMode(int numscreens, int frames, int rateinframes) {
 		super(-1, 8, 8);
 	
-		this.rateinframes = rateinframes;
+		this.rateinframes = rateinframes * numscreens;
 		this.frames = frames * numscreens;
-		this.ratecounter = rateinframes;
-		this.totalframes = frames;
+		this.ratecounter = this.rateinframes;
+		this.totalframes = this.frames;
 		
 		template7 = new int[][] {
 				new int [] {0,1,1,1,1,1,1,0},
@@ -50,7 +50,7 @@ public class StartupMode extends Mode {
 		if (finished)
 			return;
 		
-		if (ratecounter-- == 0) {
+		if (ratecounter-- < 1) {
 			byte[] randomBytes = new byte[1];
 			
 			Random rand = new Random();

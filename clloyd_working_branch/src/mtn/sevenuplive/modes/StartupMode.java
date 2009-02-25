@@ -8,6 +8,7 @@ import java.util.Random;
 public class StartupMode extends Mode {
 
 	int [][] template7;
+	int totalframes;
 	int frames;
 	int rateinframes;
 	int ratecounter;
@@ -24,6 +25,7 @@ public class StartupMode extends Mode {
 		this.rateinframes = rateinframes;
 		this.frames = frames;
 		this.ratecounter = rateinframes;
+		this.totalframes = frames;
 		
 		template7 = new int[][] {
 				new int [] {0,1,1,1,1,1,1,0},
@@ -55,20 +57,16 @@ public class StartupMode extends Mode {
 			
 			for (int x = 0; x < 8; x++) {
 				rand.nextBytes(randomBytes);
-				
+						
 				for (int y = 0; y < 8; y++) {
 					// If turning this led on, then decide how to light it
 					if ((template7[y][x] & ((randomBytes[0] >> y) & 0x01)) == 1) {
 						
-						rand.nextBytes(randomBytes);
-						bvalue = new Byte(randomBytes[0]).intValue();
-						
-						if (bvalue < 85)
+						// Fade to Solid
+						if (frames < Math.abs(totalframes / 2))
 							bvalue = DisplayGrid.SOLID;
-						else if (bvalue > 85 && bvalue < 170)
-							bvalue = DisplayGrid.FASTBLINK;
 						else
-							bvalue = DisplayGrid.SLOWBLINK;
+							bvalue = DisplayGrid.FASTBLINK;
 						
 						if (x == 7) {
 							this.navGrid[y] = bvalue;

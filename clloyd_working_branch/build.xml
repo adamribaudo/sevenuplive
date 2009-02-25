@@ -94,16 +94,18 @@
     </jar>
   </target>
   
-  <target name="docs" depends="_init">
-    <copy todir="${out.folder}/windows" flatten="false">
+  <target name="doc" depends="_init">
+  	<mkdir dir="${out.folder}/windows/doc"/>
+  	<mkdir dir="${out.folder}/osx/doc"/>
+    <copy todir="${out.folder}/windows/doc" flatten="false">
         <fileset dir="${doc.folder}"/>
     </copy>
-    <copy todir="${out.folder}/osx" flatten="false">
+    <copy todir="${out.folder}/osx/doc" flatten="false">
         <fileset dir="${doc.folder}"/>
     </copy>
   </target>
   
-  <target name="dist" depends="jar, zipsrc, docs">
+  <target name="dist" depends="jar, zipsrc, doc">
     
     <!-- For the PC -->
     <copy todir="${out.folder}/windows/supporting" flatten="false">
@@ -111,8 +113,6 @@
             <include name="${core.jar}"/>
             <include name="${jdom.jar}"/>
             <include name="${libProMandoMidiJNILib.jar}"/>
-            <!-- NOT INCLUDED -->
-            <!-- <include name="${jklabs.monomic.jar}"/> -->
             <include name="${oscP5.jar}"/>
             <include name="${promidi.jar}"/>
             <include name="${proxml.jar}"/>

@@ -85,6 +85,7 @@ public class DisplayGrid {
 
 	public void draw()
 	{
+		//Very fast int compare here to not slow us down
 		if (curMode == StartupMode.STARTUP_MODE) {
 			
 			if (AllModes.startup.isFinished()) {
@@ -190,6 +191,7 @@ public class DisplayGrid {
 
 	public void monomePressed(int x, int y) {
 		
+		// Very fast int compare here to not slow us down
 		if (curMode == StartupMode.STARTUP_MODE) {
 			// If we press a key in startup mode, then change to default mode
 			curDisplayGrid = defaultMode.getDisplayGrid();

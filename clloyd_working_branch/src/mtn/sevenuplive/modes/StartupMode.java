@@ -16,14 +16,15 @@ public class StartupMode extends Mode {
 	boolean finished = false;
 	
 	/**
+	 * @param numscreens Need accurate count to get timing correct
 	 * @param frames How many frames to apply random light calculations
 	 * @param rateinframes Draw every how many frames
 	 */
-	public StartupMode(int frames, int rateinframes) {
+	public StartupMode(int numscreens, int frames, int rateinframes) {
 		super(-1, 8, 8);
 	
 		this.rateinframes = rateinframes;
-		this.frames = frames;
+		this.frames = frames * numscreens;
 		this.ratecounter = rateinframes;
 		this.totalframes = frames;
 		

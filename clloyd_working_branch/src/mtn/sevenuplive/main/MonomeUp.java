@@ -151,7 +151,7 @@ public final class MonomeUp extends MonomeOSC implements MonomeListener {
 	    		 new Looper(ModeConstants.LOOP_MODE, midiLoopOut, this, GRID_WIDTH, GRID_HEIGHT), 
 	    		 new LoopRecorder(ModeConstants.LOOP_RECORD_MODE, this, GRID_WIDTH, GRID_HEIGHT), 
 	    		 new Masterizer(ModeConstants.MASTER_MODE, midiMelodyOut, midiMelody2Out, midiMasterOut, this, GRID_WIDTH, GRID_HEIGHT),
-	    		 new StartupMode(200, 5));
+	    		 new StartupMode(totalGrids, 100, 5));
 
 	     //Set initial display grids
 	     grids = new DisplayGrid[totalGrids];

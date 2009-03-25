@@ -5,6 +5,12 @@ import org.jdom.Element;
 
 public class Loop {
 	
+	/** Loop types */
+	public static final int LOOP = 0; // Regular loop that keeps looping
+	public static final int SHOT = 1; // Loop that stops at end of one iteration
+	public static final int SLICE = 2; // Triggers a sample slice and keeps playing to button is released
+	public static final int HIT = 3; // Same as slice but sample always plays till end of the sample regardless of button release.   
+	
 	/** Value indicating the loop is not playing */ 
 	public static final int NOT_PLAYING = -1;
 	
@@ -17,8 +23,14 @@ public class Loop {
 
 	/** Current step index or {@link #NOT_PLAYING} */
 	private int step;
+	private int iteration = 0;
 	private int startOffset;
 	private int resCounter;
+	/** Determines if a step has been retriggered  */
+	private boolean[] trigger;
+	
+	/** The type of loop it is */
+	private int type = LOOP;
 	
 	private int pressedRow;
 	
@@ -29,6 +41,7 @@ public class Loop {
 	{
 		step = NOT_PLAYING; //not playing currently
 		chokeGroup = NO_CHOKE_GROUP; //Default to no choke group
+		trigger = new boolean[8];
 	}
 	
 	public boolean isPlaying()
@@ -36,14 +49,33 @@ public class Loop {
 		return step != NOT_PLAYING;
 	}
 	
+	public int getIteration()
+	{
+		return iteration;
+	}
+	
 	public int getStep()
 	{
 		return step;
 	}
+	
+	public boolean getTrigger(int step)
+	{
+		return trigger[step];
+	}
+	
+	public void setTrigger(int step, boolean value)
+	{
+		trigger[step] = value;
+	}
 		
 	public void stop()
 	{
+		for (int i = 0; i < 7; i++) {
+			setTrigger(i, false);
+		}
 		step = NOT_PLAYING;
+		iteration = 0;
 	}
 
 	public int getResolution()
@@ -61,9 +93,12 @@ public class Loop {
 		// When we change a step, res needs to reset to 0.
 		resCounter = 0;
 		
+		
 		step++;
-		if(this.step > 7)
+		if(this.step > 7) {
 			this.step = 0;
+			iteration++;
+		}	
 	}
 	
 	/**
@@ -124,6 +159,14 @@ public class Loop {
 		//resolution of 0 + 1 = 1/2 measure
 		//Meaning, stepping every 1 16th note will produce 1/2 measure in 8 steps
 		this.resolution = new Float(length * 2).intValue();
+	}
+	
+	public void setType(int type) {
+		this.type = type;
+	}
+	
+	public int getType() {
+		return type;
 	}
 
 	public int getPressedRow()

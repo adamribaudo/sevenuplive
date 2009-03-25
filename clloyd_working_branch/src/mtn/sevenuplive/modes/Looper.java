@@ -118,7 +118,8 @@ public class Looper extends Mode {
 		loops[loopNum].stop();
 		updateNavGrid();
 		AllModes.loopRecorder.updateNavGrid();
-		midiOut.sendNoteOff(new Note(MonomeUp.C3+loopNum,127, 0));
+		if (loops[loopNum].getType() != Loop.HIT)
+			midiOut.sendNoteOff(new Note(MonomeUp.C3+loopNum,127, 0));
 	}
 	
 	public void setLoopStopOnNextStep(int loopNum)
@@ -128,6 +129,7 @@ public class Looper extends Mode {
 	
 	public void playLoop(int loopNum, int step)
 	{
+		loops[loopNum].setTrigger(step, true);
 		loops[loopNum].setStep(step);
 		loops[loopNum].setPressedRow(step);
 		updateNavGrid();
@@ -179,6 +181,13 @@ public class Looper extends Mode {
 		}
 		return size;
 	}*/
+	
+	public void release(int x, int y)
+	{
+		if (loops[x].isPlaying() && loops[x].getType() == Loop.SLICE) {
+			stopLoop(x);
+		}
+	}
 
 	public void step()
 	{
@@ -199,7 +208,8 @@ public class Looper extends Mode {
 		
 		for(int i = 0;i<loops.length;i++)
         {
-        	if(loops[i].isPlaying())
+			
+			if(loops[i].isPlaying())
         	{
         		pressedRow = loops[i].getPressedRow();
         		resCounter = loops[i].getResCounter();
@@ -207,14 +217,52 @@ public class Looper extends Mode {
         		
         		//In buzz you have to send the controller AFTER the note is played
         		int loopCtrlValue = (loops[i].getStep() * 16);
-        		midiOut.sendController(new promidi.Controller(OFFSET_START_CTRL+i, loopCtrlValue));
-
+        		
+        		
+        		// Only send the controller if we are changing position. This allows the sample to play smoothly and linearly.
+        		if (pressedRow > -1) {
+        			switch (loops[i].getType()) {
+        				case Loop.SLICE:
+        					midiOut.sendController(new promidi.Controller(OFFSET_START_CTRL+i, loopCtrlValue));
+        					if(!muteNotes)
+        						midiOut.sendNoteOn(new Note(MonomeUp.C3+i,127, 0));
+        					break;
+        				case Loop.HIT: // Hits we let it run to the end of the sample and don't send a noteOff on release
+        					if (loops[i].getTrigger(step) == true) {
+        						midiOut.sendController(new promidi.Controller(OFFSET_START_CTRL+i, loopCtrlValue));
+        						if(!muteNotes)
+        							midiOut.sendNoteOn(new Note(MonomeUp.C3+i,127, 0));
+        						loops[i].setTrigger(step, false);
+        					} else {
+        						stopLoop(i);
+        						pressedRow = -1;
+        	    				continue;
+        					}
+        					break;
+        				case Loop.SHOT:
+        					// If it's a one shot loop, then we stop after the first iteration
+        	        		if (loops[i].getType() == Loop.SHOT && loops[i].getIteration() > 0) {
+        	    				stopLoop(i);
+        	    				pressedRow = -1;
+        	    				continue;
+        	    			}
+        	        		// Don't break here, go to next
+        				case Loop.LOOP:
+        				default:
+        					midiOut.sendController(new promidi.Controller(OFFSET_START_CTRL+i, loopCtrlValue));
+        					break;
+        					
+        			};
+        		}	
+        		
         		//Send note every time looprow is 0 or at it's offset
         		if((resCounter == 0) && (step == 0 || pressedRow > -1))
         		{
         			if(!muteNotes)
-        				midiOut.sendNoteOn(new Note(MonomeUp.C3+i,127, 0));	
+        					midiOut.sendNoteOn(new Note(MonomeUp.C3+i,127, 0));	
+        			
         			pressedRow = -1;
+        				
         		}
         		
         		loops[i].nextResCount();

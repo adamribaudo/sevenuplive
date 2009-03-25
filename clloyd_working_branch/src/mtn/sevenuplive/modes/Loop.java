@@ -167,6 +167,19 @@ public class Loop {
 		}
 	}
 
+	/**
+	 * Is this the last resolution step in the loop 
+	 */
+	public boolean isLastResStep()
+	{
+		int testRes = resCounter + 1;
+		
+		if (testRes % (resolution) == 0 && this.step == 7) 
+			return true;
+		
+		return false;
+	}
+
 	public void setLength(Float length) {
 		//resolution of 0 + 1 = 1/2 measure
 		//Meaning, stepping every 1 16th note will produce 1/2 measure in 8 steps

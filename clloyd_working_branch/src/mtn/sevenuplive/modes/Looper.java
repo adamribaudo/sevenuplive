@@ -235,13 +235,15 @@ public class Looper extends Mode {
         					}
         					break;
         				case Loop.MOMENTARY:
-        					midiOut.sendController(new promidi.Controller(OFFSET_START_CTRL+i, loopCtrlValue));
-        					if(!muteNotes)
-        						midiOut.sendNoteOn(new Note(MonomeUp.C3+i,127, 0));
+        					if (resCounter == 0) {
+        						midiOut.sendController(new promidi.Controller(OFFSET_START_CTRL+i, loopCtrlValue));
+        						if(!muteNotes)
+        							midiOut.sendNoteOn(new Note(MonomeUp.C3+i,127, 0));
+        					}
         				// Don't break here, flow into SHOT	
         				case Loop.SHOT:
         					// If it's a one shot loop, then we stop after the first iteration
-        	        		if (loops[i].getType() == Loop.SHOT && loops[i].getIteration() > 0) {
+        	        		if (loops[i].getType() == Loop.SHOT && loops[i].isLastResStep()) {
         	    				stopLoop(i);
         	    				pressedRow = -1;
         	    				continue;
@@ -249,7 +251,8 @@ public class Looper extends Mode {
         	        	// Don't break flow into LOOP	
         				case Loop.LOOP:
         				default:
-        					midiOut.sendController(new promidi.Controller(OFFSET_START_CTRL+i, loopCtrlValue));
+        					if (resCounter == 0) 
+        						midiOut.sendController(new promidi.Controller(OFFSET_START_CTRL+i, loopCtrlValue));
         				
         					//Send note every time looprow is 0 or at it's offset
         	        		if((resCounter == 0) && (step == 0 || pressedRow > -1))

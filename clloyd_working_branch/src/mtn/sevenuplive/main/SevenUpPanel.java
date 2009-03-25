@@ -61,7 +61,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
     	
     	// Resize a bit
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,376,420);
+    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,450,420);
  
     	initLayout();
     	

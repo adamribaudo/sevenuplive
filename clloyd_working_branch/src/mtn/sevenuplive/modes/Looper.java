@@ -235,11 +235,19 @@ public class Looper extends Mode {
         					}
         					break;
         				case Loop.MOMENTARY:
-        					if (resCounter == 0) {
+        				case Loop.SLICE:
+        					if (resCounter == 0 || loops[i].getTrigger(step)) {
         						midiOut.sendController(new promidi.Controller(OFFSET_START_CTRL+i, loopCtrlValue));
         						if(!muteNotes)
         							midiOut.sendNoteOn(new Note(MonomeUp.C3+i,127, 0));
+        						loops[i].setTrigger(step, false);
         					}
+        					// If it's a one shot loop, then we stop after the first iteration
+        	        		if (loops[i].getType() == Loop.SLICE && loops[i].isLastResInStep()) {
+        	    				stopLoop(i);
+        	    				pressedRow = -1;
+        	    				continue;
+        	    			}
         				// Don't break here, flow into SHOT	
         				case Loop.SHOT:
         					// If it's a one shot loop, then we stop after the first iteration

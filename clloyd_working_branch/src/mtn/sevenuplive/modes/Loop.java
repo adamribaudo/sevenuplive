@@ -23,6 +23,12 @@ public class Loop {
 	 */
 	public static final int HIT = 3;    
 	
+	/** 
+	 * Triggers the sample mapped to a step and plays till end of that step regardless of key release. Super useful for triggering
+	 * just a sample slice where you want it to play just that slice.
+	 */
+	public static final int SLICE = 4;    
+	
 	/** Value indicating the loop is not playing */ 
 	public static final int NOT_PLAYING = -1;
 	
@@ -168,13 +174,26 @@ public class Loop {
 	}
 
 	/**
-	 * Is this the last resolution step in the loop 
+	 * Is this the last resolution tick in the loop 
 	 */
 	public boolean isLastResStep()
 	{
 		int testRes = resCounter + 1;
 		
 		if (testRes % (resolution) == 0 && this.step == 7) 
+			return true;
+		
+		return false;
+	}
+	
+	/**
+	 * Is this the last resolution tick in the step 
+	 */
+	public boolean isLastResInStep()
+	{
+		int testRes = resCounter + 1;
+		
+		if (testRes % (resolution) == 0) 
 			return true;
 		
 		return false;

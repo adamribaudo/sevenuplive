@@ -6,10 +6,22 @@ import org.jdom.Element;
 public class Loop {
 	
 	/** Loop types */
-	public static final int LOOP = 0; // Regular loop that keeps looping
-	public static final int SHOT = 1; // Loop that stops at end of one iteration
-	public static final int SLICE = 2; // Triggers a sample slice and keeps playing to button is released
-	public static final int HIT = 3; // Same as slice but sample always plays till end of the sample regardless of button release.   
+	
+	/** Regular loop that keeps looping */
+	public static final int LOOP = 0; 
+	
+	/** Loop that stops at end of one iteration. Steps like a regular loop and can be choked or killed. */
+	public static final int SHOT = 1;
+	
+	/** Triggers a loop and keeps stepping loop until button is released. */
+	public static final int MOMENTARY = 2;  
+
+	/** 
+	 * Triggers the sample mapped to a step and plays till end of that sample regardless of key release. Super useful for multi
+	 * samples such as drums where 8 samples are mapped across the velocity range 
+	 * Can also be used with multi-samples that are much longer.
+	 */
+	public static final int HIT = 3;    
 	
 	/** Value indicating the loop is not playing */ 
 	public static final int NOT_PLAYING = -1;

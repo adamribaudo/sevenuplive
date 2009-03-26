@@ -46,6 +46,8 @@ public class Loop {
 	private int resCounter;
 	/** Determines if a step has been retriggered  */
 	private boolean[] trigger;
+	/** Last step that was triggered */
+	private int lastTriggeredStep = -1;
 	
 	/** The type of loop it is */
 	private int type = LOOP;
@@ -85,8 +87,15 @@ public class Loop {
 	public void setTrigger(int step, boolean value)
 	{
 		trigger[step] = value;
+		if (value == true)
+			lastTriggeredStep = step;
 	}
-		
+	
+	public int getLastTriggedStep()
+	{
+		return lastTriggeredStep;
+	}
+	
 	public void stop()
 	{
 		for (int i = 0; i < 7; i++) {

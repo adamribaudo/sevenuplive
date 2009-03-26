@@ -184,7 +184,7 @@ public class Looper extends Mode {
 	
 	public void release(int x, int y)
 	{
-		if (loops[x].isPlaying() && loops[x].getType() == Loop.MOMENTARY) {
+		if (loops[x].isPlaying() && loops[x].getType() == Loop.MOMENTARY && loops[x].getLastTriggedStep() == y) {
 			stopLoop(x);
 		}
 	}

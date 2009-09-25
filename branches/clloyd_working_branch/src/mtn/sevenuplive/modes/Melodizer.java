@@ -119,32 +119,32 @@ public class Melodizer extends Mode {
 		} else if (currentMode == eMelodizerMode.POSITION) {
 			
 			//Show keys
-			displayGrid[0][7] = DisplayGrid.SOLID; 
-			displayGrid[1][7] = DisplayGrid.SOLID; 
-			displayGrid[2][7] = DisplayGrid.SOLID; 
-			displayGrid[3][7] = DisplayGrid.SOLID; 
-			displayGrid[4][7] = DisplayGrid.SOLID; 
-			displayGrid[5][7] = DisplayGrid.SOLID; 
-			displayGrid[6][7] = DisplayGrid.SOLID; 	
+			displayGrid[0][7] = DisplayGrid.FASTBLINK; 
+			displayGrid[1][7] = DisplayGrid.FASTBLINK; 
+			displayGrid[2][7] = DisplayGrid.FASTBLINK; 
+			displayGrid[3][7] = DisplayGrid.FASTBLINK; 
+			displayGrid[4][7] = DisplayGrid.FASTBLINK; 
+			displayGrid[5][7] = DisplayGrid.FASTBLINK; 
+			displayGrid[6][7] = DisplayGrid.FASTBLINK; 	
 			
 			// Set current position
 			switch(offset[curSeqBank])
 			{
-				case 0: displayGrid[0][7] = DisplayGrid.FASTBLINK; 
+				case 0: displayGrid[0][7] = DisplayGrid.SOLID; 
 				break;
-				case 1: displayGrid[1][7] = DisplayGrid.FASTBLINK; 
+				case 1: displayGrid[1][7] = DisplayGrid.SOLID; 
 				break;
-				case 2: displayGrid[2][7] = DisplayGrid.FASTBLINK; 
+				case 2: displayGrid[2][7] = DisplayGrid.SOLID; 
 				break;
-				case 3: displayGrid[3][7] = DisplayGrid.FASTBLINK; 
+				case 3: displayGrid[3][7] = DisplayGrid.SOLID; 
 				break;
-				case 4: displayGrid[4][7] = DisplayGrid.FASTBLINK; 
+				case 4: displayGrid[4][7] = DisplayGrid.SOLID; 
 				break;
-				case 5: displayGrid[5][7] = DisplayGrid.FASTBLINK;
+				case 5: displayGrid[5][7] = DisplayGrid.SOLID;
 				break;
-				case 6: displayGrid[6][7] = DisplayGrid.FASTBLINK; 
+				case 6: displayGrid[6][7] = DisplayGrid.SOLID; 
 				break;
-				case 7: displayGrid[7][7] = DisplayGrid.FASTBLINK; 
+				case 7: displayGrid[7][7] = DisplayGrid.SOLID; 
 				break;
 			}
 		}

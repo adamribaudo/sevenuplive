@@ -471,6 +471,22 @@ public class SevenUpPanel extends JPanel implements ActionListener
     		}
     	}
 		
+		for(int i = 0; i < drpMelodizerModeChoices1.getItemCount(); i++)
+    	{
+    		if(drpMelodizerModeChoices1.getItemAt(i).toString().equals(sevenUpApplet.getMelody1Mode().toString()))
+    		{
+    			drpMelodizerModeChoices1.setSelectedIndex(i);
+    		}
+    	}
+		
+		for(int i = 0; i < drpMelodizerAltModeChoices1.getItemCount(); i++)
+    	{
+    		if(drpMelodizerAltModeChoices1.getItemAt(i).toString().equals(sevenUpApplet.getMelody1AltMode().toString()))
+    		{
+    			drpMelodizerAltModeChoices1.setSelectedIndex(i);
+    		}
+    	}
+		
     	//Update melody 2 gui based on patch settings
     	Scale melodyScale2 = sevenUpApplet.getMelody2Scale();
         for(int i = 0; i < drpScaleChoices2.getItemCount(); i++)
@@ -479,6 +495,22 @@ public class SevenUpPanel extends JPanel implements ActionListener
         		drpScaleChoices2.setSelectedIndex(i);
         }
         
+        for(int i = 0; i < drpMelodizerModeChoices2.getItemCount(); i++)
+    	{
+    		if(drpMelodizerModeChoices2.getItemAt(i).toString().equals(sevenUpApplet.getMelody2Mode().toString()))
+    		{
+    			drpMelodizerModeChoices2.setSelectedIndex(i);
+    		}
+    	}
+		
+		for(int i = 0; i < drpMelodizerAltModeChoices2.getItemCount(); i++)
+    	{
+    		if(drpMelodizerAltModeChoices2.getItemAt(i).toString().equals(sevenUpApplet.getMelody2AltMode().toString()))
+    		{
+    			drpMelodizerAltModeChoices2.setSelectedIndex(i);
+    		}
+    	}
+		
     	for(Integer i =0;i<7;i++)
     	{
     		chokeGroup = sevenUpApplet.getLoopChokeGroup(i);

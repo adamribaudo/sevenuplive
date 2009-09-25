@@ -596,6 +596,7 @@ public class Melodizer extends Mode {
 		// For backwards compatibility only
 		xmlMelodizer.setAttribute(new Attribute("clipMode", currentMode == eMelodizerMode.CLIP ? "true" : "false"));
 		xmlMelodizer.setAttribute(new Attribute("melodizerMode", currentMode.toString()));
+		xmlMelodizer.setAttribute(new Attribute("altMode", altMode.toString()));
 		String keyString = "";
 		for(int i=0;i<key.length;i++)
 		{
@@ -639,6 +640,9 @@ public class Melodizer extends Mode {
 			}
 			if (xmlMelodizer.getAttribute("melodizerMode") != null) {
 				currentMode = eMelodizerMode.valueOf(xmlMelodizer.getAttribute("melodizerMode").getValue());
+			}
+			if (xmlMelodizer.getAttribute("altMode") != null) {
+				altMode = eMelodizerMode.valueOf(xmlMelodizer.getAttribute("altMode").getValue());
 			}
 		} catch (DataConversionException e) {
 			// Do nothing

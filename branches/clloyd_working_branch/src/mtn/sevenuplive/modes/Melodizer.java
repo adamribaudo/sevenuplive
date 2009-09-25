@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import mtn.sevenuplive.main.MonomeUp;
+import mtn.sevenuplive.modes.Mode.MenuFocusEvent;
 import mtn.sevenuplive.scales.Scale;
 import mtn.sevenuplive.scales.ScaleName;
 
@@ -29,9 +30,13 @@ public class Melodizer extends Mode {
 	private int cuedIndex;
 	private boolean isRecording;
 	
+	// Should changing the key or offset transpose the sequence that is playing?
+	private boolean transpose = true;
+	
 	// Different display modes for Melodizer
 	public enum eMelodizerMode {KEYBOARD, CLIP, NONE, POSITION};
-	private eMelodizerMode currentMode = eMelodizerMode.KEYBOARD; 
+	private eMelodizerMode currentMode = eMelodizerMode.KEYBOARD;
+	private eMelodizerMode altMode = eMelodizerMode.KEYBOARD;
 	
 	private int curSeqBank;
 	private int displayNote[]; //Array of ints holding [pitch] of notes being played back in a sequence
@@ -549,7 +554,7 @@ public class Melodizer extends Mode {
 	}
 	
 	/**
-	 * 
+	 * Play to particular sequence
 	 * @param seqIndex
 	 * @return returns true if the sequence exists and has started playing and false otherwise
 	 */
@@ -773,7 +778,42 @@ public class Melodizer extends Mode {
 
 	public void setCurrentMode(eMelodizerMode currentMode) {
 		this.currentMode = currentMode;
+		updateNavGrid();
+	    updateDisplayGrid();
 	}
+	
+	public void setAltMode(eMelodizerMode altCurrentMode) {
+		this.altMode = altCurrentMode;
+	}
+	
+	public eMelodizerMode getAltMode() {
+		return altMode;
+	}
+
+	public void swapModes() {
+		eMelodizerMode oldCurrentMode = currentMode;
+		setCurrentMode(this.altMode);
+		setAltMode(oldCurrentMode);
+	}
+	
+	/**
+	 * Called when NavMenu change is being cued, aborted or committed
+	 */
+	@Override
+	public void onMenuFocusChange(MenuFocusEvent event) {
+		super.onMenuFocusChange(event);
+		
+		System.out.println(event);
+		
+		// We are interested in this case
+		if (event.oldIndex == myNavRow) {
+			// When we toggle current mode button we switch between default modes
+			if (event.type == Mode.MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_ABORTED) {
+				swapModes();
+			}
+		}
+	}
+
 	
 	public class GridPosition {
 		private static final int DIM_X = 7;

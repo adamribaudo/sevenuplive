@@ -374,6 +374,24 @@ public class SevenUpApplet extends processing.core.PApplet
 		return AllModes.getInstance().getMelodizer2().getCurrentMode();
 	}
 	
+	public void setMelody1AltMode(Melodizer.eMelodizerMode mode) {
+		AllModes.getInstance().getMelodizer1().setAltMode(mode);
+	}
+	
+	public Melodizer.eMelodizerMode getMelody1AltMode()
+	{
+		return AllModes.getInstance().getMelodizer1().getAltMode();
+	}
+	
+	public void setMelody2AltMode(Melodizer.eMelodizerMode mode) {
+		AllModes.getInstance().getMelodizer2().setAltMode(mode);
+	}
+	
+	public Melodizer.eMelodizerMode getMelody2AltMode()
+	{
+		return AllModes.getInstance().getMelodizer2().getAltMode();
+	}
+	
 	public void setLooperMute(boolean mute) {
 		m.setLooperMute(mute);
 		

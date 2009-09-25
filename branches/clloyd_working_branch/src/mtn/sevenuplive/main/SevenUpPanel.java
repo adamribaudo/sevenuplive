@@ -35,6 +35,8 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	JComboBox drpScaleChoices2;
 	JComboBox drpMelodizerModeChoices1;
 	JComboBox drpMelodizerModeChoices2;
+	JComboBox drpMelodizerAltModeChoices1;
+	JComboBox drpMelodizerAltModeChoices2;
 	JComboBox drpLoopChoke;
 	JComboBox drpLoopLength;
 	JComboBox drpLoopType;
@@ -64,7 +66,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
     	
     	// Resize a bit
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,450,420);
+    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,570,420);
  
     	try
     	{
@@ -110,7 +112,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			JPanel thirdPanel = new JPanel(twocolumnstraight);
 			
 			//Scale
-	        JLabel lblSetScale = new JLabel("Melodizer 1 Scale/Mode");
+	        JLabel lblSetScale = new JLabel("Melodizer 1 Scale/Mode/AltMode");
 	        setSizeSmall(lblSetScale);
 	        lblSetScale.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        
@@ -147,7 +149,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			c.gridx = 1; firstPanel.add(drpScaleChoices1, c);
 	        
 			//Melodizer 2 Scale
-	        lblSetScale = new JLabel("Melodizer 2 Scale/Mode");
+	        lblSetScale = new JLabel("Melodizer 2 Scale/Mode/AltMode");
 	        setSizeSmall(lblSetScale);
 	        lblSetScale.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        
@@ -207,6 +209,22 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        
 	        c.gridx = 2; c.gridy = 0; firstPanel.add(drpMelodizerModeChoices1, c);	        
 	        
+	        drpMelodizerAltModeChoices1 = new JComboBox(modeChoices);
+	        setSizeSmall(drpMelodizerAltModeChoices1);
+	        drpMelodizerAltModeChoices1.setSelectedIndex(0);
+	        
+	        drpMelodizerAltModeChoices1.addActionListener(
+	        		new ActionListener(){
+	        			public void actionPerformed(ActionEvent e) {
+	        				setDirty(true);
+	        				JComboBox cb = (JComboBox)e.getSource();
+	        					sevenUpApplet.setMelody1AltMode(Melodizer.eMelodizerMode.valueOf(cb.getSelectedItem().toString()));
+	        			}
+	        		}
+	        );
+	        
+	        c.gridx = 3; c.gridy = 0; firstPanel.add(drpMelodizerAltModeChoices1, c);	        
+	        
 	        //Melodizer 2 Mode
 	        
 	        //Remove clip launch option
@@ -231,6 +249,22 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        );
 	        
 	        c.gridx = 2; c.gridy = 1; firstPanel.add(drpMelodizerModeChoices2, c);	        
+	        
+	        drpMelodizerAltModeChoices2 = new JComboBox(modeChoices);
+	        setSizeSmall(drpMelodizerAltModeChoices2);
+	        drpMelodizerAltModeChoices2.setSelectedIndex(0);
+	        
+	        drpMelodizerAltModeChoices2.addActionListener(
+	        		new ActionListener(){
+	        			public void actionPerformed(ActionEvent e) {
+	        				setDirty(true);
+	        				JComboBox cb = (JComboBox)e.getSource();
+	        					sevenUpApplet.setMelody2AltMode(Melodizer.eMelodizerMode.valueOf(cb.getSelectedItem().toString()));
+	        			}
+	        		}
+	        );
+	        
+	        c.gridx = 3; c.gridy = 1; firstPanel.add(drpMelodizerAltModeChoices2, c);	        
 	        
 	        
 	        //Melodizer record mode

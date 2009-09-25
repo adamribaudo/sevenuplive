@@ -10,6 +10,7 @@
 
 package mtn.sevenuplive.main;
 import mtn.sevenuplive.modes.AllModes;
+import mtn.sevenuplive.modes.Melodizer;
 import mtn.sevenuplive.scales.Scale;
 import mtn.sevenuplive.scales.ScaleName;
 
@@ -347,18 +348,33 @@ public class SevenUpApplet extends processing.core.PApplet
 	}
 
 	public void setMelody1ClipMode(boolean b) {
-		AllModes.getInstance().getMelodizer1().clipMode = b;
+		if (b) {
+			AllModes.getInstance().getMelodizer1().setCurrentMode(Melodizer.eMelodizerMode.CLIP);
+		} else {
+			AllModes.getInstance().getMelodizer1().setCurrentMode(Melodizer.eMelodizerMode.KEYBOARD);
+		}
+		
 	}
 	public void setMelody2ClipMode(boolean b) {
-		AllModes.getInstance().getMelodizer2().clipMode = b;
+		if (b) {
+			AllModes.getInstance().getMelodizer2().setCurrentMode(Melodizer.eMelodizerMode.CLIP);
+		} else {
+			AllModes.getInstance().getMelodizer2().setCurrentMode(Melodizer.eMelodizerMode.KEYBOARD);
+		}
 	}
 	public boolean getMelody1ClipMode()
 	{
-		return AllModes.getInstance().getMelodizer1().clipMode;
+		if (AllModes.getInstance().getMelodizer1().getCurrentMode() == Melodizer.eMelodizerMode.CLIP)
+			return true;
+		else 
+			return false;
 	}
 	public boolean getMelody2ClipMode()
 	{
-		return AllModes.getInstance().getMelodizer2().clipMode;
+		if (AllModes.getInstance().getMelodizer1().getCurrentMode() == Melodizer.eMelodizerMode.CLIP)
+			return true;
+		else 
+			return false;
 	}
 
 	public void setLooperMute(boolean mute) {

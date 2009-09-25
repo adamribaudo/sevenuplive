@@ -372,12 +372,12 @@ public class DisplayGrid {
 		//If user releases within the melodizer play area
 		else if(curMode == ModeConstants.MELODY_MODE && x != NAVCOL)
 		{
-			if(y<6 || allmodes.getMelodizer1().clipMode)
+			if(allmodes.getMelodizer1().isNote(y))
 				allmodes.getMelodizer1().release(x, y);
 		}
 		else if(curMode == ModeConstants.MELODY2_MODE && x != NAVCOL)
 		{
-			if(y<6 || allmodes.getMelodizer2().clipMode)
+			if(y<6 || allmodes.getMelodizer2().isNote(y))
 				allmodes.getMelodizer2().release(x, y);
 		}
 		else if (curMode == ModeConstants.LOOP_MODE && x != NAVCOL) {

@@ -27,6 +27,11 @@ public class Melodizer extends Mode {
 	public Hashtable <Integer, NoteSequence> sequences;
 	private int cuedIndex;
 	private boolean isRecording;
+	
+	// Different display modes for Melodizer
+	public enum eMelodizerMode {KEYBOARD, CLIP, NO_KEYBOARD, TRANSPOSE};
+	private eMelodizerMode currentMode = eMelodizerMode.KEYBOARD; 
+	
 	private int curSeqBank;
 	private int displayNote[]; //Array of ints holding [pitch] of notes being played back in a sequence
 	private int clipNotes[][]; //When clipMode=true.  Array of ints holding [channel][pitch] of clips being launched/stopped
@@ -35,8 +40,7 @@ public class Melodizer extends Mode {
 	private MidiOut midiMelodyOut[];
 	private Scale melodyScale;
 	private int recMode = ModeConstants.MEL_ON_BUTTON_PRESS;
-	public Boolean clipMode = false;
-
+	
 	public Melodizer(int _navRow, MidiOut _midiMelodyOut[], int grid_width, int grid_height){
 		super(_navRow, grid_width, grid_height);
 		midiMelodyOut = _midiMelodyOut;
@@ -59,7 +63,7 @@ public class Melodizer extends Mode {
 		//System.out.println("Update melodizer display grid");
 		clearDisplayGrid();
 		
-		if(!clipMode)
+		if(currentMode == eMelodizerMode.KEYBOARD)
 			{
 			//Show keys
 			displayGrid[0][7] = DisplayGrid.FASTBLINK; // C
@@ -104,7 +108,7 @@ public class Melodizer extends Mode {
 				break;
 			}
 		}
-			if(!clipMode)
+			if(currentMode != eMelodizerMode.CLIP)
 			{
 				//Light this note if not in clipMode
 				//Loop through entire grid.  Find each note value. Light it if it's held
@@ -119,7 +123,7 @@ public class Melodizer extends Mode {
 					}
 				}	
 			}
-			else
+			else 
 			{
 				//Display clip status based on incoming MIDI notes from Live
 				int noteStatus;
@@ -166,7 +170,7 @@ public class Melodizer extends Mode {
 	   int melodyPitch;
 	   melodyPitch = ((8-y) * 12 - 12) + melodyScale.Degrees[x] + key[curSeqBank];
 	   heldNote[melodyPitch] = false;
-	   if(!clipMode)
+	   if(currentMode != eMelodizerMode.CLIP)
 		   displayNote[melodyPitch] = DisplayGrid.OFF;
 	   Note melodyRelease;
 	   melodyRelease = new Note(melodyPitch,0, 0);
@@ -220,12 +224,23 @@ public class Melodizer extends Mode {
 	  
 	  updateNavGrid();
 	}
+	
+	/**
+	 * Determines if the row represents a note row or not
+	 * @param y
+	 * @return 
+	 */
+	public boolean isNote(int y) {
+		return (y < 6 && currentMode == eMelodizerMode.KEYBOARD) || 
+		 currentMode == eMelodizerMode.NO_KEYBOARD || 
+		 (y < 7 && currentMode == eMelodizerMode.TRANSPOSE);
+	}
 
 	private void pressDisplay(int x, int y)
 	{
 
    	 //User is pressing a note button (as opposed to changing key)
-   	 if(y < 6 || clipMode)
+	 if (isNote(y))
    	 {
 	    //Calculate the pitch by the octave (y) and the transposed scale
     	 int melodyPitch;
@@ -234,7 +249,7 @@ public class Melodizer extends Mode {
     	 Note melodySend;
     	 melodySend = new Note(melodyPitch,100, 0);
     	 heldNote[melodyPitch] = true;
-    	 if(!clipMode)
+    	 if(currentMode != eMelodizerMode.CLIP)
     		 displayNote[melodyPitch] = DisplayGrid.SOLID;
          midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
          addEvent(melodySend);
@@ -269,7 +284,8 @@ public class Melodizer extends Mode {
    	    	}
    	    	
    	    	//TODO why do I need this?  Try again now with OSC
-   			try
+   			// @NOTE clloyd..why is this here..ask adam.
+   	    	try
    			{
    				Thread.sleep(100);
    			}catch(Exception e)
@@ -445,7 +461,9 @@ public class Melodizer extends Mode {
 		Element xmlMelodizer = new Element(ElementName);
 		
 		xmlMelodizer.setAttribute(new Attribute("scale", melodyScale.Name.toString()));
-		xmlMelodizer.setAttribute(new Attribute("clipMode", clipMode.toString()));
+		// For backwards compatibility only
+		xmlMelodizer.setAttribute(new Attribute("clipMode", currentMode == eMelodizerMode.CLIP ? "true" : "false"));
+		xmlMelodizer.setAttribute(new Attribute("melodizerMode", currentMode.toString()));
 		String keyString = "";
 		for(int i=0;i<key.length;i++)
 		{
@@ -483,13 +501,17 @@ public class Melodizer extends Mode {
 		//Load XML	
 		melodyScale = new Scale(ScaleName.valueOf(xmlMelodizer.getAttribute("scale").getValue()));
 		try {
-			clipMode = xmlMelodizer.getAttribute("clipMode").getBooleanValue();
+			// This is optional and for backwards compatibility only
+			if (xmlMelodizer.getAttribute("clipMode").getBooleanValue() == true) {
+				currentMode = eMelodizerMode.CLIP;
+			}
+			if (xmlMelodizer.getAttribute("melodizerMode") != null) {
+				currentMode = eMelodizerMode.valueOf(xmlMelodizer.getAttribute("melodizerMode").getValue());
+			}
 		} catch (DataConversionException e) {
-			clipMode = false;
-			System.out.println("Error: Invalid value for clipMode attribute in XML file");
+			// Do nothing
 		} catch (NullPointerException e) {
-			clipMode = false;
-			System.out.println("Error: No clipMode attribute found in XML file");
+			// Do nothing
 		}finally 
 		{
 			try {
@@ -617,5 +639,14 @@ public class Melodizer extends Mode {
    	 	
         updateDisplayGrid();
 	}
+	
+	public eMelodizerMode getCurrentMode() {
+		return currentMode;
+	}
+
+	public void setCurrentMode(eMelodizerMode currentMode) {
+		this.currentMode = currentMode;
+	}
+
 
 }

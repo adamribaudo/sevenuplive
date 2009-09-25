@@ -20,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import mtn.sevenuplive.modes.Melodizer;
 import mtn.sevenuplive.modes.ModeConstants;
 import mtn.sevenuplive.scales.Scale;
 
@@ -32,6 +33,8 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	SevenUpApplet sevenUpApplet;
 	JComboBox drpScaleChoices1;
 	JComboBox drpScaleChoices2;
+	JComboBox drpMelodizerModeChoices1;
+	JComboBox drpMelodizerModeChoices2;
 	JComboBox drpLoopChoke;
 	JComboBox drpLoopLength;
 	JComboBox drpLoopType;
@@ -107,12 +110,11 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			JPanel thirdPanel = new JPanel(twocolumnstraight);
 			
 			//Scale
-	        JLabel lblSetScale = new JLabel("Melodizer 1 scale");
+	        JLabel lblSetScale = new JLabel("Melodizer 1 Scale/Mode");
 	        setSizeSmall(lblSetScale);
 	        lblSetScale.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        
 	        Vector<String> scaleChoices = new Vector<String>();
-	        scaleChoices.add("CLIP LAUNCH");
 	        scaleChoices.add("Billian");
 	        scaleChoices.add("Blues");
 	        scaleChoices.add("Blues (Minor)");
@@ -136,16 +138,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        			public void actionPerformed(ActionEvent e) {
 	        				setDirty(true);
 	        				JComboBox cb = (JComboBox)e.getSource();
-	        				if(cb.getSelectedIndex() == 0)
-	        				{
-	        					sevenUpApplet.setMelody1Scale("Major");
-	        					sevenUpApplet.setMelody1ClipMode(true);
-	        				}
-	        				else
-	        				{
-	        					sevenUpApplet.setMelody1Scale(cb.getSelectedItem().toString());
-	        					sevenUpApplet.setMelody1ClipMode(false);
-	        				}
+	        				sevenUpApplet.setMelody1Scale(cb.getSelectedItem().toString());
 	        			}
 	        		}
 	        );
@@ -154,11 +147,10 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			c.gridx = 1; firstPanel.add(drpScaleChoices1, c);
 	        
 			//Melodizer 2 Scale
-	        lblSetScale = new JLabel("Melodizer 2 scale");
+	        lblSetScale = new JLabel("Melodizer 2 Scale/Mode");
 	        setSizeSmall(lblSetScale);
 	        lblSetScale.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        
-	        //Remove clip launch option
 	        scaleChoices = new Vector<String>();
 	        scaleChoices.add("Billian");
 	        scaleChoices.add("Blues");
@@ -184,13 +176,62 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        				setDirty(true);
 	        				JComboBox cb = (JComboBox)e.getSource();
 	        					sevenUpApplet.setMelody2Scale(cb.getSelectedItem().toString());
-	        					sevenUpApplet.setMelody2ClipMode(false);
 	        			}
 	        		}
 	        );
 	        
 	        c.gridx = 0; c.gridy = 1; firstPanel.add(lblSetScale, c);
 	        c.gridx = 1; firstPanel.add(drpScaleChoices2, c);	        
+	        
+	        //Melodizer 1 Mode
+	        
+	        //Remove clip launch option
+	        Vector<String> modeChoices = new Vector<String>();
+	        modeChoices.add(Melodizer.eMelodizerMode.KEYBOARD.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.POSITION.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.NONE.toString());
+	        
+	        drpMelodizerModeChoices1 = new JComboBox(modeChoices);
+	        setSizeSmall(drpMelodizerModeChoices1);
+	        drpMelodizerModeChoices1.setSelectedIndex(0);
+	        
+	        drpMelodizerModeChoices1.addActionListener(
+	        		new ActionListener(){
+	        			public void actionPerformed(ActionEvent e) {
+	        				setDirty(true);
+	        				JComboBox cb = (JComboBox)e.getSource();
+	        					sevenUpApplet.setMelody1Mode(Melodizer.eMelodizerMode.valueOf(cb.getSelectedItem().toString()));
+	        			}
+	        		}
+	        );
+	        
+	        c.gridx = 2; c.gridy = 0; firstPanel.add(drpMelodizerModeChoices1, c);	        
+	        
+	        //Melodizer 2 Mode
+	        
+	        //Remove clip launch option
+	        modeChoices = new Vector<String>();
+	        modeChoices.add(Melodizer.eMelodizerMode.KEYBOARD.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.POSITION.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.NONE.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.CLIP.toString());
+	        
+	        drpMelodizerModeChoices2 = new JComboBox(modeChoices);
+	        setSizeSmall(drpMelodizerModeChoices2);
+	        drpMelodizerModeChoices2.setSelectedIndex(0);
+	        
+	        drpMelodizerModeChoices2.addActionListener(
+	        		new ActionListener(){
+	        			public void actionPerformed(ActionEvent e) {
+	        				setDirty(true);
+	        				JComboBox cb = (JComboBox)e.getSource();
+	        					sevenUpApplet.setMelody2Mode(Melodizer.eMelodizerMode.valueOf(cb.getSelectedItem().toString()));
+	        			}
+	        		}
+	        );
+	        
+	        c.gridx = 2; c.gridy = 1; firstPanel.add(drpMelodizerModeChoices2, c);	        
+	        
 	        
 	        //Melodizer record mode
 	        JLabel lblMelRecMode = new JLabel("Melodizer Rec Mode");
@@ -387,29 +428,20 @@ public class SevenUpPanel extends JPanel implements ActionListener
     	boolean gateLoopChokes;
     	
     	//Update melody 1 gui based on patch settings
-    	if(sevenUpApplet.getMelody1ClipMode())
+    	Scale melodyScale1 = sevenUpApplet.getMelody1Scale();
+		for(int i = 0; i < drpScaleChoices1.getItemCount(); i++)
     	{
-    		//If clipMode is true then set the appropriate dropdown
-    		drpScaleChoices1.setSelectedIndex(0);
+    		if(drpScaleChoices1.getItemAt(i).toString().equals(melodyScale1.label.toString()))
+    		{
+    			drpScaleChoices1.setSelectedIndex(i);
+    		}
     	}
-    	else
-    	{
-    		Scale melodyScale = sevenUpApplet.getMelody1Scale();
-    		for(int i = 0; i < drpScaleChoices1.getItemCount(); i++)
-        	{
-        		if(drpScaleChoices1.getItemAt(i).toString().equals(melodyScale.label.toString()))
-        		{
-        			drpScaleChoices1.setSelectedIndex(i);
-        		}
-        	}
-    	}
-    	
-    	
+		
     	//Update melody 2 gui based on patch settings
-    	Scale melodyScale = sevenUpApplet.getMelody2Scale();
+    	Scale melodyScale2 = sevenUpApplet.getMelody2Scale();
         for(int i = 0; i < drpScaleChoices2.getItemCount(); i++)
         {
-        	if(drpScaleChoices2.getItemAt(i).toString().equals(melodyScale.label.toString()))
+        	if(drpScaleChoices2.getItemAt(i).toString().equals(melodyScale2.label.toString()))
         		drpScaleChoices2.setSelectedIndex(i);
         }
         
@@ -525,8 +557,6 @@ public class SevenUpPanel extends JPanel implements ActionListener
 		public void componentMoved(ComponentEvent e) {}
 
 		public void componentResized(ComponentEvent e) {
-			//SevenUpPanel source = (SevenUpPanel)e.getSource();
-			//System.out.println("new size width:" + source.getSize().width + " height:" + source.getSize().height);
 		}
 
 		public void componentShown(ComponentEvent e) {}

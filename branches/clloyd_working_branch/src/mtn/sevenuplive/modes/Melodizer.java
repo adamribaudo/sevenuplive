@@ -29,7 +29,7 @@ public class Melodizer extends Mode {
 	private boolean isRecording;
 	
 	// Different display modes for Melodizer
-	public enum eMelodizerMode {KEYBOARD, CLIP, NO_KEYBOARD, TRANSPOSE};
+	public enum eMelodizerMode {KEYBOARD, CLIP, NONE, POSITION};
 	private eMelodizerMode currentMode = eMelodizerMode.KEYBOARD; 
 	
 	private int curSeqBank;
@@ -232,8 +232,8 @@ public class Melodizer extends Mode {
 	 */
 	public boolean isNote(int y) {
 		return (y < 6 && currentMode == eMelodizerMode.KEYBOARD) || 
-		 currentMode == eMelodizerMode.NO_KEYBOARD || 
-		 (y < 7 && currentMode == eMelodizerMode.TRANSPOSE);
+		 currentMode == eMelodizerMode.NONE || 
+		 (y < 7 && currentMode == eMelodizerMode.POSITION);
 	}
 
 	private void pressDisplay(int x, int y)

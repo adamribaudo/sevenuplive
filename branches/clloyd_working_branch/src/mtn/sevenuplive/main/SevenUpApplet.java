@@ -355,28 +355,25 @@ public class SevenUpApplet extends processing.core.PApplet
 		}
 		
 	}
-	public void setMelody2ClipMode(boolean b) {
-		if (b) {
-			AllModes.getInstance().getMelodizer2().setCurrentMode(Melodizer.eMelodizerMode.CLIP);
-		} else {
-			AllModes.getInstance().getMelodizer2().setCurrentMode(Melodizer.eMelodizerMode.KEYBOARD);
-		}
+	
+	public void setMelody1Mode(Melodizer.eMelodizerMode mode) {
+		AllModes.getInstance().getMelodizer1().setCurrentMode(mode);
 	}
-	public boolean getMelody1ClipMode()
+	
+	public Melodizer.eMelodizerMode getMelody1Mode()
 	{
-		if (AllModes.getInstance().getMelodizer1().getCurrentMode() == Melodizer.eMelodizerMode.CLIP)
-			return true;
-		else 
-			return false;
+		return AllModes.getInstance().getMelodizer1().getCurrentMode();
 	}
-	public boolean getMelody2ClipMode()
+	
+	public void setMelody2Mode(Melodizer.eMelodizerMode mode) {
+		AllModes.getInstance().getMelodizer2().setCurrentMode(mode);
+	}
+	
+	public Melodizer.eMelodizerMode getMelody2Mode()
 	{
-		if (AllModes.getInstance().getMelodizer1().getCurrentMode() == Melodizer.eMelodizerMode.CLIP)
-			return true;
-		else 
-			return false;
+		return AllModes.getInstance().getMelodizer2().getCurrentMode();
 	}
-
+	
 	public void setLooperMute(boolean mute) {
 		m.setLooperMute(mute);
 		

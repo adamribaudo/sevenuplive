@@ -41,9 +41,6 @@ public class Melodizer extends Mode {
 	private MidiOut midiMelodyOut[];
 	private Scale melodyScale;
 	
-	/** Offset the scale position by this amount */
-	private int scaleOffset = 0;
-	
 	private int recMode = ModeConstants.MEL_ON_BUTTON_PRESS;
 	
 	public Melodizer(int _navRow, MidiOut _midiMelodyOut[], int grid_width, int grid_height){
@@ -184,10 +181,44 @@ public class Melodizer extends Mode {
 		}
 	}
 	
+	/**
+	 * Calculate the note under a pad in the grid
+	 * Taking into account the scale and the degree 
+	 * offset within the scale.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
 	private int convertGridPositionToNote(int x, int y) {
 		int note = (((8-y) * 12 - 12) + (Math.abs((x + offset[curSeqBank]) / 7) * 12) + melodyScale.Degrees[((x + offset[curSeqBank]) % 7)] + key[curSeqBank]);
-		System.out.println("Grid x:" + Integer.toString(x) + " y:" + Integer.toString(y) + " note:" + Integer.toString(note));
+		//System.out.println("Position to Note->Grid x:" + Integer.toString(x) + " y:" + Integer.toString(y) + " note:" + Integer.toString(note));
 		return note;
+	}
+	
+	/**
+	 * Calculate the note under a pad in the grid
+	 * Taking into account the scale and the degree 
+	 * offset within the scale.
+	 * 
+	 * @param note 0-127
+	 * @return First grid position, higher coordinate top/left if duplicates, null if not found
+	 */
+	private GridPosition convertNoteToGridPosition(int note) {
+		int gridNote;
+		
+		for(int j=0;j<7;j++)
+		{
+			for(int k=0;k<8;k++)
+			{
+				gridNote = convertGridPositionToNote(j, k);
+				if (gridNote == note) {
+					System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
+					return new GridPosition(j, k);
+				}
+			}
+		}	
+		return null;
 	}
 	
 	public void updateNavGrid()
@@ -351,13 +382,22 @@ public class Melodizer extends Mode {
    	    		}
    	    	}
    	    }
-   	 } else if (currentMode == eMelodizerMode.POSITION){
+   		
+   	 } else if (currentMode == eMelodizerMode.POSITION) {
    		 
    		if (offset[curSeqBank] != x)
 	    {
+   			GridPosition[] oldPositions = new GridPosition[128]; 
+   			
+   			// Mark all old positions
+   			for(int i=0; i<128;i++)
+	    	{
+   				oldPositions[i] = convertNoteToGridPosition(i); 
+	    	}
+   			
 	    	int curOffsetValue = offset[curSeqBank];
 	    	
-	 		//Set new offset
+	    	//Set new offset
 	 		offset[curSeqBank] = x;
 	 		int offsetDif = curOffsetValue - offset[curSeqBank];
 	    		
@@ -373,9 +413,12 @@ public class Melodizer extends Mode {
 	    			heldNote[i] = false;
 	    			displayNote[i] = DisplayGrid.OFF;
 	    			
-	    			// Offset is in degrees in scale, not absolute offset
-	    			if ((i - melodyScale.Degrees[offsetDif % 7]) >= 0)
-	    				newHeldNote[i - melodyScale.Degrees[offsetDif % 7]] = true;
+	    			// Can't compute if we don't know the original position
+	    			if (oldPositions[i] != null) { 
+	    				// Because offset has changed, new note will be a different note from same grid position
+	    				int newNote = convertGridPositionToNote(oldPositions[i].x, oldPositions[i].y);
+	    				newHeldNote[newNote] = true;
+	    			}
 	    		}
 	    	}
 	    	
@@ -730,6 +773,34 @@ public class Melodizer extends Mode {
 
 	public void setCurrentMode(eMelodizerMode currentMode) {
 		this.currentMode = currentMode;
+	}
+	
+	public class GridPosition {
+		private static final int DIM_X = 7;
+		private static final int DIM_Y = 8;
+		
+		public int x;
+		public int y;
+		
+		public GridPosition(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+		
+		/** 
+		 * Add x to the grid position
+		 * if x 
+		 * Return null if off the grid
+		 */
+		public GridPosition offsetX(int offset_x) {
+			int new_x = offset_x % DIM_X;
+			int new_y = y - Math.abs(offset_x / DIM_X);
+			if (new_x < DIM_X && new_y < DIM_Y && 
+					new_x >= 0 && new_y >= 0)
+				return new GridPosition(new_x, new_y);
+			else
+				return null;
+		}
 	}
 
 

@@ -24,6 +24,7 @@ import promidi.Note;
 public class Melodizer extends Mode {
 	
 	public int key[];
+	public int offset[];
 	public Hashtable <Integer, NoteSequence> sequences;
 	private int cuedIndex;
 	private boolean isRecording;
@@ -39,12 +40,17 @@ public class Melodizer extends Mode {
 	private boolean newHeldNote[];
 	private MidiOut midiMelodyOut[];
 	private Scale melodyScale;
+	
+	/** Offset the scale position by this amount */
+	private int scaleOffset = 0;
+	
 	private int recMode = ModeConstants.MEL_ON_BUTTON_PRESS;
 	
 	public Melodizer(int _navRow, MidiOut _midiMelodyOut[], int grid_width, int grid_height){
 		super(_navRow, grid_width, grid_height);
 		midiMelodyOut = _midiMelodyOut;
 		key = new int[7];
+		offset = new int[7];
 		cuedIndex = -1;
 		sequences = new Hashtable<Integer, NoteSequence>();
 		curSeqBank = 0;
@@ -64,7 +70,7 @@ public class Melodizer extends Mode {
 		clearDisplayGrid();
 		
 		if(currentMode == eMelodizerMode.KEYBOARD)
-			{
+		{
 			//Show keys
 			displayGrid[0][7] = DisplayGrid.FASTBLINK; // C
 			displayGrid[1][6] = DisplayGrid.FASTBLINK; // C#
@@ -107,36 +113,81 @@ public class Melodizer extends Mode {
 				case 11: displayGrid[6][7] = DisplayGrid.SOLID; // B	
 				break;
 			}
+			
+		} else if (currentMode == eMelodizerMode.POSITION) {
+			
+			//Show keys
+			displayGrid[0][7] = DisplayGrid.SOLID; 
+			displayGrid[1][7] = DisplayGrid.SOLID; 
+			displayGrid[2][7] = DisplayGrid.SOLID; 
+			displayGrid[3][7] = DisplayGrid.SOLID; 
+			displayGrid[4][7] = DisplayGrid.SOLID; 
+			displayGrid[5][7] = DisplayGrid.SOLID; 
+			displayGrid[6][7] = DisplayGrid.SOLID; 	
+			
+			// Set current position
+			switch(offset[curSeqBank])
+			{
+				case 0: displayGrid[0][7] = DisplayGrid.FASTBLINK; 
+				break;
+				case 1: displayGrid[1][7] = DisplayGrid.FASTBLINK; 
+				break;
+				case 2: displayGrid[2][7] = DisplayGrid.FASTBLINK; 
+				break;
+				case 3: displayGrid[3][7] = DisplayGrid.FASTBLINK; 
+				break;
+				case 4: displayGrid[4][7] = DisplayGrid.FASTBLINK; 
+				break;
+				case 5: displayGrid[5][7] = DisplayGrid.FASTBLINK;
+				break;
+				case 6: displayGrid[6][7] = DisplayGrid.FASTBLINK; 
+				break;
+				case 7: displayGrid[7][7] = DisplayGrid.FASTBLINK; 
+				break;
+			}
 		}
-			if(currentMode != eMelodizerMode.CLIP)
+		
+		if(currentMode != eMelodizerMode.CLIP)
+		{
+			//Light this note if not in clipMode
+			//Loop through entire grid.  Find each note value. Light it if it's held
+			int noteStatus;
+			for(int j=0;j<7;j++)
 			{
-				//Light this note if not in clipMode
-				//Loop through entire grid.  Find each note value. Light it if it's held
-				int noteStatus;
-				for(int j=0;j<7;j++)
+				for(int k=0;k<8;k++)
 				{
-					for(int k=0;k<6;k++)
-					{
-						noteStatus = displayNote[(((8-k) * 12 - 12) + melodyScale.Degrees[j] + key[curSeqBank])];
+					noteStatus = displayNote[convertGridPositionToNote(j, k)];
+					
+					if (currentMode == eMelodizerMode.KEYBOARD && k < 7) {
+						if(noteStatus != DisplayGrid.OFF)
+							displayGrid[j][k] = noteStatus;
+					} else if (currentMode == eMelodizerMode.POSITION && k < 8) {
 						if(noteStatus != DisplayGrid.OFF)
 							displayGrid[j][k] = noteStatus;
 					}
-				}	
-			}
-			else 
+				}
+			}	
+		}
+		else 
+		{
+			//Display clip status based on incoming MIDI notes from Live
+			int noteStatus;
+			for(int j=0;j<7;j++)
 			{
-				//Display clip status based on incoming MIDI notes from Live
-				int noteStatus;
-				for(int j=0;j<7;j++)
+				for(int k=0;k<8;k++)
 				{
-					for(int k=0;k<8;k++)
-					{
-						noteStatus = clipNotes[curSeqBank][(((8-k) * 12 - 12) + melodyScale.Degrees[j] + key[curSeqBank])];
-						if(noteStatus != DisplayGrid.OFF)
-							displayGrid[j][k] = noteStatus;
-					}
-				}	
-			}
+					noteStatus = clipNotes[curSeqBank][convertGridPositionToNote(j, k)];
+					if(noteStatus != DisplayGrid.OFF)
+						displayGrid[j][k] = noteStatus;
+				}
+			}	
+		}
+	}
+	
+	private int convertGridPositionToNote(int x, int y) {
+		int note = (((8-y) * 12 - 12) + (Math.abs((x + offset[curSeqBank]) / 7) * 12) + melodyScale.Degrees[((x + offset[curSeqBank]) % 7)] + key[curSeqBank]);
+		System.out.println("Grid x:" + Integer.toString(x) + " y:" + Integer.toString(y) + " note:" + Integer.toString(note));
+		return note;
 	}
 	
 	public void updateNavGrid()
@@ -168,7 +219,7 @@ public class Melodizer extends Mode {
 	public void release(int x, int y)
 	{
 	   int melodyPitch;
-	   melodyPitch = ((8-y) * 12 - 12) + melodyScale.Degrees[x] + key[curSeqBank];
+	   melodyPitch = convertGridPositionToNote(x, y);
 	   heldNote[melodyPitch] = false;
 	   if(currentMode != eMelodizerMode.CLIP)
 		   displayNote[melodyPitch] = DisplayGrid.OFF;
@@ -244,7 +295,7 @@ public class Melodizer extends Mode {
    	 {
 	    //Calculate the pitch by the octave (y) and the transposed scale
     	 int melodyPitch;
-    	 melodyPitch = ((8-y) * 12 - 12) + melodyScale.Degrees[x] + key[curSeqBank];
+    	 melodyPitch = convertGridPositionToNote(x, y);
     	 
     	 Note melodySend;
     	 melodySend = new Note(melodyPitch,100, 0);
@@ -255,7 +306,7 @@ public class Melodizer extends Mode {
          addEvent(melodySend);
    	 }
    	 //User is pressing a button in the key area
-   	 else
+   	 else if (currentMode == eMelodizerMode.KEYBOARD)
    	 {
    		//User is changing keys
    		if(key[curSeqBank] != getKeyFromCoords(x, y))
@@ -277,24 +328,14 @@ public class Melodizer extends Mode {
    	    			addEvent(melodyRelease);
    	    			heldNote[i] = false;
    	    			displayNote[i] = DisplayGrid.OFF;
-   	    			newHeldNote[i-keyDif]=true;
+   	    			if ((i-keyDif) >= 0)
+   	    				newHeldNote[i-keyDif] = true;
    	    			
    	    			//System.out.println("  Killing " + i);
    	    		}
    	    	}
    	    	
-   	    	//TODO why do I need this?  Try again now with OSC
-   			// @NOTE clloyd..why is this here..ask adam.
-   	    	try
-   			{
-   				Thread.sleep(100);
-   			}catch(Exception e)
-   			{
-   				
-   			
-   			}
-   	    	
-	    	//Send notes for new key
+   	    	//Send notes for new key
    	    	for(int i=0; i<128;i++)
    	    	{ 
    	    		if(newHeldNote[i])
@@ -305,11 +346,54 @@ public class Melodizer extends Mode {
    	    			addEvent(melodySend);
    	    			heldNote[i]=true;
    	    			displayNote[i] = DisplayGrid.SOLID;
-   	    			newHeldNote[i]=false;
+   	    			newHeldNote[i] = false;
    	    			//System.out.println("Sending " + i);
    	    		}
    	    	}
    	    }
+   	 } else if (currentMode == eMelodizerMode.POSITION){
+   		 
+   		if (offset[curSeqBank] != x)
+	    {
+	    	int curOffsetValue = offset[curSeqBank];
+	    	
+	 		//Set new offset
+	 		offset[curSeqBank] = x;
+	 		int offsetDif = curOffsetValue - offset[curSeqBank];
+	    		
+	    	//Release notes from old offset
+	    	for(int i=0; i<128;i++)
+	    	{ 
+	    		if(heldNote[i])
+	    		{
+	    			Note melodyRelease;
+	    			melodyRelease = new Note(i,0, 0);
+	    			midiMelodyOut[curSeqBank].sendNoteOff(melodyRelease);
+	    			addEvent(melodyRelease);
+	    			heldNote[i] = false;
+	    			displayNote[i] = DisplayGrid.OFF;
+	    			
+	    			// Offset is in degrees in scale, not absolute offset
+	    			if ((i - melodyScale.Degrees[offsetDif % 7]) >= 0)
+	    				newHeldNote[i - melodyScale.Degrees[offsetDif % 7]] = true;
+	    		}
+	    	}
+	    	
+	    	//Send notes for new key
+	    	for(int i=0; i<128;i++)
+	    	{ 
+	    		if(newHeldNote[i])
+	    		{		
+	    			Note melodySend;
+	    			melodySend = new Note(i,100, 0);
+	    			midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
+	    			addEvent(melodySend);
+	    			heldNote[i]=true;
+	    			displayNote[i] = DisplayGrid.SOLID;
+	    			newHeldNote[i]=false;
+	    		}
+	    	}
+	    }
    	 }
 		
 	}

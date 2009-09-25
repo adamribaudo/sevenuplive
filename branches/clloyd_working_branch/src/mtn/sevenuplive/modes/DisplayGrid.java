@@ -24,6 +24,7 @@ public class DisplayGrid {
 	public static final int SLOWBLINK = 1;
 	public static final int SOLID = 3;
 	public static final int OFF = 0;
+	public static final int UNDEFINED = -1;
 	private static final  int SLOWBLINKFRAME = 10;
 	private static final int FASTBLINKFRAME = 1;
 

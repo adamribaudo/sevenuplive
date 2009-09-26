@@ -32,11 +32,15 @@ public class NoteSequence {
 	private ArrayList<Integer> notesOn;
 	private int recMode = ModeConstants.MEL_ON_BUTTON_PRESS;
 	
-	NoteSequence(int _index){
+	private PlayContext context;
+	
+	
+	NoteSequence(int _index, PlayContext context){
 		initialize();
 		index = _index;
 		counter = 0;
 		heldNotesPlaying = new Hashtable<Integer, Note>();
+		this.context = context;
 	}
 	
 	private void initialize()
@@ -142,6 +146,10 @@ public class NoteSequence {
 				//Keep track of which notes are playing
 				ArrayList<Note> noteList;
 				noteList = events.get(counter);
+				
+				// If there are transpositions then the notelist returned will be a clone with the transpositions
+				noteList = context.transpose(noteList);
+				
 				for(int i=0;i<noteList.size();i++)
 				{
 					if(noteList.get(i).getVelocity() > 0)

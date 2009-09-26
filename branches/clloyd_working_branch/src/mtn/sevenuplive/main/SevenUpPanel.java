@@ -45,6 +45,8 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	JButton btnPrevPatch;
 	JButton btnNextPatch;
 	JCheckBox chkMuteLooper;
+	JCheckBox chkTranspose1;
+	JCheckBox chkTranspose2;
 	JFrame parentFrame;
 	JPanel secondPanel;
 	
@@ -66,7 +68,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
     	
     	// Resize a bit
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,570,420);
+    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,600,420);
  
     	try
     	{
@@ -389,6 +391,45 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        c.gridx = 0; c.gridy = 3; firstPanel.add(lblGateLoopChoke, c);
 	        c.gridx = 1; firstPanel.add(drpGateLoopChoke, c);
 	        
+	       // Enable transpose mode for melodizer
+	        JLabel lblTranspose1 = new JLabel("Transpose Melodizer 1");
+	        setSizeSmall(lblTranspose1);
+	        lblTranspose1.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
+	    	
+	        chkTranspose1 = new JCheckBox();
+	        setSizeSmall(chkTranspose1);
+	        chkTranspose1.addActionListener(
+	        		new ActionListener(){
+	        			public void actionPerformed(ActionEvent e) {
+	        				setDirty(true);
+	        				JCheckBox chk = (JCheckBox)e.getSource();
+	       					sevenUpApplet.setMelody1Transpose(chk.isSelected());
+	        			}
+	        		}
+	        );
+	        
+	        c.gridx = 0; c.gridy = 4; firstPanel.add(lblTranspose1, c);
+	        c.gridx = 1; firstPanel.add(chkTranspose1, c);
+	        
+	        JLabel lblTranspose2 = new JLabel("Transpose Melodizer 2");
+	        setSizeSmall(lblTranspose2);
+	        lblTranspose2.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
+	    	
+	        chkTranspose2 = new JCheckBox();
+	        setSizeSmall(chkTranspose2);
+	        chkTranspose2.addActionListener(
+	        		new ActionListener(){
+	        			public void actionPerformed(ActionEvent e) {
+	        				setDirty(true);
+	        				JCheckBox chk = (JCheckBox)e.getSource();
+	       					sevenUpApplet.setMelody2Transpose(chk.isSelected());
+	        			}
+	        		}
+	        );
+	        
+	        c.gridx = 2; c.gridy = 4; firstPanel.add(lblTranspose2, c);
+	        c.gridx = 3; firstPanel.add(chkTranspose2, c);
+	        
 	        //Add mute looper checkbox
 	        JLabel lblMuteLooper = new JLabel("Mute Looper (to assign MIDI)");
 	        setSizeSmall(lblMuteLooper);
@@ -406,8 +447,9 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        		}
 	        );
 	        
-	        c.gridx = 0; c.gridy = 4; firstPanel.add(lblMuteLooper, c);
+	        c.gridx = 0; c.gridy = 5; firstPanel.add(lblMuteLooper, c);
 	        c.gridx = 1; firstPanel.add(chkMuteLooper, c);
+	        
 	        
 	        //Add prev/next patch buttons
 	        btnPrevPatch = new JButton("<< Prev Patch");
@@ -494,6 +536,10 @@ public class SevenUpPanel extends JPanel implements ActionListener
         	if(drpScaleChoices2.getItemAt(i).toString().equals(melodyScale2.label.toString()))
         		drpScaleChoices2.setSelectedIndex(i);
         }
+        
+        chkTranspose1.setSelected(sevenUpApplet.getMelody1Transpose());
+        chkTranspose2.setSelected(sevenUpApplet.getMelody2Transpose());
+        
         
         for(int i = 0; i < drpMelodizerModeChoices2.getItemCount(); i++)
     	{

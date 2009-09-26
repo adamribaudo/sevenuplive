@@ -5,7 +5,6 @@ import java.util.Hashtable;
 import java.util.List;
 
 import mtn.sevenuplive.main.MonomeUp;
-import mtn.sevenuplive.modes.Mode.MenuFocusEvent;
 import mtn.sevenuplive.scales.Scale;
 import mtn.sevenuplive.scales.ScaleName;
 
@@ -22,7 +21,7 @@ import promidi.Note;
  * 
  * Contains the logic involved in recording and playing back sequences of melodies for a MonomeUp.
  */
-public class Melodizer extends Mode {
+public class Melodizer extends Mode implements PlayContext {
 	
 	public int key[];
 	public int offset[];
@@ -31,7 +30,7 @@ public class Melodizer extends Mode {
 	private boolean isRecording;
 	
 	// Should changing the key or offset transpose the sequence that is playing?
-	private boolean transpose = true;
+	private boolean transpose = false;
 	
 	// Different display modes for Melodizer
 	public enum eMelodizerMode {KEYBOARD, CLIP, NONE, POSITION};
@@ -203,6 +202,18 @@ public class Melodizer extends Mode {
 	
 	/**
 	 * Calculate the note under a pad in the grid
+	 * Taking into account the scale only 
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private int convertGridPositionToNoteNoOffset(int x, int y) {
+		int note = (((8-y) * 12 - 12) + melodyScale.Degrees[x % 7] + key[curSeqBank]);
+		return note;
+	}
+	/**
+	 * Calculate the note under a pad in the grid
 	 * Taking into account the scale and the degree 
 	 * offset within the scale.
 	 * 
@@ -218,7 +229,31 @@ public class Melodizer extends Mode {
 			{
 				gridNote = convertGridPositionToNote(j, k);
 				if (gridNote == note) {
-					System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
+					//System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
+					return new GridPosition(j, k);
+				}
+			}
+		}	
+		return null;
+	}
+	
+	/**
+	 * Calculate the note under a pad in the grid
+	 * Taking into account the scale only 
+	 * 
+	 * @param note 0-127
+	 * @return First grid position, higher coordinate top/left if duplicates, null if not found
+	 */
+	private GridPosition convertNoteToGridPositionNoOffset(int note) {
+		int gridNote;
+		
+		for(int j=0;j<7;j++)
+		{
+			for(int k=0;k<8;k++)
+			{
+				gridNote = convertGridPositionToNoteNoOffset(j, k);
+				if (gridNote == note) {
+					//System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
 					return new GridPosition(j, k);
 				}
 			}
@@ -525,7 +560,7 @@ public class Melodizer extends Mode {
 	{
 		if(!sequences.containsKey(seqIndex))
 		{
-			sequences.put(seqIndex, new NoteSequence(seqIndex));
+			sequences.put(seqIndex, new NoteSequence(seqIndex, this));
 			setMelRecMode(recMode);
 		}
 		
@@ -536,6 +571,10 @@ public class Melodizer extends Mode {
 	
 	public void endRecording()
 	{
+		if (transpose) {
+			offset[curSeqBank] = 0;
+			updateDisplayGrid();
+		}
 		sequences.get(cuedIndex).endRecording();
 		cuedIndex = -1;
 	}
@@ -597,6 +636,7 @@ public class Melodizer extends Mode {
 		xmlMelodizer.setAttribute(new Attribute("clipMode", currentMode == eMelodizerMode.CLIP ? "true" : "false"));
 		xmlMelodizer.setAttribute(new Attribute("melodizerMode", currentMode.toString()));
 		xmlMelodizer.setAttribute(new Attribute("altMode", altMode.toString()));
+		xmlMelodizer.setAttribute(new Attribute("transpose", Boolean.toString(transpose)));
 		String keyString = "";
 		for(int i=0;i<key.length;i++)
 		{
@@ -644,6 +684,9 @@ public class Melodizer extends Mode {
 			if (xmlMelodizer.getAttribute("altMode") != null) {
 				altMode = eMelodizerMode.valueOf(xmlMelodizer.getAttribute("altMode").getValue());
 			}
+			if (xmlMelodizer.getAttribute("transpose") != null) {
+				transpose = Boolean.parseBoolean(xmlMelodizer.getAttribute("transpose").getValue());
+			}
 		} catch (DataConversionException e) {
 			// Do nothing
 		} catch (NullPointerException e) {
@@ -672,7 +715,7 @@ public class Melodizer extends Mode {
 				{
 					index = Integer.parseInt(xmlSequence.getAttributeValue("index"));	
 					key[index] = Integer.parseInt(xmlSequence.getAttributeValue("key"));
-					sequence = new NoteSequence(index);
+					sequence = new NoteSequence(index, this);
 					setMelRecMode(recMode);
 					sequence.loadJDOMXMLElement(xmlSequence);
 					//Set status to stopped if there is a sequence
@@ -800,6 +843,14 @@ public class Melodizer extends Mode {
 		setAltMode(oldCurrentMode);
 	}
 	
+	public boolean getTranspose() {
+		return transpose;
+	}
+
+	public void setTranspose(boolean transpose) {
+		this.transpose = transpose;
+	}
+	
 	/**
 	 * Called when NavMenu change is being cued, aborted or committed
 	 */
@@ -818,6 +869,28 @@ public class Melodizer extends Mode {
 		}
 	}
 
+	/**
+	 * Perform pitch transformation if
+	 * requested on running note sequences
+	 * Note that 
+	 */
+	public ArrayList<Note> transpose(ArrayList<Note> notes) {
+		if (!transpose)
+			return notes;
+		
+		ArrayList<Note> newNotes = new ArrayList<Note>();
+		
+		for (Note note : notes) {
+			int pitch = note.getPitch();
+			GridPosition pos = convertNoteToGridPositionNoOffset(pitch);
+			GridPosition newpos = pos.offsetX(offset[curSeqBank]);
+			pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y);
+			//System.out.println("In note:" + Integer.toString(note.getPitch()) + "," + Integer.toString(note.getVelocity()) + "," + Integer.toString(note.getLength()));
+			//System.out.println("Out note:" + Integer.toString(pitch) + "," + Integer.toString(note.getVelocity()) + "," + Integer.toString(note.getLength()));
+			newNotes.add(new Note(pitch, note.getVelocity(), note.getLength()));
+		}
+		return newNotes;
+	}
 	
 	public class GridPosition {
 		private static final int DIM_X = 7;
@@ -837,8 +910,8 @@ public class Melodizer extends Mode {
 		 * Return null if off the grid
 		 */
 		public GridPosition offsetX(int offset_x) {
-			int new_x = offset_x % DIM_X;
-			int new_y = y - Math.abs(offset_x / DIM_X);
+			int new_x = (offset_x + x) % DIM_X;
+			int new_y = y - Math.abs((offset_x + x) / DIM_X);
 			if (new_x < DIM_X && new_y < DIM_Y && 
 					new_x >= 0 && new_y >= 0)
 				return new GridPosition(new_x, new_y);
@@ -846,6 +919,5 @@ public class Melodizer extends Mode {
 				return null;
 		}
 	}
-
 
 }

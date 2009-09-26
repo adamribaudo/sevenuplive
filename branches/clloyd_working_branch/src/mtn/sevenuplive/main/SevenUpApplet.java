@@ -374,6 +374,14 @@ public class SevenUpApplet extends processing.core.PApplet
 		return AllModes.getInstance().getMelodizer2().getCurrentMode();
 	}
 	
+	public void setMelody1Transpose(boolean transpose) {
+		AllModes.getInstance().getMelodizer1().setTranspose(transpose);
+	}
+
+	public boolean getMelody1Transpose() {
+		return AllModes.getInstance().getMelodizer1().getTranspose();
+	}
+	
 	public void setMelody1AltMode(Melodizer.eMelodizerMode mode) {
 		AllModes.getInstance().getMelodizer1().setAltMode(mode);
 	}
@@ -383,6 +391,14 @@ public class SevenUpApplet extends processing.core.PApplet
 		return AllModes.getInstance().getMelodizer1().getAltMode();
 	}
 	
+	public void setMelody2Transpose(boolean transpose) {
+		AllModes.getInstance().getMelodizer2().setTranspose(transpose);
+	}
+
+	public boolean getMelody2Transpose() {
+		return AllModes.getInstance().getMelodizer2().getTranspose();
+	}
+
 	public void setMelody2AltMode(Melodizer.eMelodizerMode mode) {
 		AllModes.getInstance().getMelodizer2().setAltMode(mode);
 	}
@@ -394,9 +410,8 @@ public class SevenUpApplet extends processing.core.PApplet
 	
 	public void setLooperMute(boolean mute) {
 		m.setLooperMute(mute);
-		
 	}
-
+	
 	public void setMelRecMode(int melRecMode) {
 		m.setMelRecMode(melRecMode);
 	}

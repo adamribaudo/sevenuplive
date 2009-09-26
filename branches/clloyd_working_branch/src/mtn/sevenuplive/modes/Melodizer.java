@@ -23,10 +23,29 @@ import promidi.Note;
  */
 public class Melodizer extends Mode implements PlayContext {
 	
+	/** 
+	 * This is used to record the key state when a recorded pattern
+	 * is triggered. And use it in transpose mode to compute the key offset  
+	 */
+	public int startingKey[];
+	
+	/** This is currently active key for each slot */
 	public int key[];
+	
+	/** This is the scale offset/position in degrees for each slot */
 	public int offset[];
+	
+	/** 
+	 * This is used to record the offset state when a recorded pattern
+	 * is triggered. And use it in transpose mode to compute the offset  
+	 */
+	public int startingOffset[];
+	
 	public Hashtable <Integer, NoteSequence> sequences;
 	private int cuedIndex;
+	
+	/** Temp state for knowing which sequence index is being transposed */
+	private int transpositionIndex; 
 	private boolean isRecording;
 	
 	// Should changing the key or offset transpose the sequence that is playing?
@@ -47,11 +66,13 @@ public class Melodizer extends Mode implements PlayContext {
 	
 	private int recMode = ModeConstants.MEL_ON_BUTTON_PRESS;
 	
-	public Melodizer(int _navRow, MidiOut _midiMelodyOut[], int grid_width, int grid_height){
+	public Melodizer(int _navRow, MidiOut _midiMelodyOut[], int grid_width, int grid_height) {
 		super(_navRow, grid_width, grid_height);
 		midiMelodyOut = _midiMelodyOut;
 		key = new int[7];
 		offset = new int[7];
+		startingKey = new int[7];
+		startingOffset = new int[7];
 		cuedIndex = -1;
 		sequences = new Hashtable<Integer, NoteSequence>();
 		curSeqBank = 0;
@@ -511,7 +532,11 @@ public class Melodizer extends Mode implements PlayContext {
 		{
 			index = Integer.class.cast(els.nextElement());
 			s = sequences.get(index);
+			
+			// Set this state, it will be used in callback to transpose() method.
+			transpositionIndex = index;
 			noteList = s.heartbeat();
+			
 			if(noteList != null)
 			{
 				//package the note
@@ -571,10 +596,7 @@ public class Melodizer extends Mode implements PlayContext {
 	
 	public void endRecording()
 	{
-		if (transpose) {
-			offset[curSeqBank] = 0;
-			updateDisplayGrid();
-		}
+		markTransposeStart(cuedIndex);
 		sequences.get(cuedIndex).endRecording();
 		cuedIndex = -1;
 	}
@@ -601,6 +623,7 @@ public class Melodizer extends Mode implements PlayContext {
 	{
 		if(sequences.containsKey(seqIndex))
 		{
+			markTransposeStart(seqIndex);
 			sequences.get(seqIndex).play();
 			return true;
 		}
@@ -746,15 +769,6 @@ public class Melodizer extends Mode implements PlayContext {
 			}	
 			else if(vel == 127 || vel == 1)//PLAY or continue
 			{
-				/*
-				//Set all other notes in this note's melodizer column to off (only 1 note in one column can be playing at a time)
-				int lowestPitch = 0;
-				for(int i = pitch;i>=0;i-=12)
-					lowestPitch = i;
-				for(int i = lowestPitch;i<=127;i+=12)
-					clipNotes[channel][i] = DisplayGrid.OFF;
-				*/
-				
 				//Turn on the note that actually plays
 				clipNotes[channel][pitch] = DisplayGrid.SOLID;
 			}
@@ -852,6 +866,23 @@ public class Melodizer extends Mode implements PlayContext {
 	}
 	
 	/**
+	 * Mark the beginning of a transpose session on a sequence
+	 * If transpose flag is off, nothing is done.
+	 * @param seqIndex
+	 */
+	private void markTransposeStart(int seqIndex) {
+		/** 
+		 * If transposing then record this as the starting offset 
+		 * and key 
+		 */
+		if (transpose) {
+			startingOffset[seqIndex] = offset[seqIndex];
+			startingKey[seqIndex] = key[seqIndex];
+		}
+	}
+
+	
+	/**
 	 * Called when NavMenu change is being cued, aborted or committed
 	 */
 	@Override
@@ -875,15 +906,18 @@ public class Melodizer extends Mode implements PlayContext {
 	 * Note that 
 	 */
 	public ArrayList<Note> transpose(ArrayList<Note> notes) {
-		if (!transpose)
+		if (!transpose || curSeqBank != transpositionIndex)
 			return notes;
 		
 		ArrayList<Note> newNotes = new ArrayList<Note>();
 		
+		int localOffset = offset[curSeqBank] - startingOffset[curSeqBank];
+		int localKeyOffset = key[curSeqBank] - startingKey[curSeqBank];
+		
 		for (Note note : notes) {
 			int pitch = note.getPitch();
-			GridPosition pos = convertNoteToGridPositionNoOffset(pitch);
-			GridPosition newpos = pos.offsetX(offset[curSeqBank]);
+			GridPosition pos = convertNoteToGridPositionNoOffset(pitch + localKeyOffset);
+			GridPosition newpos = pos.offsetX(localOffset);
 			pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y);
 			//System.out.println("In note:" + Integer.toString(note.getPitch()) + "," + Integer.toString(note.getVelocity()) + "," + Integer.toString(note.getLength()));
 			//System.out.println("Out note:" + Integer.toString(pitch) + "," + Integer.toString(note.getVelocity()) + "," + Integer.toString(note.getLength()));
@@ -892,7 +926,27 @@ public class Melodizer extends Mode implements PlayContext {
 		return newNotes;
 	}
 	
-	public class GridPosition {
+	// Grid Test
+	public static void main(String args[]) {
+		Melodizer.GridPosition grid = new Melodizer.GridPosition(5,4);
+		
+		System.out.println(grid);
+		System.out.println("offset x by 5");
+		grid = grid.offsetX(5);
+		
+		System.out.println(grid);
+		System.out.println("offset x by -8");
+		grid = grid.offsetX(-8);
+		
+		System.out.println(grid);
+		
+		System.out.println("offset x by -12");
+		grid = grid.offsetX(-12);
+		
+		System.out.println(grid);
+	}
+	
+	public static class GridPosition {
 		private static final int DIM_X = 7;
 		private static final int DIM_Y = 8;
 		
@@ -910,14 +964,28 @@ public class Melodizer extends Mode implements PlayContext {
 		 * Return null if off the grid
 		 */
 		public GridPosition offsetX(int offset_x) {
-			int new_x = (offset_x + x) % DIM_X;
-			int new_y = y - Math.abs((offset_x + x) / DIM_X);
+			int new_x;
+			int new_y;
+			if ((offset_x + x) >= 0) {
+				new_x = (offset_x + x) % DIM_X;
+				new_y = y - Math.abs((offset_x + x) / DIM_X);
+			} else {
+				new_x = DIM_X - (Math.abs(offset_x + x) % DIM_X);
+				new_y = y - (Math.abs((offset_x + x) / DIM_X) + 1) ;
+			} 
+			
 			if (new_x < DIM_X && new_y < DIM_Y && 
 					new_x >= 0 && new_y >= 0)
 				return new GridPosition(new_x, new_y);
 			else
 				return null;
 		}
+		
+		public String toString() {
+			return Integer.toString(x) + "," + Integer.toString(y);
+		}
+		
+		
 	}
 
 }

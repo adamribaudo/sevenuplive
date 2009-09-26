@@ -118,6 +118,7 @@ public class NoteSequence {
 	/**
 	 * Called by the intiating class in order to cycle through the sequence events and return any notes to be played
 	 * @return An ArrayList to be played at the current count.  If no events, returns null.
+	 * 
 	 */
 	public ArrayList<Note> heartbeat()
 	{

@@ -148,9 +148,6 @@ public class NoteSequence {
 				ArrayList<Note> noteList;
 				noteList = events.get(counter);
 				
-				// If there are transpositions then the notelist returned will be a clone with the transpositions
-				noteList = context.transpose(noteList);
-				
 				for(int i=0;i<noteList.size();i++)
 				{
 					if(noteList.get(i).getVelocity() > 0)

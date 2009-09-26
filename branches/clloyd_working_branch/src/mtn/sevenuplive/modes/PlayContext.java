@@ -11,6 +11,6 @@ public interface PlayContext {
 	 * Note that if notes are modified, a new Array with new notes should be returned
 	 * @param notes
 	 */
-	public ArrayList<Note> transpose(ArrayList<Note> notes);
+	public ArrayList<Note> transpose(ArrayList<Note> notes, int transpositionIndex);
 
 }

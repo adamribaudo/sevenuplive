@@ -924,13 +924,13 @@ public class Melodizer extends Mode implements PlayContext {
 	 * 
 	 */
 	public ArrayList<Note> transpose(ArrayList<Note> notes, int transpositionIndex) {
-		if (!transpose || curSeqBank != transpositionIndex)
+		if (!transpose || notes == null)
 			return notes;
 
 		ArrayList<Note> newNotes = new ArrayList<Note>();
 
-		int localOffset = offset[curSeqBank] - startingOffset[curSeqBank];
-		int localKeyOffset = key[curSeqBank] - startingKey[curSeqBank];
+		int localOffset = offset[transpositionIndex] - startingOffset[transpositionIndex];
+		int localKeyOffset = key[transpositionIndex] - startingKey[transpositionIndex];
 
 		for (Note note : notes) {
 			int pitch = note.getPitch();
@@ -944,7 +944,7 @@ public class Melodizer extends Mode implements PlayContext {
 				newNotes.add(new Note(pitch, note.getVelocity(), note.getLength()));
 			}	
 		}
-		return newNotes;
+		return newNotes; 
 	}
 
 	// Grid Test

@@ -214,7 +214,8 @@ public class Melodizer extends Mode implements PlayContext {
 	 * @return
 	 */
 	private int convertGridPositionToNote(int x, int y) {
-		int note = (((8-y) * 12 - 12) + (Math.abs((x + offset[curSeqBank]) / 7) * 12) + melodyScale.Degrees[((x + offset[curSeqBank]) % 7)] + key[curSeqBank]);
+		int note = (((8-y) * 12 - 12) + (Math.abs((x + offset[curSeqBank]) / melodyScale.Degrees.length) * 12) + melodyScale.Degrees[((x + offset[curSeqBank]) % melodyScale.Degrees.length)] + key[curSeqBank]);
+		
 		//System.out.println("Position to Note->Grid x:" + Integer.toString(x) + " y:" + Integer.toString(y) + " note:" + Integer.toString(note));
 		return note;
 	}
@@ -228,7 +229,7 @@ public class Melodizer extends Mode implements PlayContext {
 	 * @return
 	 */
 	private int convertGridPositionToNoteNoOffset(int x, int y) {
-		int note = (((8-y) * 12 - 12) + melodyScale.Degrees[x % 7] + key[curSeqBank]);
+		int note = (((8-y) * 12 - 12) + melodyScale.Degrees[x % melodyScale.Degrees.length] + key[curSeqBank]);
 		return note;
 	}
 	
@@ -250,7 +251,7 @@ public class Melodizer extends Mode implements PlayContext {
 				gridNote = convertGridPositionToNote(j, k);
 				if (gridNote == note) {
 					//System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
-					return new GridPosition(j, k);
+					return new GridPosition(this.melodyScale, j, k);
 				}
 			}
 		}	
@@ -274,7 +275,7 @@ public class Melodizer extends Mode implements PlayContext {
 				gridNote = convertGridPositionToNoteNoOffset(j, k);
 				if (gridNote == note) {
 					//System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
-					return new GridPosition(j, k);
+					return new GridPosition(this.melodyScale, j, k);
 				}
 			}
 		}	
@@ -385,7 +386,9 @@ public class Melodizer extends Mode implements PlayContext {
 			//Calculate the pitch by the octave (y) and the transposed scale
 			int melodyPitch;
 			melodyPitch = convertGridPositionToNote(x, y);
-
+			
+			System.out.println("Press note at " +  Integer.toString((x + offset[curSeqBank]) % 7) +  " degrees");
+			
 			Note melodySend;
 			melodySend = new Note(melodyPitch,100, 0);
 			heldNote[melodyPitch] = true;
@@ -949,7 +952,7 @@ public class Melodizer extends Mode implements PlayContext {
 
 	// Grid Test
 	public static void main(String args[]) {
-		Melodizer.GridPosition grid = new Melodizer.GridPosition(5,4);
+		Melodizer.GridPosition grid = new Melodizer.GridPosition(null, 5,4);
 
 		System.out.println(grid);
 		System.out.println("offset x by 5");
@@ -970,13 +973,22 @@ public class Melodizer extends Mode implements PlayContext {
 	public static class GridPosition {
 		private static final int DIM_X = 7;
 		private static final int DIM_Y = 8;
-
+		private int degrees = 7;
+		private Scale scale;
+		
 		public int x;
 		public int y;
 
-		public GridPosition(int x, int y) {
-			this.x = x;
-			this.y = y;
+		public GridPosition(Scale scale, int x, int y) {
+			this.scale = scale;
+			if (scale != null)
+				this.degrees = scale.Degrees.length;
+			
+			int width = Math.min(degrees, DIM_X);
+			
+			this.x = (x % width);
+			this.y = y  - Math.abs(x / width);	
+				
 		}
 
 		/** 
@@ -987,17 +999,20 @@ public class Melodizer extends Mode implements PlayContext {
 		public GridPosition offsetX(int offset_x) {
 			int new_x;
 			int new_y;
+			
+			int width = Math.min(degrees, DIM_X);
+			
 			if ((offset_x + x) >= 0) {
-				new_x = (offset_x + x) % DIM_X;
-				new_y = y - Math.abs((offset_x + x) / DIM_X);
+				new_x = (offset_x + x) % width;
+				new_y = y - Math.abs((offset_x + x) / width);
 			} else {
-				new_x = DIM_X - (Math.abs(offset_x + x) % DIM_X);
-				new_y = y - (Math.abs((offset_x + x) / DIM_X) + 1) ;
+				new_x = width - (Math.abs(offset_x + x) % width);
+				new_y = y - (Math.abs((offset_x + x) / width)) ;
 			} 
 
-			if (new_x < DIM_X && new_y < DIM_Y && 
+			if (new_x < width && new_y < width && 
 					new_x >= 0 && new_y >= 0)
-				return new GridPosition(new_x, new_y);
+				return new GridPosition(this.scale, new_x, new_y);
 			else
 				return null;
 		}

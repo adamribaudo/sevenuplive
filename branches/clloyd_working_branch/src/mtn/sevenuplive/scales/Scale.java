@@ -12,37 +12,36 @@ public class Scale {
 		case MinorPentatonic:
 			Name = ScaleName.MinorPentatonic;
 			label = "Pentatonic (Minor)";
+			Degrees = new int[5];
 			Degrees[0] = 0;
 			Degrees[1] = 3;
 			Degrees[2] = 4;
 			Degrees[3] = 5;
 			Degrees[4] = 7;
-			Degrees[5] = 12;
-			Degrees[6] = 15;
 			break;
 		case Pentatonic:
 			Name = ScaleName.Pentatonic;
 			label = "Pentatonic";
+			Degrees = new int[5];
 			Degrees[0] = 0;
 			Degrees[1] = 2;
 			Degrees[2] = 4;
 			Degrees[3] = 7;
 			Degrees[4] = 9;
-			Degrees[5] = 12;
-			Degrees[6] = 14;
 			break;
 		case Blues:
 			Name = ScaleName.Blues;
 			label = "Blues";
+			Degrees = new int[6];
 			Degrees[0] = 0;
 			Degrees[1] = 2;
 			Degrees[2] = 3;
 			Degrees[3] = 4;
 			Degrees[4] = 7;
 			Degrees[5] = 9;
-			Degrees[6] = 12;
 			break;
 		case MinorBlues:
+			Degrees = new int[6];
 			Name = ScaleName.MinorBlues;
 			label = "Blues (Minor)";
 			Degrees[0] = 0;
@@ -51,7 +50,6 @@ public class Scale {
 			Degrees[3] = 6;
 			Degrees[4] = 7;
 			Degrees[5] = 10;
-			Degrees[6] = 12;
 			break;
 		case Dorian:
 			Name = ScaleName.Dorian;

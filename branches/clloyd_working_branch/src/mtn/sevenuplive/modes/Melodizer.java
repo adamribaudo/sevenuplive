@@ -972,7 +972,6 @@ public class Melodizer extends Mode implements PlayContext {
 
 	public static class GridPosition {
 		private static final int DIM_X = 7;
-		private static final int DIM_Y = 8;
 		private int degrees = 7;
 		private Scale scale;
 		

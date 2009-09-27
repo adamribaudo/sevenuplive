@@ -6,6 +6,14 @@ public class Scale {
 	public ScaleName Name;
 	public String label;
 	
+	/**
+	 * The Commandments of Scales in 7up
+	 * 
+	 * You can have less than 7 degrees, but never more
+	 * A degree cannot be more than 11
+	 * 
+	 * @param name
+	 */
 	public Scale(ScaleName name){
 		Degrees = new int[7];
 		switch(name){
@@ -153,7 +161,6 @@ public class Scale {
 		case Chromatic:
 			Name = ScaleName.Chromatic;
 			label = "Chromatic";
-			Degrees = new int[12];
 			Degrees[0] = 0;
 			Degrees[1] = 1;
 			Degrees[2] = 2;
@@ -161,11 +168,6 @@ public class Scale {
 			Degrees[4] = 4;
 			Degrees[5] = 5;
 			Degrees[6] = 6;
-			Degrees[7] = 7;
-			Degrees[8] = 8;
-			Degrees[9] = 9;
-			Degrees[10] = 10;
-			Degrees[11] = 11;
 			break;
 		}
 	}

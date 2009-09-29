@@ -177,7 +177,7 @@ public class Melodizer extends Mode implements PlayContext {
 			{
 				for(int k=0;k<8;k++)
 				{
-					noteStatus = displayNote[convertGridPositionToNote(j, k)];
+					noteStatus = displayNote[convertGridPositionToNote(j, k, curSeqBank)];
 
 					if (currentMode == eMelodizerMode.KEYBOARD && k < 7) {
 						if(noteStatus != DisplayGrid.OFF)
@@ -212,10 +212,11 @@ public class Melodizer extends Mode implements PlayContext {
 	 * 
 	 * @param x
 	 * @param y
+	 * @param sequence which sequence are we operating on
 	 * @return
 	 */
-	private int convertGridPositionToNote(int x, int y) {
-		int note = (((8-y) * 12 - 12) + (Math.abs((x + offset[curSeqBank]) / melodyScale.Degrees.length) * 12) + melodyScale.Degrees[((x + offset[curSeqBank]) % melodyScale.Degrees.length)] + key[curSeqBank]);
+	private int convertGridPositionToNote(int x, int y, int sequence) {
+		int note = (((8-y) * 12 - 12) + (Math.abs((x + offset[sequence]) / melodyScale.Degrees.length) * 12) + melodyScale.Degrees[((x + offset[sequence]) % melodyScale.Degrees.length)] + key[sequence]);
 		
 		//System.out.println("Position to Note->Grid x:" + Integer.toString(x) + " y:" + Integer.toString(y) + " note:" + Integer.toString(note));
 		return note;
@@ -227,10 +228,11 @@ public class Melodizer extends Mode implements PlayContext {
 	 * 
 	 * @param x
 	 * @param y
+	 * @param sequence which sequence are we operating on
 	 * @return
 	 */
-	private int convertGridPositionToNoteNoOffset(int x, int y) {
-		int note = (((8-y) * 12 - 12) + melodyScale.Degrees[x % melodyScale.Degrees.length] + key[curSeqBank]);
+	private int convertGridPositionToNoteNoOffset(int x, int y, int sequence) {
+		int note = (((8-y) * 12 - 12) + melodyScale.Degrees[x % melodyScale.Degrees.length] + key[sequence]);
 		return note;
 	}
 	
@@ -253,16 +255,17 @@ public class Melodizer extends Mode implements PlayContext {
 	 * offset within the scale.
 	 * 
 	 * @param note 0-127
+	 * @param sequence which sequence are we operating on
 	 * @return First grid position, higher coordinate top/left if duplicates, null if not found
 	 */
-	private GridPosition convertNoteToGridPosition(int note) {
+	private GridPosition convertNoteToGridPosition(int note, int sequence) {
 		int gridNote;
 
 		for(int j=0;j<7;j++)
 		{
 			for(int k=0;k<8;k++)
 			{
-				gridNote = convertGridPositionToNote(j, k);
+				gridNote = convertGridPositionToNote(j, k, sequence);
 				if (gridNote == note) {
 					//System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
 					return new GridPosition(this.melodyScale, j, k);
@@ -277,16 +280,17 @@ public class Melodizer extends Mode implements PlayContext {
 	 * Taking into account the scale only 
 	 * 
 	 * @param note 0-127
+	 * @param sequence
 	 * @return First grid position, higher coordinate top/left if duplicates, null if not found
 	 */
-	private GridPosition convertNoteToGridPositionNoOffset(int note) {
+	private GridPosition convertNoteToGridPositionNoOffset(int note, int sequence) {
 		int gridNote;
 
 		for(int j=0;j<7;j++)
 		{
 			for(int k=0;k<8;k++)
 			{
-				gridNote = convertGridPositionToNoteNoOffset(j, k);
+				gridNote = convertGridPositionToNoteNoOffset(j, k, sequence);
 				if (gridNote == note) {
 					//System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
 					return new GridPosition(this.melodyScale, j, k);
@@ -325,7 +329,7 @@ public class Melodizer extends Mode implements PlayContext {
 	public void release(int x, int y)
 	{
 		int melodyPitch;
-		melodyPitch = convertGridPositionToNote(x, y);
+		melodyPitch = convertGridPositionToNote(x, y, curSeqBank);
 		heldNote[melodyPitch] = false;
 		if(currentMode != eMelodizerMode.CLIP)
 			displayNote[melodyPitch] = DisplayGrid.OFF;
@@ -403,7 +407,7 @@ public class Melodizer extends Mode implements PlayContext {
 			if (currentMode == eMelodizerMode.CLIP)
 				melodyPitch = convertGridPositionToClipNote(x, y);
 			else	
-				melodyPitch = convertGridPositionToNote(x, y);
+				melodyPitch = convertGridPositionToNote(x, y, curSeqBank);
 			
 			//System.out.println("Press note at " +  Integer.toString((x + offset[curSeqBank]) % melodyScale.Degrees.length) +  " degrees");
 			
@@ -478,7 +482,7 @@ public class Melodizer extends Mode implements PlayContext {
 			// Mark all old positions
 			for(int i=0; i<128;i++)
 			{
-				oldPositions[i] = convertNoteToGridPosition(i);
+				oldPositions[i] = convertNoteToGridPosition(i, curSeqBank);
 				
 				// If transposing we want the old pitch here
 				if (transpose) 
@@ -510,7 +514,7 @@ public class Melodizer extends Mode implements PlayContext {
 					// Can't compute if we don't know the original position
 					if (oldPositions[i] != null) { 
 						// Because offset has changed, new note will be a different note from same grid position
-						int newNote = convertGridPositionToNote(oldPositions[i].x, oldPositions[i].y);
+						int newNote = convertGridPositionToNote(oldPositions[i].x, oldPositions[i].y, curSeqBank);
 						newHeldNote[newNote] = true;
 					}
 				}
@@ -630,7 +634,7 @@ public class Melodizer extends Mode implements PlayContext {
 
 	public void endRecording()
 	{
-		markTransposeStart(cuedIndex);
+		markSequenceOffsets(cuedIndex);
 		sequences.get(cuedIndex).endRecording();
 		cuedIndex = -1;
 	}
@@ -657,7 +661,7 @@ public class Melodizer extends Mode implements PlayContext {
 	{
 		if(sequences.containsKey(seqIndex))
 		{
-			markTransposeStart(seqIndex);
+			markSequenceOffsets(seqIndex);
 			sequences.get(seqIndex).play();
 			return true;
 		}
@@ -694,6 +698,8 @@ public class Melodizer extends Mode implements PlayContext {
 		xmlMelodizer.setAttribute(new Attribute("melodizerMode", currentMode.toString()));
 		xmlMelodizer.setAttribute(new Attribute("altMode", altMode.toString()));
 		xmlMelodizer.setAttribute(new Attribute("transpose", Boolean.toString(transpose)));
+		
+		// Serialize the Key in each pattern slot
 		String keyString = "";
 		for(int i=0;i<key.length;i++)
 		{
@@ -703,6 +709,42 @@ public class Melodizer extends Mode implements PlayContext {
 		}
 
 		xmlMelodizer.setAttribute(new Attribute("key", keyString));
+		
+		// Serialize the existing offset in each pattern slot
+		String offsetString = "";
+		for(int i=0;i<offset.length;i++)
+		{
+			offsetString += offset[i];
+			if(i!=offset.length-1)
+				offsetString+= ",";
+		}
+
+		xmlMelodizer.setAttribute(new Attribute("offset", offsetString));
+
+		// The starting offset and key is necessary when transpose is on, so we know how much transpose
+		// Offset there is from the patterns starting position
+		
+		// Serialize the starting offset in each pattern slot
+		String startingOffsetString = "";
+		for(int i=0;i<startingOffset.length;i++)
+		{
+			startingOffsetString += startingOffset[i];
+			if(i!=startingOffset.length-1)
+				startingOffsetString+= ",";
+		}
+
+		xmlMelodizer.setAttribute(new Attribute("startingOffset", startingOffsetString));
+
+		// Serialize the starting key in each pattern slot
+		String startingKeyString = "";
+		for(int i=0;i<startingKey.length;i++)
+		{
+			startingKeyString += startingKey[i];
+			if(i!=startingKey.length-1)
+				startingKeyString+= ",";
+		}
+
+		xmlMelodizer.setAttribute(new Attribute("startingKey", startingKeyString));
 
 		Element xmlSequence;
 
@@ -757,6 +799,34 @@ public class Melodizer extends Mode implements PlayContext {
 				{
 					key[i] = Integer.parseInt(strKey);
 					i++;
+				}
+				try {
+					String offsetString = xmlMelodizer.getAttribute("offset").getValue();
+					int j=0;
+					for(String strOffset : offsetString.split(","))
+					{
+						offset[j] = Integer.parseInt(strOffset);
+						j++;
+					}
+					
+					String startingOffsetString = xmlMelodizer.getAttribute("startingOffset").getValue();
+					int k=0;
+					for(String strStartingOffset : startingOffsetString.split(","))
+					{
+						startingOffset[k] = Integer.parseInt(strStartingOffset);
+						k++;
+					}
+					
+					String startingKeyString = xmlMelodizer.getAttribute("startingKey").getValue();
+					int l=0;
+					for(String strStartingKey : startingKeyString.split(","))
+					{
+						startingKey[l] = Integer.parseInt(strStartingKey);
+						l++;
+					}
+					
+				} catch (Exception e) {
+					System.out.println("Error: could not parse transpose offsets: cause:" + e.getLocalizedMessage());
 				}
 			} catch (Exception e) {
 				System.out.println("Error: No key attribute found in XML file");
@@ -909,19 +979,16 @@ public class Melodizer extends Mode implements PlayContext {
 	}
 
 	/**
-	 * Mark the beginning of a transpose session on a sequence
-	 * If transpose flag is off, nothing is done.
+	 * Mark the state of key and offsets on a sequence
 	 * @param seqIndex
 	 */
-	private void markTransposeStart(int seqIndex) {
+	private void markSequenceOffsets(int seqIndex) {
 		/** 
-		 * If transposing then record this as the starting offset 
+		 * Record this as the starting offset 
 		 * and key 
 		 */
-		if (transpose) {
-			startingOffset[seqIndex] = offset[seqIndex];
-			startingKey[seqIndex] = key[seqIndex];
-		}
+		startingOffset[seqIndex] = offset[seqIndex];
+		startingKey[seqIndex] = key[seqIndex];
 	}
 
 
@@ -959,14 +1026,14 @@ public class Melodizer extends Mode implements PlayContext {
 
 		for (Note note : notes) {
 			int pitch = note.getPitch();
-			GridPosition pos = convertNoteToGridPositionNoOffset(pitch + localKeyOffset);
-			//System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + pos);
+			GridPosition pos = convertNoteToGridPositionNoOffset(pitch + localKeyOffset, transpositionIndex);
+			System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + pos);
 			
 			// Drop notes that fall off the grid
 			if (pos != null) {
 				GridPosition newpos = pos.offsetX(localOffset);
-				pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y);
-				//System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + newpos);
+				pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y, transpositionIndex);
+				System.out.println("new pitch:" + Integer.toString(pitch) + " Position:" + newpos + " offset:" + localOffset + " keyoffset:" + localKeyOffset);
 				newNotes.add(new Note(pitch, note.getVelocity(), note.getLength()));
 			}	
 		}

@@ -190,11 +190,11 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        
 	        //Melodizer 1 Mode
 	        
-	        //Remove clip launch option
 	        Vector<String> modeChoices = new Vector<String>();
 	        modeChoices.add(Melodizer.eMelodizerMode.KEYBOARD.toString());
 	        modeChoices.add(Melodizer.eMelodizerMode.POSITION.toString());
 	        modeChoices.add(Melodizer.eMelodizerMode.NONE.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.CLIP.toString());
 	        
 	        drpMelodizerModeChoices1 = new JComboBox(modeChoices);
 	        setSizeSmall(drpMelodizerModeChoices1);
@@ -235,7 +235,6 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        modeChoices.add(Melodizer.eMelodizerMode.KEYBOARD.toString());
 	        modeChoices.add(Melodizer.eMelodizerMode.POSITION.toString());
 	        modeChoices.add(Melodizer.eMelodizerMode.NONE.toString());
-	        modeChoices.add(Melodizer.eMelodizerMode.CLIP.toString());
 	        
 	        drpMelodizerModeChoices2 = new JComboBox(modeChoices);
 	        setSizeSmall(drpMelodizerModeChoices2);

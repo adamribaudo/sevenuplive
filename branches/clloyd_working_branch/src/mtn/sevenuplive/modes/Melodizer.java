@@ -61,6 +61,7 @@ public class Melodizer extends Mode implements PlayContext {
 	private boolean newHeldNote[];
 	private MidiOut midiMelodyOut[];
 	private Scale melodyScale;
+	private Scale clipScale = new Scale(ScaleName.Major);
 
 	private int recMode = ModeConstants.MEL_ON_BUTTON_PRESS;
 
@@ -196,7 +197,7 @@ public class Melodizer extends Mode implements PlayContext {
 			{
 				for(int k=0;k<8;k++)
 				{
-					noteStatus = clipNotes[curSeqBank][convertGridPositionToNote(j, k)];
+					noteStatus = clipNotes[curSeqBank][convertGridPositionToClipNote(j, k)];
 					if(noteStatus != DisplayGrid.OFF)
 						displayGrid[j][k] = noteStatus;
 				}
@@ -230,6 +231,19 @@ public class Melodizer extends Mode implements PlayContext {
 	 */
 	private int convertGridPositionToNoteNoOffset(int x, int y) {
 		int note = (((8-y) * 12 - 12) + melodyScale.Degrees[x % melodyScale.Degrees.length] + key[curSeqBank]);
+		return note;
+	}
+	
+	/**
+	 * Calculate the note under a pad in the grid
+	 * Taking into account it's clip launch mode 
+	 * This should be C Major Scale
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private int convertGridPositionToClipNote(int x, int y) {
+		int note = (((8-y) * 12 - 12) + clipScale.Degrees[x % clipScale.Degrees.length]);
 		return note;
 	}
 	
@@ -375,6 +389,7 @@ public class Melodizer extends Mode implements PlayContext {
 	public boolean isNote(int y) {
 		return (y < 6 && currentMode == eMelodizerMode.KEYBOARD) || 
 		currentMode == eMelodizerMode.NONE || 
+		currentMode == eMelodizerMode.CLIP || 
 		(y < 7 && currentMode == eMelodizerMode.POSITION);
 	}
 
@@ -385,9 +400,12 @@ public class Melodizer extends Mode implements PlayContext {
 		{
 			//Calculate the pitch by the octave (y) and the transposed scale
 			int melodyPitch;
-			melodyPitch = convertGridPositionToNote(x, y);
+			if (currentMode == eMelodizerMode.CLIP)
+				melodyPitch = convertGridPositionToClipNote(x, y);
+			else	
+				melodyPitch = convertGridPositionToNote(x, y);
 			
-			System.out.println("Press note at " +  Integer.toString((x + offset[curSeqBank]) % 7) +  " degrees");
+			//System.out.println("Press note at " +  Integer.toString((x + offset[curSeqBank]) % melodyScale.Degrees.length) +  " degrees");
 			
 			Note melodySend;
 			melodySend = new Note(melodyPitch,100, 0);
@@ -910,7 +928,7 @@ public class Melodizer extends Mode implements PlayContext {
 	public void onMenuFocusChange(MenuFocusEvent event) {
 		super.onMenuFocusChange(event);
 
-		System.out.println(event);
+		//System.out.println(event);
 
 		// We are interested in this case
 		if (event.oldIndex == myNavRow) {

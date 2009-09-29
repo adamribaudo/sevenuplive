@@ -896,6 +896,15 @@ public class Melodizer extends Mode implements PlayContext {
 	}
 
 	public void setTranspose(boolean transpose) {
+		// Clear any held notes as display will change 
+		// With transpose mode change
+		for(int i=0; i<128;i++)
+		{
+			// If transposing we want the old pitch here
+			if (this.transpose) 
+				displayNote[i] = DisplayGrid.OFF;
+			
+		}
 		this.transpose = transpose;
 	}
 
@@ -951,12 +960,13 @@ public class Melodizer extends Mode implements PlayContext {
 		for (Note note : notes) {
 			int pitch = note.getPitch();
 			GridPosition pos = convertNoteToGridPositionNoOffset(pitch + localKeyOffset);
-			System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + pos);
+			//System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + pos);
+			
 			// Drop notes that fall off the grid
 			if (pos != null) {
 				GridPosition newpos = pos.offsetX(localOffset);
 				pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y);
-				System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + newpos);
+				//System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + newpos);
 				newNotes.add(new Note(pitch, note.getVelocity(), note.getLength()));
 			}	
 		}

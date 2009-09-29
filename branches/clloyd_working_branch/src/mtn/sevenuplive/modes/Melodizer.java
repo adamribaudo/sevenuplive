@@ -419,123 +419,118 @@ public class Melodizer extends Mode implements PlayContext {
 		else if (currentMode == eMelodizerMode.KEYBOARD)
 		{
 			//User is changing keys
-			if(key[curSeqBank] != getKeyFromCoords(x, y))
+			for(int i=0; i<128;i++)
 			{
-				for(int i=0; i<128;i++)
+				// If transposing we want the old pitch here
+				if (transpose) 
+					displayNote[i] = DisplayGrid.OFF;
+				
+			}
+
+			int curKeyValue = key[curSeqBank];
+
+			//Set new key
+			key[curSeqBank] = getKeyFromCoords( x, y);
+			int keyDif = curKeyValue - key[curSeqBank];
+
+			//Release notes from old key
+			for(int i=0; i<128;i++)
+			{ 
+				if(heldNote[i])
 				{
-					// If transposing we want the old pitch here
-					if (transpose) 
+					Note melodyRelease;
+					melodyRelease = new Note(i,0, 0);
+					midiMelodyOut[curSeqBank].sendNoteOff(melodyRelease);
+					addEvent(melodyRelease);
+					heldNote[i] = false;
+					
+					// If !transposing we want the new pitch here
+					if (!transpose) 
 						displayNote[i] = DisplayGrid.OFF;
 					
+					if ((i-keyDif) >= 0)
+						newHeldNote[i-keyDif] = true;
+
+					//System.out.println("  Killing " + i);
 				}
+			}
 
-				int curKeyValue = key[curSeqBank];
-
-				//Set new key
-				key[curSeqBank] = getKeyFromCoords( x, y);
-				int keyDif = curKeyValue - key[curSeqBank];
-
-				//Release notes from old key
-				for(int i=0; i<128;i++)
-				{ 
-					if(heldNote[i])
-					{
-						Note melodyRelease;
-						melodyRelease = new Note(i,0, 0);
-						midiMelodyOut[curSeqBank].sendNoteOff(melodyRelease);
-						addEvent(melodyRelease);
-						heldNote[i] = false;
-						
-						// If !transposing we want the new pitch here
-						if (!transpose) 
-							displayNote[i] = DisplayGrid.OFF;
-						
-						if ((i-keyDif) >= 0)
-							newHeldNote[i-keyDif] = true;
-
-						//System.out.println("  Killing " + i);
-					}
-				}
-
-				//Send notes for new key
-				for(int i=0; i<128;i++)
-				{ 
-					if(newHeldNote[i])
-					{		
-						Note melodySend;
-						melodySend = new Note(i,100, 0);
-						midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
-						addEvent(melodySend);
-						heldNote[i]=true;
-						displayNote[i] = DisplayGrid.SOLID;
-						newHeldNote[i] = false;
-						//System.out.println("Sending " + i);
-					}
+			//Send notes for new key
+			for(int i=0; i<128;i++)
+			{ 
+				if(newHeldNote[i])
+				{		
+					Note melodySend;
+					melodySend = new Note(i,100, 0);
+					midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
+					addEvent(melodySend);
+					heldNote[i]=true;
+					displayNote[i] = DisplayGrid.SOLID;
+					newHeldNote[i] = false;
+					//System.out.println("Sending " + i);
 				}
 			}
 
 		} else if (currentMode == eMelodizerMode.POSITION) {
 
-			if (offset[curSeqBank] != x)
-			{
-				GridPosition[] oldPositions = new GridPosition[128]; 
+			GridPosition[] oldPositions = new GridPosition[128]; 
 
-				// Mark all old positions
-				for(int i=0; i<128;i++)
+			// Mark all old positions
+			for(int i=0; i<128;i++)
+			{
+				oldPositions[i] = convertNoteToGridPosition(i);
+				
+				// If transposing we want the old pitch here
+				if (transpose) 
+					displayNote[i] = DisplayGrid.OFF;
+				
+			}
+
+			int curOffsetValue = offset[curSeqBank];
+
+			//Set new offset
+			offset[curSeqBank] = x;
+			int offsetDif = curOffsetValue - offset[curSeqBank];
+
+			//Release notes from old offset
+			for(int i=0; i<128;i++)
+			{ 
+				if(heldNote[i])
 				{
-					oldPositions[i] = convertNoteToGridPosition(i);
+					Note melodyRelease;
+					melodyRelease = new Note(i,0, 0);
+					midiMelodyOut[curSeqBank].sendNoteOff(melodyRelease);
+					addEvent(melodyRelease);
+					heldNote[i] = false;
 					
-					// If transposing we want the old pitch here
-					if (transpose) 
+					// If !transposing we want the new pitch here
+					if (!transpose)
 						displayNote[i] = DisplayGrid.OFF;
 					
-				}
-
-				int curOffsetValue = offset[curSeqBank];
-
-				//Set new offset
-				offset[curSeqBank] = x;
-				int offsetDif = curOffsetValue - offset[curSeqBank];
-
-				//Release notes from old offset
-				for(int i=0; i<128;i++)
-				{ 
-					if(heldNote[i])
-					{
-						Note melodyRelease;
-						melodyRelease = new Note(i,0, 0);
-						midiMelodyOut[curSeqBank].sendNoteOff(melodyRelease);
-						addEvent(melodyRelease);
-						heldNote[i] = false;
-						
-						// If !transposing we want the new pitch here
-						if (!transpose)
-							displayNote[i] = DisplayGrid.OFF;
-						
-						// Can't compute if we don't know the original position
-						if (oldPositions[i] != null) { 
-							// Because offset has changed, new note will be a different note from same grid position
-							int newNote = convertGridPositionToNote(oldPositions[i].x, oldPositions[i].y);
-							newHeldNote[newNote] = true;
-						}
-					}
-				}
-
-				//Send notes for new key
-				for(int i=0; i<128;i++)
-				{ 
-					if(newHeldNote[i])
-					{		
-						Note melodySend;
-						melodySend = new Note(i,100, 0);
-						midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
-						addEvent(melodySend);
-						heldNote[i]=true;
-						displayNote[i] = DisplayGrid.SOLID;
-						newHeldNote[i]=false;
+					// Can't compute if we don't know the original position
+					if (oldPositions[i] != null) { 
+						// Because offset has changed, new note will be a different note from same grid position
+						int newNote = convertGridPositionToNote(oldPositions[i].x, oldPositions[i].y);
+						newHeldNote[newNote] = true;
 					}
 				}
 			}
+
+			//Send notes for new key
+			for(int i=0; i<128;i++)
+			{ 
+				if(newHeldNote[i])
+				{		
+					Note melodySend;
+					melodySend = new Note(i,100, 0);
+					midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
+					addEvent(melodySend);
+					heldNote[i]=true;
+					displayNote[i] = DisplayGrid.SOLID;
+					newHeldNote[i]=false;
+				}
+			}
+
 		}
 		
 	}

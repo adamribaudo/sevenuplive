@@ -473,6 +473,14 @@ public class Melodizer extends Mode implements PlayContext {
 					//System.out.println("  Killing " + i);
 				}
 			}
+			
+			// Needed to put some small time offset between note off and new note on.
+			try
+   			{
+   				Thread.sleep(100);
+   			}catch(Exception e)
+   			{}
+   			
 
 			//Send notes for new key
 			for(int i=0; i<128;i++)
@@ -535,6 +543,13 @@ public class Melodizer extends Mode implements PlayContext {
 				}
 			}
 
+			// Needed to put some small time offset between note off and new note on.
+			try
+   			{
+   				Thread.sleep(100);
+   			}catch(Exception e)
+   			{}
+   			
 			//Send notes for new key
 			for(int i=0; i<128;i++)
 			{ 

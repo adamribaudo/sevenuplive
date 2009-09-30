@@ -1042,13 +1042,13 @@ public class Melodizer extends Mode implements PlayContext {
 		for (Note note : notes) {
 			int pitch = note.getPitch();
 			GridPosition pos = convertNoteToGridPositionNoOffset(pitch + localKeyOffset, transpositionIndex);
-			System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + pos);
+			//System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + pos);
 			
 			// Drop notes that fall off the grid
 			if (pos != null) {
 				GridPosition newpos = pos.offsetX(localOffset);
 				pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y, transpositionIndex);
-				System.out.println("new pitch:" + Integer.toString(pitch) + " Position:" + newpos + " offset:" + localOffset + " keyoffset:" + localKeyOffset);
+				//System.out.println("new pitch:" + Integer.toString(pitch) + " Position:" + newpos + " offset:" + localOffset + " keyoffset:" + localKeyOffset);
 				newNotes.add(new Note(pitch, note.getVelocity(), note.getLength()));
 			}	
 		}

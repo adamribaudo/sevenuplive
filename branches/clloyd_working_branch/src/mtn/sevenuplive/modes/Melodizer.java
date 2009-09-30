@@ -48,6 +48,8 @@ public class Melodizer extends Mode implements PlayContext {
 
 	// Should changing the key or offset transpose the sequence that is playing?
 	private boolean transpose = false;
+	// Tells us that a transposition index has changed
+	private boolean transposeDirty = false;
 
 	// Different display modes for Melodizer
 	public enum eMelodizerMode {KEYBOARD, CLIP, NONE, POSITION};
@@ -451,7 +453,8 @@ public class Melodizer extends Mode implements PlayContext {
 			//Set new key
 			key[curSeqBank] = getKeyFromCoords( x, y);
 			int keyDif = curKeyValue - key[curSeqBank];
-
+			transposeDirty = true;
+			
 			//Release notes from old key
 			for(int i=0; i<128;i++)
 			{ 
@@ -474,14 +477,6 @@ public class Melodizer extends Mode implements PlayContext {
 				}
 			}
 			
-			// Needed to put some small time offset between note off and new note on.
-			try
-   			{
-   				Thread.sleep(100);
-   			}catch(Exception e)
-   			{}
-   			
-
 			//Send notes for new key
 			for(int i=0; i<128;i++)
 			{ 
@@ -518,7 +513,8 @@ public class Melodizer extends Mode implements PlayContext {
 			//Set new offset
 			offset[curSeqBank] = x;
 			int offsetDif = curOffsetValue - offset[curSeqBank];
-
+			transposeDirty = true;
+			
 			//Release notes from old offset
 			for(int i=0; i<128;i++)
 			{ 
@@ -543,13 +539,6 @@ public class Melodizer extends Mode implements PlayContext {
 				}
 			}
 
-			// Needed to put some small time offset between note off and new note on.
-			try
-   			{
-   				Thread.sleep(100);
-   			}catch(Exception e)
-   			{}
-   			
 			//Send notes for new key
 			for(int i=0; i<128;i++)
 			{ 
@@ -600,11 +589,34 @@ public class Melodizer extends Mode implements PlayContext {
 			index = Integer.class.cast(els.nextElement());
 			s = sequences.get(index);
 
-			noteList = s.heartbeat();
-
+			// Collect held notes before the heartbeat
+			ArrayList<Note> oldNotesHeld = s.getHeldNotes();
+			
+			// Check if notes are being transposed and the transposition has changed recently
+			if (getTranspose() && transposeDirty) {
+				transposeDirty = false; // reset flag
+				
+				// Transpose so we can know what the new notes would be
+				ArrayList<Note> newNotesHeld = transpose(oldNotesHeld, index);
+				
+				if (newNotesHeld != oldNotesHeld) {
+					//Loop through old heldnotes if new note is different pitch then send note off for each
+					for(int i=0;i<oldNotesHeld.size();i++) {
+						if (oldNotesHeld.get(i).getPitch() != newNotesHeld.get(i).getPitch()) {
+							midiMelodyOut[index].sendNoteOff(oldNotesHeld.get(i));
+							
+							// Rather than retriggering, just silence this note by removing it
+							// from held notes list
+							s.removeHeldNote(oldNotesHeld.get(i).getPitch());
+						}
+					}	
+				}
+				 
+			}
+			
 			// If there are transpositions then the notelist returned will be a clone with the transpositions
-			noteList = transpose(noteList, index);
-
+			noteList = s.heartbeat();
+			
 			if(noteList != null)
 			{
 				//package the note
@@ -643,6 +655,7 @@ public class Melodizer extends Mode implements PlayContext {
 			}
 		}
 	}
+	
 
 	/**
 	 * Beginning a cue creates a new sequence if one does not exist at the specified index.  Otherwise, it begins cueing on the existing sequence.
@@ -691,7 +704,6 @@ public class Melodizer extends Mode implements PlayContext {
 	{
 		if(sequences.containsKey(seqIndex))
 		{
-			markSequenceOffsets(seqIndex);
 			sequences.get(seqIndex).play();
 			return true;
 		}

@@ -148,6 +148,9 @@ public class NoteSequence {
 				ArrayList<Note> noteList;
 				noteList = events.get(counter);
 				
+				// Transpose if necessary. If transposing then NoteList will actually be a clone of the original
+				noteList = context.transpose(noteList, index);
+				
 				for(int i=0;i<noteList.size();i++)
 				{
 					if(noteList.get(i).getVelocity() > 0)
@@ -172,6 +175,21 @@ public class NoteSequence {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Manually remove a held note from the playing list
+	 * WARNING: This does not send a Note OFF
+	 * that is your responsibility
+	 * @param pitch
+	 */
+	public void removeHeldNote(int pitch) {
+		
+		// Remove a note from heldNotes
+		if(heldNotesPlaying.containsKey(pitch))
+		{
+			heldNotesPlaying.remove(pitch);
+		}
 	}
 	
 	/***
@@ -441,4 +459,5 @@ public class NoteSequence {
 	public boolean isEmpty(){
 		return events.size() == 0;
 	}
+	
 }

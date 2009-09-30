@@ -13,4 +13,9 @@ public interface PlayContext {
 	 */
 	public ArrayList<Note> transpose(ArrayList<Note> notes, int transpositionIndex);
 
+	/**
+	 * Are we transposing
+	 * @return
+	 */
+	public boolean getTranspose();
 }

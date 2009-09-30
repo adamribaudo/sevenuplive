@@ -276,6 +276,7 @@ public class Melodizer extends Mode implements PlayContext {
 
 		for(int j=0;j<7;j++)
 		{
+			// Range of y goes above and beyond grid so we can hit test notes that fall off the physical grid
 			for(int k=-2;k<10;k++)
 			{
 				gridNote = convertGridPositionToNote(j, k, sequence);
@@ -301,6 +302,7 @@ public class Melodizer extends Mode implements PlayContext {
 
 		for(int j=0;j<7;j++)
 		{
+			// Range of y goes above and beyond grid so we can hit test notes that fall off the physical grid
 			for(int k=-2;k<10;k++)
 			{
 				gridNote = convertGridPositionToNoteNoOffset(j, k, sequence);

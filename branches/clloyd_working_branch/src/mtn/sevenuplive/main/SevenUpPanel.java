@@ -392,7 +392,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        c.gridx = 1; firstPanel.add(drpGateLoopChoke, c);
 	        
 	       // Enable transpose mode for melodizer
-	        JLabel lblTranspose1 = new JLabel("Transpose Melodizer 1");
+	        JLabel lblTranspose1 = new JLabel("Transpose Patterns 1");
 	        setSizeSmall(lblTranspose1);
 	        lblTranspose1.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	    	
@@ -411,7 +411,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        c.gridx = 0; c.gridy = 4; firstPanel.add(lblTranspose1, c);
 	        c.gridx = 1; firstPanel.add(chkTranspose1, c);
 	        
-	        JLabel lblTranspose2 = new JLabel("Transpose Melodizer 2");
+	        JLabel lblTranspose2 = new JLabel("Transpose Patterns 2");
 	        setSizeSmall(lblTranspose2);
 	        lblTranspose2.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	    	

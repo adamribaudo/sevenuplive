@@ -12,5 +12,11 @@ BUGS
 - There was a bug report that loop pattern recorder was not replaying loops that used choke groups properly. This may have to do
 which where new notes are triggered or not depending on loop mode.
 -Bug in melodizer code where the first note may not be played directly after recording a sequence and another note is held down
+
+
+Beta Bugs
+Fix Masterizer stopping sequence does not remove grid lights
+NONE mode has no grid feedback
+Rework UI to have Tool choices in one list
  
 

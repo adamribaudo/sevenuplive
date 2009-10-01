@@ -170,6 +170,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        scaleChoices.add("Pentatonic");
 	        scaleChoices.add("Pentatonic (Minor)");
 	        scaleChoices.add("Ultra Locrian");
+	        scaleChoices.add("Chromatic");
 	        
 	        drpScaleChoices2 = new JComboBox(scaleChoices);
 	        setSizeSmall(drpScaleChoices2);

@@ -187,6 +187,9 @@ public class Melodizer extends Mode implements PlayContext {
 					} else if (currentMode == eMelodizerMode.POSITION && k < 8) {
 						if(noteStatus != DisplayGrid.OFF)
 							displayGrid[j][k] = noteStatus;
+					} else if (currentMode == eMelodizerMode.NONE) {
+						if(noteStatus != DisplayGrid.OFF)
+							displayGrid[j][k] = noteStatus;
 					}
 				}
 			}	

@@ -35,8 +35,6 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	JComboBox drpScaleChoices2;
 	JComboBox drpMelodizerModeChoices1;
 	JComboBox drpMelodizerModeChoices2;
-	JComboBox drpMelodizerAltModeChoices1;
-	JComboBox drpMelodizerAltModeChoices2;
 	JComboBox drpLoopChoke;
 	JComboBox drpLoopLength;
 	JComboBox drpLoopType;
@@ -46,7 +44,6 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	JButton btnNextPatch;
 	JCheckBox chkMuteLooper;
 	JCheckBox chkTranspose1;
-	JCheckBox chkTranspose2;
 	JFrame parentFrame;
 	JPanel secondPanel;
 	
@@ -68,7 +65,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
     	
     	// Resize a bit
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,600,420);
+    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,485,420);
  
     	try
     	{
@@ -114,7 +111,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			JPanel thirdPanel = new JPanel(twocolumnstraight);
 			
 			//Scale
-	        JLabel lblSetScale = new JLabel("Melodizer 1 Scale/Mode/AltMode");
+	        JLabel lblSetScale = new JLabel("Melodizer 1 Scale/Mode");
 	        setSizeSmall(lblSetScale);
 	        lblSetScale.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        
@@ -152,7 +149,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			c.gridx = 1; firstPanel.add(drpScaleChoices1, c);
 	        
 			//Melodizer 2 Scale
-	        lblSetScale = new JLabel("Melodizer 2 Scale/Mode/AltMode");
+	        lblSetScale = new JLabel("Melodizer 2 Scale/Mode");
 	        setSizeSmall(lblSetScale);
 	        lblSetScale.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        
@@ -196,6 +193,9 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        modeChoices.add(Melodizer.eMelodizerMode.POSITION.toString());
 	        modeChoices.add(Melodizer.eMelodizerMode.NONE.toString());
 	        modeChoices.add(Melodizer.eMelodizerMode.CLIP.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.KEYBOARD.toString() + "/" + Melodizer.eMelodizerMode.POSITION.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.KEYBOARD.toString() + "/" + Melodizer.eMelodizerMode.NONE.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.POSITION.toString() + "/" + Melodizer.eMelodizerMode.NONE.toString());
 	        
 	        drpMelodizerModeChoices1 = new JComboBox(modeChoices);
 	        setSizeSmall(drpMelodizerModeChoices1);
@@ -206,28 +206,20 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        			public void actionPerformed(ActionEvent e) {
 	        				setDirty(true);
 	        				JComboBox cb = (JComboBox)e.getSource();
-	        					sevenUpApplet.setMelody1Mode(Melodizer.eMelodizerMode.valueOf(cb.getSelectedItem().toString()));
+	        				String modeString = cb.getSelectedItem().toString();
+	        				String[] modes = modeString.split("/");
+	        				if (modes.length == 2) {
+	        					sevenUpApplet.setMelody1Mode(Melodizer.eMelodizerMode.valueOf(modes[0]));
+	        					sevenUpApplet.setMelody1AltMode(Melodizer.eMelodizerMode.valueOf(modes[1]));
+	        				} else {
+	        					sevenUpApplet.setMelody1Mode(Melodizer.eMelodizerMode.valueOf(modeString));
+	        					sevenUpApplet.setMelody1AltMode(Melodizer.eMelodizerMode.valueOf(modeString));
+	        				}	
 	        			}
 	        		}
 	        );
 	        
 	        c.gridx = 2; c.gridy = 0; firstPanel.add(drpMelodizerModeChoices1, c);	        
-	        
-	        drpMelodizerAltModeChoices1 = new JComboBox(modeChoices);
-	        setSizeSmall(drpMelodizerAltModeChoices1);
-	        drpMelodizerAltModeChoices1.setSelectedIndex(0);
-	        
-	        drpMelodizerAltModeChoices1.addActionListener(
-	        		new ActionListener(){
-	        			public void actionPerformed(ActionEvent e) {
-	        				setDirty(true);
-	        				JComboBox cb = (JComboBox)e.getSource();
-	        					sevenUpApplet.setMelody1AltMode(Melodizer.eMelodizerMode.valueOf(cb.getSelectedItem().toString()));
-	        			}
-	        		}
-	        );
-	        
-	        c.gridx = 3; c.gridy = 0; firstPanel.add(drpMelodizerAltModeChoices1, c);	        
 	        
 	        //Melodizer 2 Mode
 	        
@@ -236,6 +228,9 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        modeChoices.add(Melodizer.eMelodizerMode.KEYBOARD.toString());
 	        modeChoices.add(Melodizer.eMelodizerMode.POSITION.toString());
 	        modeChoices.add(Melodizer.eMelodizerMode.NONE.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.KEYBOARD.toString() + "/" + Melodizer.eMelodizerMode.POSITION.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.KEYBOARD.toString() + "/" + Melodizer.eMelodizerMode.NONE.toString());
+	        modeChoices.add(Melodizer.eMelodizerMode.POSITION.toString() + "/" + Melodizer.eMelodizerMode.NONE.toString());
 	        
 	        drpMelodizerModeChoices2 = new JComboBox(modeChoices);
 	        setSizeSmall(drpMelodizerModeChoices2);
@@ -246,29 +241,20 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        			public void actionPerformed(ActionEvent e) {
 	        				setDirty(true);
 	        				JComboBox cb = (JComboBox)e.getSource();
-	        					sevenUpApplet.setMelody2Mode(Melodizer.eMelodizerMode.valueOf(cb.getSelectedItem().toString()));
+	        				String modeString = cb.getSelectedItem().toString();
+	        				String[] modes = modeString.split("/");
+	        				if (modes.length == 2) {
+	        					sevenUpApplet.setMelody2Mode(Melodizer.eMelodizerMode.valueOf(modes[0]));
+	        					sevenUpApplet.setMelody2AltMode(Melodizer.eMelodizerMode.valueOf(modes[1]));
+	        				} else {
+	        					sevenUpApplet.setMelody2Mode(Melodizer.eMelodizerMode.valueOf(modeString));
+	        					sevenUpApplet.setMelody2AltMode(Melodizer.eMelodizerMode.valueOf(modeString));
+	        				}
 	        			}
 	        		}
 	        );
 	        
 	        c.gridx = 2; c.gridy = 1; firstPanel.add(drpMelodizerModeChoices2, c);	        
-	        
-	        drpMelodizerAltModeChoices2 = new JComboBox(modeChoices);
-	        setSizeSmall(drpMelodizerAltModeChoices2);
-	        drpMelodizerAltModeChoices2.setSelectedIndex(0);
-	        
-	        drpMelodizerAltModeChoices2.addActionListener(
-	        		new ActionListener(){
-	        			public void actionPerformed(ActionEvent e) {
-	        				setDirty(true);
-	        				JComboBox cb = (JComboBox)e.getSource();
-	        					sevenUpApplet.setMelody2AltMode(Melodizer.eMelodizerMode.valueOf(cb.getSelectedItem().toString()));
-	        			}
-	        		}
-	        );
-	        
-	        c.gridx = 3; c.gridy = 1; firstPanel.add(drpMelodizerAltModeChoices2, c);	        
-	        
 	        
 	        //Melodizer record mode
 	        JLabel lblMelRecMode = new JLabel("Melodizer Rec Mode");
@@ -293,6 +279,39 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        );
 	        c.gridx = 0; c.gridy = 2; firstPanel.add(lblMelRecMode, c);
 	        c.gridx = 1; firstPanel.add(drpMelRecMode, c);
+	        
+	        // Enable transpose mode for both melodizers
+	        JLabel lblTranspose1 = new JLabel("Transpose Patterns");
+	        setSizeSmall(lblTranspose1);
+	        lblTranspose1.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
+	    	
+	        chkTranspose1 = new JCheckBox();
+	        setSizeSmall(chkTranspose1);
+	        chkTranspose1.addActionListener(
+	        		new ActionListener(){
+	        			public void actionPerformed(ActionEvent e) {
+	        				setDirty(true);
+	        				JCheckBox chk = (JCheckBox)e.getSource();
+	       					sevenUpApplet.setMelody1Transpose(chk.isSelected());
+	       					sevenUpApplet.setMelody2Transpose(chk.isSelected());
+	        			}
+	        		}
+	        );
+	        
+	        JPanel childP = new JPanel();
+	        GridBagConstraints d = new GridBagConstraints();
+			d.fill = GridBagConstraints.HORIZONTAL;
+			d.anchor = GridBagConstraints.LAST_LINE_START;
+			d.weighty = 0.5;
+			d.gridx = 0;
+			d.gridy = 0;
+			
+	        childP.add(lblTranspose1, d);
+	        d.gridx = 1;
+			childP.add(chkTranspose1, d);
+	        
+	        c.gridx = 2; c.gridy = 2; 
+	        firstPanel.add(childP, c);
 	        
 	        //Loops
 	        JLabel lblSetLoopGate;
@@ -392,45 +411,6 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        c.gridx = 0; c.gridy = 3; firstPanel.add(lblGateLoopChoke, c);
 	        c.gridx = 1; firstPanel.add(drpGateLoopChoke, c);
 	        
-	       // Enable transpose mode for melodizer
-	        JLabel lblTranspose1 = new JLabel("Transpose Patterns 1");
-	        setSizeSmall(lblTranspose1);
-	        lblTranspose1.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
-	    	
-	        chkTranspose1 = new JCheckBox();
-	        setSizeSmall(chkTranspose1);
-	        chkTranspose1.addActionListener(
-	        		new ActionListener(){
-	        			public void actionPerformed(ActionEvent e) {
-	        				setDirty(true);
-	        				JCheckBox chk = (JCheckBox)e.getSource();
-	       					sevenUpApplet.setMelody1Transpose(chk.isSelected());
-	        			}
-	        		}
-	        );
-	        
-	        c.gridx = 0; c.gridy = 4; firstPanel.add(lblTranspose1, c);
-	        c.gridx = 1; firstPanel.add(chkTranspose1, c);
-	        
-	        JLabel lblTranspose2 = new JLabel("Transpose Patterns 2");
-	        setSizeSmall(lblTranspose2);
-	        lblTranspose2.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
-	    	
-	        chkTranspose2 = new JCheckBox();
-	        setSizeSmall(chkTranspose2);
-	        chkTranspose2.addActionListener(
-	        		new ActionListener(){
-	        			public void actionPerformed(ActionEvent e) {
-	        				setDirty(true);
-	        				JCheckBox chk = (JCheckBox)e.getSource();
-	       					sevenUpApplet.setMelody2Transpose(chk.isSelected());
-	        			}
-	        		}
-	        );
-	        
-	        c.gridx = 2; c.gridy = 4; firstPanel.add(lblTranspose2, c);
-	        c.gridx = 3; firstPanel.add(chkTranspose2, c);
-	        
 	        //Add mute looper checkbox
 	        JLabel lblMuteLooper = new JLabel("Mute Looper (to assign MIDI)");
 	        setSizeSmall(lblMuteLooper);
@@ -448,7 +428,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        		}
 	        );
 	        
-	        c.gridx = 0; c.gridy = 5; firstPanel.add(lblMuteLooper, c);
+	        c.gridx = 0; c.gridy = 4; firstPanel.add(lblMuteLooper, c);
 	        c.gridx = 1; firstPanel.add(chkMuteLooper, c);
 	        
 	        
@@ -514,23 +494,24 @@ public class SevenUpPanel extends JPanel implements ActionListener
     		}
     	}
 		
-		for(int i = 0; i < drpMelodizerModeChoices1.getItemCount(); i++)
+		for(int i = drpMelodizerModeChoices1.getItemCount() - 1; i > -1; i--)
     	{
+			System.out.println(i);
+			System.out.println(drpMelodizerModeChoices1.getItemAt(i));
+			System.out.println(sevenUpApplet.getMelody1Mode());
     		if(drpMelodizerModeChoices1.getItemAt(i).toString().equals(sevenUpApplet.getMelody1Mode().toString()))
     		{
     			drpMelodizerModeChoices1.setSelectedIndex(i);
-    		}
-    	}
-		
-		for(int i = 0; i < drpMelodizerAltModeChoices1.getItemCount(); i++)
-    	{
-    		if(drpMelodizerAltModeChoices1.getItemAt(i).toString().equals(sevenUpApplet.getMelody1AltMode().toString()))
+    			break;
+    		} 
+    		else if (drpMelodizerModeChoices1.getItemAt(i).toString().equals(sevenUpApplet.getMelody1Mode().toString() + "/" + sevenUpApplet.getMelody1AltMode().toString()))
     		{
-    			drpMelodizerAltModeChoices1.setSelectedIndex(i);
+    			drpMelodizerModeChoices1.setSelectedIndex(i);
+    			break;
     		}
     	}
 		
-    	//Update melody 2 gui based on patch settings
+		//Update melody 2 gui based on patch settings
     	Scale melodyScale2 = sevenUpApplet.getMelody2Scale();
         for(int i = 0; i < drpScaleChoices2.getItemCount(); i++)
         {
@@ -538,27 +519,26 @@ public class SevenUpPanel extends JPanel implements ActionListener
         		drpScaleChoices2.setSelectedIndex(i);
         }
         
+        // Just key off of serialized value of Melodizer1 even though they are independently assignable
         chkTranspose1.setSelected(sevenUpApplet.getMelody1Transpose());
-        chkTranspose2.setSelected(sevenUpApplet.getMelody2Transpose());
         
         
-        for(int i = 0; i < drpMelodizerModeChoices2.getItemCount(); i++)
+        // Need to count backwards as the choices go from multiple modes to 1 mode
+        for(int i = drpMelodizerModeChoices2.getItemCount() - 1; i > -1; i--)
     	{
     		if(drpMelodizerModeChoices2.getItemAt(i).toString().equals(sevenUpApplet.getMelody2Mode().toString()))
     		{
     			drpMelodizerModeChoices2.setSelectedIndex(i);
+    			break;
     		}
-    	}
-		
-		for(int i = 0; i < drpMelodizerAltModeChoices2.getItemCount(); i++)
-    	{
-    		if(drpMelodizerAltModeChoices2.getItemAt(i).toString().equals(sevenUpApplet.getMelody2AltMode().toString()))
+    		else if (drpMelodizerModeChoices2.getItemAt(i).toString().equals(sevenUpApplet.getMelody2Mode().toString() + "/" + sevenUpApplet.getMelody2AltMode().toString()))
     		{
-    			drpMelodizerAltModeChoices2.setSelectedIndex(i);
+    			drpMelodizerModeChoices2.setSelectedIndex(i);
+    			break;
     		}
     	}
 		
-    	for(Integer i =0;i<7;i++)
+		for(Integer i =0;i<7;i++)
     	{
     		chokeGroup = sevenUpApplet.getLoopChokeGroup(i);
     		length = sevenUpApplet.getLoopLength(i);

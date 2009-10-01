@@ -1,6 +1,7 @@
 package mtn.sevenuplive.modes;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -717,7 +718,18 @@ public class Melodizer extends Mode implements PlayContext {
 	{
 		if(sequences.containsKey(seqIndex))
 		{
-			sequences.get(seqIndex).stop();
+			NoteSequence sequence = sequences.get(seqIndex); 
+			sequence.stop();
+		 	ArrayList<Note> noteList;
+			noteList = sequence.getHeldNotes();
+			
+			//Loop through heldnotes and send note off for each
+			for(int i=0;i<noteList.size();i++) {
+				midiMelodyOut[seqIndex].sendNoteOff(noteList.get(i));
+				if (seqIndex == curSeqBank) {
+					displayNote[noteList.get(i).getPitch()] = DisplayGrid.OFF;
+				}
+			}
 		}
 	}
 

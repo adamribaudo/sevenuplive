@@ -187,12 +187,10 @@ public class Looper extends Mode {
 			stopLoop(x);
 		}
 	}
-
+	
 	public void step()
 	{
-		int pressedRow;
-		int resCounter;
-		int step;
+		
 		
 		updateDisplayGrid();
 		
@@ -203,10 +201,20 @@ public class Looper extends Mode {
 				stopLoop(i);
 				stopLoopsOnNextStep[i] = false;
 			}
+			else		
+				stepOneLoop(i);
 		}
 		
-		for(int i = 0;i<loops.length;i++)
-        {
+	}
+	
+	
+
+	public void stepOneLoop(int loopNum)
+	{
+		int pressedRow;
+		int resCounter;
+		int step;
+		int i = loopNum;
 			
 			if(loops[i].isPlaying())
         	{
@@ -230,8 +238,7 @@ public class Looper extends Mode {
         					} else {
         						stopLoop(i);
         						pressedRow = -1;
-        	    				continue;
-        					}
+        	  			}
         					break;
         				case Loop.MOMENTARY:
         				case Loop.SLICE:
@@ -242,18 +249,19 @@ public class Looper extends Mode {
         						loops[i].setTrigger(step, false);
         					}
         					// If it's a one shot loop, then we stop after the first iteration
-        	        		if (loops[i].getType() == Loop.SLICE && loops[i].isLastResInStep()) {
+        	        		if (loops[i].isLastResInStep()) {
+                				System.out.println("stop 0");
         	    				stopLoop(i);
+        	    				loops[i].setPressedRow(-1);
         	    				pressedRow = -1;
-        	    				continue;
         	    			}
         				// Don't break here, flow into SHOT	
         				case Loop.SHOT:
         					// If it's a one shot loop, then we stop after the first iteration
         	        		if (loops[i].getType() == Loop.SHOT && loops[i].isLastResStep()) {
         	    				stopLoop(i);
+        	    				loops[i].setPressedRow(-1);
         	    				pressedRow = -1;
-        	    				continue;
         	    			}
         	        	// Don't break flow into LOOP	
         				case Loop.LOOP:
@@ -291,10 +299,11 @@ public class Looper extends Mode {
         					
         			};
         		}	
-        		
-        		loops[i].nextResCount();
+        	
+        		if(loops[i].isPlaying())
+        			loops[i].nextResCount();
         	}
-        }
+   
 	}
 	
 	public Element toJDOMXMLElement()

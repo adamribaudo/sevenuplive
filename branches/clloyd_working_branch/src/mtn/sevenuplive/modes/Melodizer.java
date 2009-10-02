@@ -598,22 +598,16 @@ public class Melodizer extends Mode implements PlayContext {
 			// Check if notes are being transposed and the transposition has changed recently
 			if (getTranspose() && transposeDirty) {
 				transposeDirty = false; // reset flag
-				
-				// Transpose so we can know what the new notes would be
-				ArrayList<Note> newNotesHeld = transpose(oldNotesHeld, index);
-				
-				if (newNotesHeld != oldNotesHeld) {
-					//Loop through old heldnotes if new note is different pitch then send note off for each
-					for(int i=0;i<oldNotesHeld.size();i++) {
-						if (oldNotesHeld.get(i).getPitch() != newNotesHeld.get(i).getPitch()) {
-							midiMelodyOut[index].sendNoteOff(oldNotesHeld.get(i));
-							
-							// Rather than retriggering, just silence this note by removing it
-							// from held notes list
-							s.removeHeldNote(oldNotesHeld.get(i).getPitch());
-						}
-					}	
-				}
+
+				//Loop through old heldnotes 
+				for(int i=0;i<oldNotesHeld.size();i++) {
+					midiMelodyOut[index].sendNoteOff(oldNotesHeld.get(i));
+					
+					// Rather than retriggering, just silence this note by removing it
+					// from held notes list
+					s.removeHeldNote(oldNotesHeld.get(i).getPitch());
+				}	
+			
 				 
 			}
 			
@@ -1022,14 +1016,12 @@ public class Melodizer extends Mode implements PlayContext {
 	}
 
 	public void setTranspose(boolean transpose) {
-		// Clear any held notes as display will change 
+		//@TODO Make less heavyweight. Very heavy hammer here
+		// Clear any held notes as everything will change 
 		// With transpose mode change
-		for(int i=0; i<128;i++)
+		for(int i=0; i<7;i++)
 		{
-			// If transposing we want the old pitch here
-			if (this.transpose) 
-				displayNote[i] = DisplayGrid.OFF;
-			
+			this.stopSeq(i);
 		}
 		this.transpose = transpose;
 	}

@@ -19,4 +19,14 @@ public interface PlayContext {
 	 */
 	public boolean getTranspose();
 	
+	/**
+	 * Get Current Transposition Context for a sequence
+	 */
+	public TranspositionContext getTranspositionContext(int sequence);
+	
+	/**
+	 * Transpose with a specific context
+	 */
+	public Note transposeWithContext(Note note, TranspositionContext tc);
+	
 }

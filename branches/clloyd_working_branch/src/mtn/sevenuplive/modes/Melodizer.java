@@ -371,7 +371,7 @@ public class Melodizer extends Mode implements PlayContext {
 			{
 				ArrayList<Note> noteList;
 				Note note;
-				noteList = sequences.get(pressedSeq).getHeldNotes();
+				noteList = sequences.get(pressedSeq).getHeldNotesAtHeldPitch();
 				//Loop through heldnotes and send note off for each
 				for(int i=0;i<noteList.size();i++)
 				{
@@ -456,7 +456,8 @@ public class Melodizer extends Mode implements PlayContext {
 			//Set new key
 			key[curSeqBank] = getKeyFromCoords( x, y);
 			int keyDif = curKeyValue - key[curSeqBank];
-			transposeDirty = true;
+			if (transpose)
+				transposeDirty = true;
 			
 			//Release notes from old key
 			for(int i=0; i<128;i++)
@@ -516,7 +517,8 @@ public class Melodizer extends Mode implements PlayContext {
 			//Set new offset
 			offset[curSeqBank] = x;
 			int offsetDif = curOffsetValue - offset[curSeqBank];
-			transposeDirty = true;
+			if (transpose)
+				transposeDirty = true;
 			
 			//Release notes from old offset
 			for(int i=0; i<128;i++)
@@ -592,20 +594,18 @@ public class Melodizer extends Mode implements PlayContext {
 			index = Integer.class.cast(els.nextElement());
 			s = sequences.get(index);
 
-			// Collect held notes before the heartbeat
-			ArrayList<Note> oldNotesHeld = s.getHeldNotes();
-			
 			// Check if notes are being transposed and the transposition has changed recently
 			if (transposeDirty && transpose) {
 				transposeDirty = false; // reset flag
-
+				
+				// Collect held notes before the heartbeat
+				ArrayList<Note> notesHeld = s.getHeldNotesAtHeldPitch();
+				
 				//Loop through old heldnotes 
-				for(int i=0;i<oldNotesHeld.size();i++) {
-					midiMelodyOut[index].sendNoteOff(oldNotesHeld.get(i));
-					displayNote[oldNotesHeld.get(i).getPitch()] = DisplayGrid.OFF;
+				for(int i=0;i< notesHeld.size();i++) {
+					midiMelodyOut[index].sendNoteOff(notesHeld.get(i));
+					displayNote[notesHeld.get(i).getPitch()] = DisplayGrid.OFF;
 				}	
-				// Clear out all held notes
-				s.clearHeldNotes();
 				 
 			}
 			
@@ -712,7 +712,7 @@ public class Melodizer extends Mode implements PlayContext {
 			NoteSequence sequence = sequences.get(seqIndex); 
 			sequence.stop();
 		 	ArrayList<Note> noteList;
-			noteList = sequence.getHeldNotes();
+			noteList = sequence.getHeldNotesAtHeldPitch();
 			
 			//Loop through heldnotes and send note off for each
 			for(int i=0;i<noteList.size();i++) {
@@ -1015,7 +1015,8 @@ public class Melodizer extends Mode implements PlayContext {
 
 	public void setTranspose(boolean transpose) {
 		clearDisplayGrid();
-		this.transposeDirty = true;
+		if (transpose)
+			this.transposeDirty = true;
 		this.transpose = transpose;
 	}
 
@@ -1059,26 +1060,36 @@ public class Melodizer extends Mode implements PlayContext {
 	public ArrayList<Note> transpose(ArrayList<Note> notes, int transpositionIndex) {
 		if (!transpose || notes == null)
 			return notes;
-
+		
 		ArrayList<Note> newNotes = new ArrayList<Note>();
-
-		int localOffset = offset[transpositionIndex] - startingOffset[transpositionIndex];
-		int localKeyOffset = key[transpositionIndex] - startingKey[transpositionIndex];
-
+		
+		Note newNote;
 		for (Note note : notes) {
+			newNote = transposeWithContext(note, getTranspositionContext(transpositionIndex));
+			if (newNote != null)
+				newNotes.add(newNote);
+		}
+		return newNotes;
+	}
+	
+	public Note transposeWithContext(Note note, TranspositionContext tc) {
 			int pitch = note.getPitch();
-			GridPosition pos = convertNoteToGridPositionNoOffset(pitch + localKeyOffset, transpositionIndex);
+			GridPosition pos = convertNoteToGridPositionNoOffset(pitch + tc.localKeyOffset, tc.transpositionIndex);
 			//System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + pos);
 			
 			// Drop notes that fall off the grid
 			if (pos != null) {
-				GridPosition newpos = pos.offsetX(localOffset);
-				pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y, transpositionIndex);
+				GridPosition newpos = pos.offsetX(tc.localOffset);
+				pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y, tc.transpositionIndex);
 				//System.out.println("new pitch:" + Integer.toString(pitch) + " Position:" + newpos + " offset:" + localOffset + " keyoffset:" + localKeyOffset);
-				newNotes.add(new Note(pitch, note.getVelocity(), note.getLength()));
+				return new Note(pitch, note.getVelocity(), note.getLength());
 			}	
-		}
-		return newNotes; 
+		
+		return null;	
+	}
+	
+	public TranspositionContext getTranspositionContext(int sequence) {
+		return new TranspositionContext(sequence, offset[sequence] - startingOffset[sequence], key[sequence] - startingKey[sequence], key[sequence]);
 	}
 
 	// Grid Test

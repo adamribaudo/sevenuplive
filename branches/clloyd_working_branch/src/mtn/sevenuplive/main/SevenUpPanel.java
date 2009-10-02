@@ -311,9 +311,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			childP.add(chkTranspose1, d);
 	        
 	        c.gridx = 2; c.gridy = 2; 
-	        
-	        //@TODO Enable when this works
-	        //firstPanel.add(childP, c);
+	        firstPanel.add(childP, c);
 	        
 	        //Loops
 	        JLabel lblSetLoopGate;

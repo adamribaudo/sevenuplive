@@ -25,7 +25,8 @@ public class NoteSequence {
 	private Integer length;  //Length of the entire sequence
 	private Integer index;	//Sequence index out of all possible NoteSequences for printout in XML
 	private int status;  //Current status of the sequence
-	private Hashtable <Integer, Note> heldNotesPlaying;  //Hashtable keeping track of currently held notes
+	private Hashtable <Integer, TranspositionContext> heldNotesTranspositionContext;  //Hashtable keeping track of the transposition context of held notes
+	private Hashtable <Integer, Note> originalHeldNotesPlaying;  //Hashtable keeping track of currently held notes at original pitchs
 	
 	//Create hashtable of keys (metronome count) and ArrayList<Note>(notes played at that event position)
 	private Hashtable<Integer, ArrayList<Note>> events;
@@ -39,7 +40,8 @@ public class NoteSequence {
 		initialize();
 		index = _index;
 		counter = 0;
-		heldNotesPlaying = new Hashtable<Integer, Note>();
+		originalHeldNotesPlaying = new Hashtable<Integer, Note>();
+		heldNotesTranspositionContext = new Hashtable<Integer, TranspositionContext>();
 		this.context = context;
 	}
 	
@@ -146,27 +148,33 @@ public class NoteSequence {
 			{
 				//Keep track of which notes are playing
 				ArrayList<Note> noteList;
-				noteList = events.get(counter);
+				ArrayList<Note> noteListBeforeTranspose;
+				noteList  = events.get(counter);
+				noteListBeforeTranspose = noteList;
 				
-				// Transpose if necessary. If transposing then NoteList will actually be a clone of the original
-				noteList = context.transpose(noteList, index);
-				
-				for(int i=0;i<noteList.size();i++)
-				{
+				for(int i=0;i<noteList.size();i++) {
 					if(noteList.get(i).getVelocity() > 0)
 					{
 						//Add a noteOn event to heldNotes
-						heldNotesPlaying.put(noteList.get(i).getPitch(), noteList.get(i));
+						originalHeldNotesPlaying.put(noteList.get(i).getPitch(), noteList.get(i));
+						
+						// Only record if transposing
+						if (context.getTranspose())
+							heldNotesTranspositionContext.put(noteList.get(i).getPitch(), context.getTranspositionContext(index));
 					}
 					else
 					{
 						//Remove a note from heldNotes
-						if(heldNotesPlaying.containsKey(noteList.get(i).getPitch()))
+						if(originalHeldNotesPlaying.containsKey(noteList.get(i).getPitch()))
 						{
-							heldNotesPlaying.remove(noteList.get(i).getPitch());
+							originalHeldNotesPlaying.remove(noteList.get(i).getPitch()); // they are the same so pitch here should be correct
+							heldNotesTranspositionContext.remove(noteList.get(i).getPitch());
 						}
 					}
 				}
+				
+				// Transpose if necessary. If transposing then NoteList will actually be a clone of the original
+				noteList = context.transpose(noteList, index);
 				
 				return noteList;
 			}
@@ -175,29 +183,6 @@ public class NoteSequence {
 		}
 		
 		return null;
-	}
-	
-	/**
-	 * Manually remove a held note from the playing list
-	 * WARNING: This does not send a Note OFF
-	 * that is your responsibility
-	 * @param pitch
-	 */
-	public void removeHeldNote(int pitch) {
-		
-		// Remove a note from heldNotes
-		if(heldNotesPlaying.containsKey(pitch))
-		{
-			heldNotesPlaying.remove(pitch);
-		}
-	}
-	
-	/**
-	 * Clear all held notes
-	 * @param pitch
-	 */
-	public void clearHeldNotes() {
-		heldNotesPlaying = new Hashtable<Integer, Note>();
 	}
 	
 	/***
@@ -422,13 +407,24 @@ public class NoteSequence {
 		}	
 	}
 
-	public ArrayList<Note> getHeldNotes() {
+	public ArrayList<Note> getHeldNotesAtHeldPitch() {
 		ArrayList<Note> heldNotesArray = new ArrayList<Note>();
 		Integer index;
-		for(Enumeration<Integer> els = heldNotesPlaying.keys();els.hasMoreElements();)
+		for(Enumeration<Integer> els = originalHeldNotesPlaying.keys();els.hasMoreElements();)
 		{
 			index = Integer.class.cast(els.nextElement());
-			heldNotesArray.add(heldNotesPlaying.get(index));
+			Note originalNote = originalHeldNotesPlaying.get(index);
+			TranspositionContext tc = heldNotesTranspositionContext.get(originalNote.getPitch());
+			Note newNote;
+			if (tc != null) {
+				newNote = context.transposeWithContext(originalNote, tc);
+			} else {
+				newNote = originalNote;
+			}
+			if (newNote != null)
+				heldNotesArray.add(newNote);
+			else 
+				System.out.println("Null note");
 		}
 		
 		return heldNotesArray;

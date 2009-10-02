@@ -1014,6 +1014,7 @@ public class Melodizer extends Mode implements PlayContext {
 	}
 
 	public void setTranspose(boolean transpose) {
+		clearDisplayGrid();
 		this.transposeDirty = true;
 		this.transpose = transpose;
 	}

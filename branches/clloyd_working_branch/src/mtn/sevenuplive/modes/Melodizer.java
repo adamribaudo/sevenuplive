@@ -596,7 +596,7 @@ public class Melodizer extends Mode implements PlayContext {
 			ArrayList<Note> oldNotesHeld = s.getHeldNotes();
 			
 			// Check if notes are being transposed and the transposition has changed recently
-			if (transposeDirty) {
+			if (transposeDirty && transpose) {
 				transposeDirty = false; // reset flag
 
 				//Loop through old heldnotes 

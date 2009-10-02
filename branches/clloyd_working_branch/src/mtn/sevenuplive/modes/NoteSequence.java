@@ -148,9 +148,7 @@ public class NoteSequence {
 			{
 				//Keep track of which notes are playing
 				ArrayList<Note> noteList;
-				ArrayList<Note> noteListBeforeTranspose;
 				noteList  = events.get(counter);
-				noteListBeforeTranspose = noteList;
 				
 				for(int i=0;i<noteList.size();i++) {
 					if(noteList.get(i).getVelocity() > 0)
@@ -173,8 +171,25 @@ public class NoteSequence {
 					}
 				}
 				
-				// Transpose if necessary. If transposing then NoteList will actually be a clone of the original
-				noteList = context.transpose(noteList, index);
+				// If transposing 
+				if (context.getTranspose()) {
+					
+					// Transpose if necessary. If transposing then NoteList will actually be a clone of the original
+					TranspositionContext tc = context.getTranspositionContext(index);
+					tc.localKeyOffset = 0;
+					ArrayList<Note> noteListAfterTranspose = new ArrayList<Note>();
+					Note newNote;
+					for(int i=0;i<noteList.size();i++) {
+						newNote = context.transposeWithContext(noteList.get(i), tc);
+						if (newNote != null) {
+							noteListAfterTranspose.add(newNote);
+						} else {
+							System.out.println("Note transposed off the grid");
+							noteListAfterTranspose.add(new Note(noteList.get(i).getPitch(), 0, 0)); // If off grid then send a note off
+						}	
+					}
+					return noteListAfterTranspose;
+				}
 				
 				return noteList;
 			}

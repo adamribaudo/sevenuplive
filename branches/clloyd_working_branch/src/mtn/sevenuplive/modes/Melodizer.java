@@ -246,11 +246,10 @@ public class Melodizer extends Mode implements PlayContext {
 	 * 
 	 * @param x
 	 * @param y
-	 * @param sequence which sequence are we operating on
 	 * @return
 	 */
-	private int convertGridPositionToNoteNoOffset(int x, int y, int sequence) {
-		int note = (((8-y) * 12 - 12) + melodyScale.Degrees[x % melodyScale.Degrees.length] + key[sequence]);
+	private int convertGridPositionToNoteNoOffset(int x, int y, int key) {
+		int note = (((8-y) * 12 - 12) + melodyScale.Degrees[x % melodyScale.Degrees.length] + key);
 		return clipRange(note);
 	}
 	
@@ -300,9 +299,10 @@ public class Melodizer extends Mode implements PlayContext {
 	 * 
 	 * @param note 0-127
 	 * @param sequence
+	 * @param key
 	 * @return First grid position, higher coordinate top/left if duplicates, null if not found
 	 */
-	private GridPosition convertNoteToGridPositionNoOffset(int note, int sequence) {
+	private GridPosition convertNoteToGridPositionNoOffset(int note, int sequence, int key) {
 		int gridNote;
 
 		for(int j=0;j<7;j++)
@@ -310,7 +310,7 @@ public class Melodizer extends Mode implements PlayContext {
 			// Range of y goes above and beyond grid so we can hit test notes that fall off the physical grid
 			for(int k=-2;k<10;k++)
 			{
-				gridNote = convertGridPositionToNoteNoOffset(j, k, sequence);
+				gridNote = convertGridPositionToNoteNoOffset(j, k, key);
 				if (gridNote == note) {
 					//System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
 					return new GridPosition(this.melodyScale, j, k);
@@ -1074,17 +1074,19 @@ public class Melodizer extends Mode implements PlayContext {
 	
 	public Note transposeWithContext(Note note, TranspositionContext tc) {
 			int pitch = note.getPitch();
-			GridPosition pos = convertNoteToGridPositionNoOffset(pitch + tc.localKeyOffset, tc.transpositionIndex);
+			GridPosition pos = convertNoteToGridPositionNoOffset(pitch, tc.transpositionIndex, tc.key);
 			//System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + pos);
 			
 			// Drop notes that fall off the grid
 			if (pos != null) {
 				GridPosition newpos = pos.offsetX(tc.localOffset);
-				pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y, tc.transpositionIndex);
+				pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y, tc.key);
+				pitch = pitch + tc.localKeyOffset;
+				
 				//System.out.println("new pitch:" + Integer.toString(pitch) + " Position:" + newpos + " offset:" + localOffset + " keyoffset:" + localKeyOffset);
 				return new Note(pitch, note.getVelocity(), note.getLength());
 			}	
-		
+		System.out.println("Fell off the grid");
 		return null;	
 	}
 	

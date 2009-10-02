@@ -28,6 +28,9 @@ public class Melodizer extends Mode implements PlayContext {
 	 * is triggered. And use it in transpose mode to compute the key offset  
 	 */
 	public int startingKey[];
+	
+	// Last key before transpose
+	public int lastKey[];
 
 	/** This is currently active key for each slot */
 	public int key[];
@@ -40,6 +43,9 @@ public class Melodizer extends Mode implements PlayContext {
 	 * is triggered. And use it in transpose mode to compute the offset  
 	 */
 	public int startingOffset[];
+
+	// Last offset before transpose
+	public int lastOffset[];
 
 	public Hashtable <Integer, NoteSequence> sequences;
 	private int cuedIndex;
@@ -74,6 +80,8 @@ public class Melodizer extends Mode implements PlayContext {
 		offset = new int[7];
 		startingKey = new int[7];
 		startingOffset = new int[7];
+		lastKey = new int[7];
+		lastOffset = new int[7];
 		cuedIndex = -1;
 		sequences = new Hashtable<Integer, NoteSequence>();
 		curSeqBank = 0;
@@ -255,6 +263,20 @@ public class Melodizer extends Mode implements PlayContext {
 	
 	/**
 	 * Calculate the note under a pad in the grid
+	 * Taking into account the Context 
+	 * 
+	 * @param x
+	 * @param y
+	 * @param tc
+	 * @return
+	 */
+	private int convertGridPositionToNoteWithContext(int x, int y, TranspositionContext tc) {
+		int note = (((8-y) * 12 - 12) + (Math.abs((x + tc.localOffset) / melodyScale.Degrees.length) * 12) + melodyScale.Degrees[((x + tc.localOffset) % melodyScale.Degrees.length)] + tc.key + tc.localKeyOffset);
+		return clipRange(note);
+	}
+	
+	/**
+	 * Calculate the note under a pad in the grid
 	 * Taking into account it's clip launch mode 
 	 * This should be C Major Scale
 	 * @param x
@@ -298,11 +320,10 @@ public class Melodizer extends Mode implements PlayContext {
 	 * Taking into account the scale only 
 	 * 
 	 * @param note 0-127
-	 * @param sequence
 	 * @param key
 	 * @return First grid position, higher coordinate top/left if duplicates, null if not found
 	 */
-	private GridPosition convertNoteToGridPositionNoOffset(int note, int sequence, int key) {
+	private GridPosition convertNoteToGridPositionNoOffset(int note, int key) {
 		int gridNote;
 
 		for(int j=0;j<7;j++)
@@ -311,6 +332,32 @@ public class Melodizer extends Mode implements PlayContext {
 			for(int k=-2;k<10;k++)
 			{
 				gridNote = convertGridPositionToNoteNoOffset(j, k, key);
+				if (gridNote == note) {
+					//System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
+					return new GridPosition(this.melodyScale, j, k);
+				}
+			}
+		}	
+		return null;
+	}
+
+	/**
+	 * Calculate the note under a pad in the grid
+	 * Taking into account the Context 
+	 * 
+	 * @param note 0-127
+	 * @param tc
+	 * @return First grid position, higher coordinate top/left if duplicates, null if not found
+	 */
+	private GridPosition convertNoteToGridPositionWithContext(int note, TranspositionContext tc) {
+		int gridNote;
+
+		for(int j=0;j<7;j++)
+		{
+			// Range of y goes above and beyond grid so we can hit test notes that fall off the physical grid
+			for(int k=-2;k<10;k++)
+			{
+				gridNote = convertGridPositionToNoteWithContext(j, k, tc);
 				if (gridNote == note) {
 					//System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
 					return new GridPosition(this.melodyScale, j, k);
@@ -456,9 +503,10 @@ public class Melodizer extends Mode implements PlayContext {
 			//Set new key
 			key[curSeqBank] = getKeyFromCoords( x, y);
 			int keyDif = curKeyValue - key[curSeqBank];
-			if (transpose)
+			if (transpose) {
 				transposeDirty = true;
-			
+				markStartTransposeOffsets(curSeqBank);
+			}
 			//Release notes from old key
 			for(int i=0; i<128;i++)
 			{ 
@@ -517,9 +565,10 @@ public class Melodizer extends Mode implements PlayContext {
 			//Set new offset
 			offset[curSeqBank] = x;
 			int offsetDif = curOffsetValue - offset[curSeqBank];
-			if (transpose)
+			if (transpose) {
 				transposeDirty = true;
-			
+				markStartTransposeOffsets(curSeqBank);
+			}
 			//Release notes from old offset
 			for(int i=0; i<128;i++)
 			{ 
@@ -596,7 +645,6 @@ public class Melodizer extends Mode implements PlayContext {
 
 			// Check if notes are being transposed and the transposition has changed recently
 			if (transposeDirty && transpose) {
-				transposeDirty = false; // reset flag
 				
 				// Collect held notes before the heartbeat
 				ArrayList<Note> notesHeld = s.getHeldNotesAtHeldPitch();
@@ -649,6 +697,11 @@ public class Melodizer extends Mode implements PlayContext {
 					updateDisplayGrid();
 			}
 		}
+		if (transposeDirty && transpose) {
+			transposeDirty = false; // reset flag
+			markStartTransposeOffsets(curSeqBank);
+		}
+		
 	}
 	
 
@@ -1031,8 +1084,13 @@ public class Melodizer extends Mode implements PlayContext {
 		 */
 		startingOffset[seqIndex] = offset[seqIndex];
 		startingKey[seqIndex] = key[seqIndex];
+		markStartTransposeOffsets(seqIndex);
 	}
-
+	
+	private void markStartTransposeOffsets(int seqIndex) {
+		lastKey[seqIndex] = key[seqIndex];
+		lastOffset[seqIndex] = offset[seqIndex];
+	}	
 
 	/**
 	 * Called when NavMenu change is being cued, aborted or committed
@@ -1074,14 +1132,14 @@ public class Melodizer extends Mode implements PlayContext {
 	
 	public Note transposeWithContext(Note note, TranspositionContext tc) {
 			int pitch = note.getPitch();
-			GridPosition pos = convertNoteToGridPositionNoOffset(pitch, tc.transpositionIndex, tc.key);
+			pitch = pitch + tc.localKeyOffset;
+			GridPosition pos = convertNoteToGridPositionNoOffset(pitch, tc.key);
 			//System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + pos);
 			
 			// Drop notes that fall off the grid
 			if (pos != null) {
 				GridPosition newpos = pos.offsetX(tc.localOffset);
 				pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y, tc.key);
-				pitch = pitch + tc.localKeyOffset;
 				
 				//System.out.println("new pitch:" + Integer.toString(pitch) + " Position:" + newpos + " offset:" + localOffset + " keyoffset:" + localKeyOffset);
 				return new Note(pitch, note.getVelocity(), note.getLength());

@@ -176,7 +176,6 @@ public class NoteSequence {
 					
 					// Transpose if necessary. If transposing then NoteList will actually be a clone of the original
 					TranspositionContext tc = context.getTranspositionContext(index);
-					tc.localKeyOffset = 0;
 					ArrayList<Note> noteListAfterTranspose = new ArrayList<Note>();
 					Note newNote;
 					for(int i=0;i<noteList.size();i++) {
@@ -438,8 +437,7 @@ public class NoteSequence {
 			}
 			if (newNote != null)
 				heldNotesArray.add(newNote);
-			else 
-				System.out.println("Null note");
+			
 		}
 		
 		return heldNotesArray;

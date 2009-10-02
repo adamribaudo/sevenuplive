@@ -13,8 +13,6 @@ public interface PlayContext {
 	 */
 	public ArrayList<Note> transpose(ArrayList<Note> notes, int transpositionIndex);
 	
-	public ArrayList<Note> transposeWithContext(ArrayList<Note> notes, TranspositionContext tc);
-
 	/**
 	 * Are we transposing
 	 * @return

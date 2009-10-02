@@ -596,18 +596,16 @@ public class Melodizer extends Mode implements PlayContext {
 			ArrayList<Note> oldNotesHeld = s.getHeldNotes();
 			
 			// Check if notes are being transposed and the transposition has changed recently
-			if (getTranspose() && transposeDirty) {
+			if (transposeDirty) {
 				transposeDirty = false; // reset flag
 
 				//Loop through old heldnotes 
 				for(int i=0;i<oldNotesHeld.size();i++) {
 					midiMelodyOut[index].sendNoteOff(oldNotesHeld.get(i));
-					
-					// Rather than retriggering, just silence this note by removing it
-					// from held notes list
-					s.removeHeldNote(oldNotesHeld.get(i).getPitch());
+					displayNote[oldNotesHeld.get(i).getPitch()] = DisplayGrid.OFF;
 				}	
-			
+				// Clear out all held notes
+				s.clearHeldNotes();
 				 
 			}
 			
@@ -1016,13 +1014,7 @@ public class Melodizer extends Mode implements PlayContext {
 	}
 
 	public void setTranspose(boolean transpose) {
-		//@TODO Make less heavyweight. Very heavy hammer here
-		// Clear any held notes as everything will change 
-		// With transpose mode change
-		for(int i=0; i<7;i++)
-		{
-			this.stopSeq(i);
-		}
+		this.transposeDirty = true;
 		this.transpose = transpose;
 	}
 

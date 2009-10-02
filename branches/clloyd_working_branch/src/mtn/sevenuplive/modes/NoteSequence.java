@@ -192,6 +192,14 @@ public class NoteSequence {
 		}
 	}
 	
+	/**
+	 * Clear all held notes
+	 * @param pitch
+	 */
+	public void clearHeldNotes() {
+		heldNotesPlaying = new Hashtable<Integer, Note>();
+	}
+	
 	/***
 	 * Called by the initiating class to add a note event to the sequence
 	 * @param note The note to be added at the current event position

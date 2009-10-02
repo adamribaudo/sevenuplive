@@ -1,7 +1,6 @@
 package mtn.sevenuplive.modes;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -43,6 +42,7 @@ public class Melodizer extends Mode implements PlayContext {
 	public int startingOffset[];
 
 	public Hashtable <Integer, NoteSequence> sequences;
+	
 	private int cuedIndex;
 
 	private boolean isRecording;
@@ -247,11 +247,12 @@ public class Melodizer extends Mode implements PlayContext {
 	 * 
 	 * @param x
 	 * @param y
+	 * @param the key of the sequence usually key[sequence]
 	 * @param sequence which sequence are we operating on
 	 * @return
 	 */
-	private int convertGridPositionToNoteNoOffset(int x, int y, int sequence) {
-		int note = (((8-y) * 12 - 12) + melodyScale.Degrees[x % melodyScale.Degrees.length] + key[sequence]);
+	private int convertGridPositionToNoteNoOffset(int x, int y, int sequence, int key) {
+		int note = (((8-y) * 12 - 12) + melodyScale.Degrees[x % melodyScale.Degrees.length] + key);
 		return clipRange(note);
 	}
 	
@@ -301,9 +302,10 @@ public class Melodizer extends Mode implements PlayContext {
 	 * 
 	 * @param note 0-127
 	 * @param sequence
+	 * @param key
 	 * @return First grid position, higher coordinate top/left if duplicates, null if not found
 	 */
-	private GridPosition convertNoteToGridPositionNoOffset(int note, int sequence) {
+	private GridPosition convertNoteToGridPositionNoOffset(int note, int sequence, int key) {
 		int gridNote;
 
 		for(int j=0;j<7;j++)
@@ -311,7 +313,7 @@ public class Melodizer extends Mode implements PlayContext {
 			// Range of y goes above and beyond grid so we can hit test notes that fall off the physical grid
 			for(int k=-2;k<10;k++)
 			{
-				gridNote = convertGridPositionToNoteNoOffset(j, k, sequence);
+				gridNote = convertGridPositionToNoteNoOffset(j, k, sequence, key);
 				if (gridNote == note) {
 					//System.out.println("Note to position-> Note:" + Integer.toString(note) + "Grid x:" + Integer.toString(j) + " y:" + Integer.toString(k));
 					return new GridPosition(this.melodyScale, j, k);
@@ -405,7 +407,7 @@ public class Melodizer extends Mode implements PlayContext {
 
 		updateNavGrid();
 	}
-
+	
 	/**
 	 * Determines if the row represents a note row or not
 	 * @param y
@@ -593,29 +595,21 @@ public class Melodizer extends Mode implements PlayContext {
 			index = Integer.class.cast(els.nextElement());
 			s = sequences.get(index);
 
-			// Collect held notes before the heartbeat
-			ArrayList<Note> oldNotesHeld = s.getHeldNotes();
-			
 			// Check if notes are being transposed and the transposition has changed recently
 			if (getTranspose() && transposeDirty) {
 				transposeDirty = false; // reset flag
 				
-				// Transpose so we can know what the new notes would be
-				ArrayList<Note> newNotesHeld = transpose(oldNotesHeld, index);
+				// Collect held notes before the heartbeat
+				ArrayList<Note> oldNotesHeld = s.getHeldNotes();
 				
-				if (newNotesHeld != oldNotesHeld) {
-					//Loop through old heldnotes if new note is different pitch then send note off for each
-					for(int i=0;i<oldNotesHeld.size();i++) {
-						if (oldNotesHeld.get(i).getPitch() != newNotesHeld.get(i).getPitch()) {
-							midiMelodyOut[index].sendNoteOff(oldNotesHeld.get(i));
-							
-							// Rather than retriggering, just silence this note by removing it
-							// from held notes list
-							s.removeHeldNote(oldNotesHeld.get(i).getPitch());
-						}
-					}	
-				}
-				 
+				// Loop through old heldnotes 
+				for(int i=0;i<oldNotesHeld.size();i++) {
+					midiMelodyOut[index].sendNoteOff(oldNotesHeld.get(i));
+					
+					// Rather than retriggering, just silence this note by removing it
+					// from held notes list
+					s.removeHeldNote(oldNotesHeld.get(i).getPitch());
+				}	
 			}
 			
 			// If there are transpositions then the notelist returned will be a clone with the transpositions
@@ -1023,15 +1017,12 @@ public class Melodizer extends Mode implements PlayContext {
 	}
 
 	public void setTranspose(boolean transpose) {
-		// Clear any held notes as display will change 
-		// With transpose mode change
-		for(int i=0; i<128;i++)
-		{
-			// If transposing we want the old pitch here
-			if (this.transpose) 
-				displayNote[i] = DisplayGrid.OFF;
-			
+		
+		// TODO Too Heavy Handed but very difficult to do when making such a bold change
+		for (int i = 0; i < 7; i++) {
+			stopSeq(i);
 		}
+		
 		this.transpose = transpose;
 	}
 
@@ -1076,25 +1067,29 @@ public class Melodizer extends Mode implements PlayContext {
 		if (!transpose || notes == null)
 			return notes;
 
-		ArrayList<Note> newNotes = new ArrayList<Note>();
-
 		int localOffset = offset[transpositionIndex] - startingOffset[transpositionIndex];
 		int localKeyOffset = key[transpositionIndex] - startingKey[transpositionIndex];
 
+		return this.transposeWithContext(notes, new TranspositionContext(transpositionIndex, localOffset, localKeyOffset, key[transpositionIndex]));
+	}
+	
+	public ArrayList<Note> transposeWithContext(ArrayList<Note> notes, TranspositionContext tc) {
+		ArrayList<Note> newNotes = new ArrayList<Note>();
+		
 		for (Note note : notes) {
 			int pitch = note.getPitch();
-			GridPosition pos = convertNoteToGridPositionNoOffset(pitch + localKeyOffset, transpositionIndex);
+			GridPosition pos = convertNoteToGridPositionNoOffset(pitch + tc.localKeyOffset, tc.transpositionIndex, tc.key);
 			//System.out.println("old pitch:" + Integer.toString(pitch) + " Position:" + pos);
 			
 			// Drop notes that fall off the grid
 			if (pos != null) {
-				GridPosition newpos = pos.offsetX(localOffset);
-				pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y, transpositionIndex);
+				GridPosition newpos = pos.offsetX(tc.localOffset);
+				pitch = convertGridPositionToNoteNoOffset(newpos.x, newpos.y, tc.transpositionIndex, tc.key);
 				//System.out.println("new pitch:" + Integer.toString(pitch) + " Position:" + newpos + " offset:" + localOffset + " keyoffset:" + localKeyOffset);
 				newNotes.add(new Note(pitch, note.getVelocity(), note.getLength()));
 			}	
 		}
-		return newNotes; 
+		return newNotes;
 	}
 
 	// Grid Test
@@ -1240,5 +1235,4 @@ public class Melodizer extends Mode implements PlayContext {
 
 
 	}
-
 }

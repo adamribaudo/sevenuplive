@@ -496,10 +496,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 		
 		for(int i = drpMelodizerModeChoices1.getItemCount() - 1; i > -1; i--)
     	{
-			System.out.println(i);
-			System.out.println(drpMelodizerModeChoices1.getItemAt(i));
-			System.out.println(sevenUpApplet.getMelody1Mode());
-    		if(drpMelodizerModeChoices1.getItemAt(i).toString().equals(sevenUpApplet.getMelody1Mode().toString()))
+			if(drpMelodizerModeChoices1.getItemAt(i).toString().equals(sevenUpApplet.getMelody1Mode().toString()))
     		{
     			drpMelodizerModeChoices1.setSelectedIndex(i);
     			break;

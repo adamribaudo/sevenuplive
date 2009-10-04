@@ -418,7 +418,7 @@ public class Melodizer extends Mode implements PlayContext {
 			{
 				ArrayList<Note> noteList;
 				Note note;
-				noteList = sequences.get(pressedSeq).getHeldNotesAtHeldPitch();
+				noteList = sequences.get(pressedSeq).getHeldNotesTransposedPitch();
 				//Loop through heldnotes and send note off for each
 				for(int i=0;i<noteList.size();i++)
 				{
@@ -647,7 +647,7 @@ public class Melodizer extends Mode implements PlayContext {
 			if (transposeDirty && transpose) {
 				
 				// Collect held notes before the heartbeat
-				ArrayList<Note> notesHeld = s.getHeldNotesAtHeldPitch();
+				ArrayList<Note> notesHeld = s.getHeldNotesTransposedPitch();
 				
 				//Loop through old heldnotes 
 				for(int i=0;i< notesHeld.size();i++) {
@@ -765,7 +765,7 @@ public class Melodizer extends Mode implements PlayContext {
 			NoteSequence sequence = sequences.get(seqIndex); 
 			sequence.stop();
 		 	ArrayList<Note> noteList;
-			noteList = sequence.getHeldNotesAtHeldPitch();
+			noteList = sequence.getHeldNotesTransposedPitch();
 			
 			//Loop through heldnotes and send note off for each
 			for(int i=0;i<noteList.size();i++) {
@@ -773,6 +773,9 @@ public class Melodizer extends Mode implements PlayContext {
 				if (seqIndex == curSeqBank) {
 					displayNote[noteList.get(i).getPitch()] = DisplayGrid.OFF;
 				}
+			}
+			if (seqIndex == curSeqBank) {
+				updateDisplayGrid();
 			}
 		}
 	}

@@ -421,7 +421,7 @@ public class NoteSequence {
 		}	
 	}
 
-	public ArrayList<Note> getHeldNotesAtHeldPitch() {
+	public ArrayList<Note> getHeldNotesTransposedPitch() {
 		ArrayList<Note> heldNotesArray = new ArrayList<Note>();
 		Integer index;
 		for(Enumeration<Integer> els = originalHeldNotesPlaying.keys();els.hasMoreElements();)
@@ -438,6 +438,19 @@ public class NoteSequence {
 			if (newNote != null)
 				heldNotesArray.add(newNote);
 			
+		}
+		
+		return heldNotesArray;
+	}
+	
+	public ArrayList<Note> getHeldNotesOriginalPitch() {
+		ArrayList<Note> heldNotesArray = new ArrayList<Note>();
+		Integer index;
+		for(Enumeration<Integer> els = originalHeldNotesPlaying.keys();els.hasMoreElements();)
+		{
+			index = Integer.class.cast(els.nextElement());
+			Note originalNote = originalHeldNotesPlaying.get(index);
+			heldNotesArray.add(originalNote);
 		}
 		
 		return heldNotesArray;

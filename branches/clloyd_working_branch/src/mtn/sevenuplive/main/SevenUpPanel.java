@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import mtn.sevenuplive.modes.Melodizer;
 import mtn.sevenuplive.modes.ModeConstants;
 import mtn.sevenuplive.scales.Scale;
+import mtn.sevenuplive.scales.ScaleName;
 
 import org.jdom.Document;
 
@@ -65,7 +66,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
     	
     	// Resize a bit
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,485,420);
+    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,500,420);
  
     	try
     	{
@@ -115,25 +116,15 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        setSizeSmall(lblSetScale);
 	        lblSetScale.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        
-	        Vector<String> scaleChoices = new Vector<String>();
-	        scaleChoices.add("Billian");
-	        scaleChoices.add("Blues");
-	        scaleChoices.add("Blues (Minor)");
-	        scaleChoices.add("Dorian");
-	        scaleChoices.add("Major");
-	        scaleChoices.add("Minor");
-	        scaleChoices.add("Minor Seven");
-	        scaleChoices.add("Mullnixian");
-	        scaleChoices.add("Yorkian");
-	        scaleChoices.add("Telerium");
-	        scaleChoices.add("Pentatonic");
-	        scaleChoices.add("Pentatonic (Minor)");
-	        scaleChoices.add("Ultra Locrian");
-	        scaleChoices.add("Chromatic");
+	        Vector<ScaleName> scaleChoices = new Vector<ScaleName>();
+	        ScaleName[] scales = ScaleName.values();
+	        for (ScaleName scaleName : scales) {
+	        	scaleChoices.add(scaleName);
+	        }
 	        
 	        drpScaleChoices1 = new JComboBox(scaleChoices);
 	        setSizeSmall(drpScaleChoices1);
-	        drpScaleChoices1.setSelectedIndex(5);
+	        drpScaleChoices1.setSelectedItem(ScaleName.Major);
 	        
 	        drpScaleChoices1.addActionListener(
 	        		new ActionListener(){
@@ -153,25 +144,9 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        setSizeSmall(lblSetScale);
 	        lblSetScale.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        
-	        scaleChoices = new Vector<String>();
-	        scaleChoices.add("Billian");
-	        scaleChoices.add("Blues");
-	        scaleChoices.add("Blues (Minor)");
-	        scaleChoices.add("Dorian");
-	        scaleChoices.add("Major");
-	        scaleChoices.add("Minor");
-	        scaleChoices.add("Minor Seven");
-	        scaleChoices.add("Mullnixian");
-	        scaleChoices.add("Yorkian");
-	        scaleChoices.add("Telerium");
-	        scaleChoices.add("Pentatonic");
-	        scaleChoices.add("Pentatonic (Minor)");
-	        scaleChoices.add("Ultra Locrian");
-	        scaleChoices.add("Chromatic");
-	        
 	        drpScaleChoices2 = new JComboBox(scaleChoices);
 	        setSizeSmall(drpScaleChoices2);
-	        drpScaleChoices2.setSelectedIndex(4);
+	        drpScaleChoices2.setSelectedItem(ScaleName.Major);
 	        
 	        drpScaleChoices2.addActionListener(
 	        		new ActionListener(){
@@ -486,13 +461,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
     	
     	//Update melody 1 gui based on patch settings
     	Scale melodyScale1 = sevenUpApplet.getMelody1Scale();
-		for(int i = 0; i < drpScaleChoices1.getItemCount(); i++)
-    	{
-    		if(drpScaleChoices1.getItemAt(i).toString().equals(melodyScale1.label.toString()))
-    		{
-    			drpScaleChoices1.setSelectedIndex(i);
-    		}
-    	}
+    	drpScaleChoices1.setSelectedItem(melodyScale1.Name);
 		
 		for(int i = drpMelodizerModeChoices1.getItemCount() - 1; i > -1; i--)
     	{
@@ -510,11 +479,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 		
 		//Update melody 2 gui based on patch settings
     	Scale melodyScale2 = sevenUpApplet.getMelody2Scale();
-        for(int i = 0; i < drpScaleChoices2.getItemCount(); i++)
-        {
-        	if(drpScaleChoices2.getItemAt(i).toString().equals(melodyScale2.label.toString()))
-        		drpScaleChoices2.setSelectedIndex(i);
-        }
+    	drpScaleChoices2.setSelectedItem(melodyScale2.Name);
         
         // Just key off of serialized value of Melodizer1 even though they are independently assignable
         chkTranspose1.setSelected(sevenUpApplet.getMelody1Transpose());

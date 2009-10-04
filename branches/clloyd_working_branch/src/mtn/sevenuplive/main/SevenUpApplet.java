@@ -130,38 +130,11 @@ public class SevenUpApplet extends processing.core.PApplet
 	
 	private Scale getScaleFromString(String scaleName)
 	{
-		Scale newScale;
+		ScaleName sn = ScaleName.valueOf(scaleName);
+		if (sn == null)
+			return new Scale(ScaleName.Major);
 		
-		if(scaleName.equals("Billian"))
-			newScale = new Scale(ScaleName.Billian);
-		else if(scaleName.equals("Blues"))
-			newScale = new Scale(ScaleName.Blues);
-		else if(scaleName.equals("Blues (Minor)"))
-			newScale = new Scale(ScaleName.MinorBlues);
-		else if(scaleName.equals("Dorian"))
-			newScale = new Scale(ScaleName.Dorian);
-		else if(scaleName.equals("Major"))
-			newScale = new Scale(ScaleName.Major);
-		else if(scaleName.equals("Minor"))
-			newScale = new Scale(ScaleName.Minor);
-		else if(scaleName.equals("Minor Seven"))
-			newScale = new Scale(ScaleName.MinorSeven);
-		else if(scaleName.equals("Pentatonic"))
-			newScale = new Scale(ScaleName.Pentatonic);
-		else if(scaleName.equals("Pentatonic (Minor)"))
-			newScale = new Scale(ScaleName.MinorPentatonic);
-		else if(scaleName.equals("Ultra Locrian"))
-			newScale = new Scale(ScaleName.UltraLocrian);
-		else if(scaleName.equals("Mullnixian"))
-			newScale = new Scale(ScaleName.Mullnixian);
-		else if(scaleName.equals("Yorkian"))
-			newScale = new Scale(ScaleName.Yorkian);
-		else if(scaleName.equals("Telerium"))
-			newScale = new Scale(ScaleName.Telerium);
-		else
-			newScale = new Scale(ScaleName.Chromatic);
-		
-		return newScale;
+		return new Scale(sn);
 	}
 	
 	public void setMelody1Scale(String scaleName)

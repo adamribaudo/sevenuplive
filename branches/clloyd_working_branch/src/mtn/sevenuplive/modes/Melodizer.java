@@ -876,6 +876,7 @@ public class Melodizer extends Mode implements PlayContext {
 
 		//Load XML	
 		melodyScale = new Scale(ScaleName.valueOf(xmlMelodizer.getAttribute("scale").getValue()));
+	
 		try {
 			// This is optional and for backwards compatibility only
 			if (xmlMelodizer.getAttribute("clipMode").getBooleanValue() == true) {
@@ -890,73 +891,69 @@ public class Melodizer extends Mode implements PlayContext {
 			if (xmlMelodizer.getAttribute("transpose") != null) {
 				transpose = Boolean.parseBoolean(xmlMelodizer.getAttribute("transpose").getValue());
 			}
-		} catch (DataConversionException e) {
+		} catch (Throwable t) {
 			// Do nothing
-		} catch (NullPointerException e) {
-			// Do nothing
-		}finally 
-		{
-			try {
-				String keyString = xmlMelodizer.getAttribute("key").getValue();
-				int i=0;
-				for(String strKey : keyString.split(","))
-				{
-					key[i] = Integer.parseInt(strKey);
-					i++;
-				}
-				try {
-					String offsetString = xmlMelodizer.getAttribute("offset").getValue();
-					int j=0;
-					for(String strOffset : offsetString.split(","))
-					{
-						offset[j] = Integer.parseInt(strOffset);
-						j++;
-					}
-					
-					String startingOffsetString = xmlMelodizer.getAttribute("startingOffset").getValue();
-					int k=0;
-					for(String strStartingOffset : startingOffsetString.split(","))
-					{
-						startingOffset[k] = Integer.parseInt(strStartingOffset);
-						k++;
-					}
-					
-					String startingKeyString = xmlMelodizer.getAttribute("startingKey").getValue();
-					int l=0;
-					for(String strStartingKey : startingKeyString.split(","))
-					{
-						startingKey[l] = Integer.parseInt(strStartingKey);
-						l++;
-					}
-					
-				} catch (Exception e) {
-					System.out.println("Error: could not parse transpose offsets: cause:" + e.getLocalizedMessage());
-				}
-			} catch (Exception e) {
-				System.out.println("Error: No key attribute found in XML file");
-			} finally
+		} 
+		try {
+			String keyString = xmlMelodizer.getAttribute("key").getValue();
+			int i=0;
+			for(String strKey : keyString.split(","))
 			{
-				List<Element> xmlSequences;
-				NoteSequence sequence;
-				Integer index;
-
-				xmlSequences = xmlMelodizer.getChildren();
-
-				for (Element xmlSequence : xmlSequences)
-				{
-					index = Integer.parseInt(xmlSequence.getAttributeValue("index"));	
-					key[index] = Integer.parseInt(xmlSequence.getAttributeValue("key"));
-					sequence = new NoteSequence(index, this);
-					setMelRecMode(recMode);
-					sequence.loadJDOMXMLElement(xmlSequence);
-					//Set status to stopped if there is a sequence
-					if(!sequence.isEmpty())sequence.setStatus(MonomeUp.STOPPED);
-					sequences.put(index, sequence);
-				}
-
-				updateDisplayGrid();
+				key[i] = Integer.parseInt(strKey);
+				i++;
 			}
+		} catch (Throwable t) {}
+		
+		try {
+			String offsetString = xmlMelodizer.getAttribute("offset").getValue();
+			int j=0;
+			for(String strOffset : offsetString.split(","))
+			{
+				offset[j] = Integer.parseInt(strOffset);
+				j++;
+			}
+		} catch (Throwable t) {}
+		
+		try {	
+			String startingOffsetString = xmlMelodizer.getAttribute("startingOffset").getValue();
+			int k=0;
+			for(String strStartingOffset : startingOffsetString.split(","))
+			{
+				startingOffset[k] = Integer.parseInt(strStartingOffset);
+				k++;
+			}
+		} catch (Throwable t) {}
+		
+		try {
+			String startingKeyString = xmlMelodizer.getAttribute("startingKey").getValue();
+			int l=0;
+			for(String strStartingKey : startingKeyString.split(","))
+			{
+				startingKey[l] = Integer.parseInt(strStartingKey);
+				l++;
+			}
+		} catch (Throwable t) {}	
+	
+		List<Element> xmlSequences;
+		NoteSequence sequence;
+		Integer index;
+
+		xmlSequences = xmlMelodizer.getChildren();
+
+		for (Element xmlSequence : xmlSequences)
+		{
+			index = Integer.parseInt(xmlSequence.getAttributeValue("index"));	
+			key[index] = Integer.parseInt(xmlSequence.getAttributeValue("key"));
+			sequence = new NoteSequence(index, this);
+			setMelRecMode(recMode);
+			sequence.loadJDOMXMLElement(xmlSequence);
+			//Set status to stopped if there is a sequence
+			if(!sequence.isEmpty())sequence.setStatus(MonomeUp.STOPPED);
+			sequences.put(index, sequence);
 		}
+
+		updateDisplayGrid();
+	
 	}
 
 	public void reset() {

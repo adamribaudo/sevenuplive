@@ -17,7 +17,6 @@ public enum ScaleName {
 	Hungarian,
 	HungarianGypsy,
 	HungarianMajor,
-	HungarianMinor,
 	InSen,
 	InstantJazz,
 	Ionian5,

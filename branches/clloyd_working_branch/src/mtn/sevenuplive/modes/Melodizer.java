@@ -9,7 +9,6 @@ import mtn.sevenuplive.scales.Scale;
 import mtn.sevenuplive.scales.ScaleName;
 
 import org.jdom.Attribute;
-import org.jdom.DataConversionException;
 import org.jdom.Element;
 
 import promidi.MidiOut;
@@ -717,7 +716,9 @@ public class Melodizer extends Mode implements PlayContext {
 			sequences.put(seqIndex, new NoteSequence(seqIndex, this));
 			setMelRecMode(recMode);
 		}
-
+		// Transposition offsets will be marked from here
+		markSequenceOffsets(cuedIndex);
+		
 		sequences.get(seqIndex).beginCue();
 
 		cuedIndex = seqIndex;
@@ -725,7 +726,6 @@ public class Melodizer extends Mode implements PlayContext {
 
 	public void endRecording()
 	{
-		markSequenceOffsets(cuedIndex);
 		sequences.get(cuedIndex).endRecording();
 		cuedIndex = -1;
 	}

@@ -298,8 +298,8 @@ public final class MonomeUp extends MonomeOSC implements MonomeListener {
 	      {
 	    	  if(noteOnPitch == C4)
 	    	  {
-	    		  allmodes.getMelodizer1Model().locatorEvent(-1);
-	    		  allmodes.getMelodizer2Model().locatorEvent(-1);
+	    		  allmodes.getMelodizer1Model().locatorEvent();
+	    		  allmodes.getMelodizer2Model().locatorEvent();
 	    	  }
 	    	  allmodes.getMasterizer().locatorEvent(noteOnPitch);
 	    	  allmodes.getMasterizer().updateDisplayGrid();

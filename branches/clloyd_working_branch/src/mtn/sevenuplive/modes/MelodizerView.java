@@ -2,16 +2,14 @@ package mtn.sevenuplive.modes;
 
 import java.util.ArrayList;
 
-import promidi.Note;
 import mtn.sevenuplive.main.MonomeUp;
 import mtn.sevenuplive.modes.MelodizerModel.GridPosition;
 import mtn.sevenuplive.modes.events.ClearDisplayEvent;
 import mtn.sevenuplive.modes.events.ClearNavEvent;
-import mtn.sevenuplive.modes.events.DisplayNoteEvent;
 import mtn.sevenuplive.modes.events.Event;
-import mtn.sevenuplive.modes.events.LocatorEvent;
 import mtn.sevenuplive.modes.events.UpdateDisplayEvent;
 import mtn.sevenuplive.modes.events.UpdateNavEvent;
+import promidi.Note;
 
 public class MelodizerView extends Mode {
 	
@@ -19,21 +17,17 @@ public class MelodizerView extends Mode {
 	private MelodizerModel model;
 
 	public int curSeqBank = 0;
-	public int displayNote[]; //Array of ints holding [pitch] of notes being played back in a sequence and hence being displayed
-
+	
 	public MelodizerView(int _navRow, int grid_width, int grid_height, MelodizerModel model) {
 		super(_navRow, grid_width, grid_height);
 		
 		this.model = model;
-		displayNote = new int[128];
 		
 		// Subscribe to the events we want to receive
 		model.subscribe(new UpdateDisplayEvent(), this);
 		model.subscribe(new UpdateNavEvent(), this);
 		model.subscribe(new ClearDisplayEvent(), this);
 		model.subscribe(new ClearNavEvent(), this);
-		model.subscribe(new DisplayNoteEvent(), this);
-		model.subscribe(new LocatorEvent(), this);
 		
 		updateNavGrid();
 		updateDisplayGrid();
@@ -56,31 +50,9 @@ public class MelodizerView extends Mode {
 			clearDisplayGrid();
 		} else if (e.getType().equals(ClearNavEvent.CLEAR_NAV_EVENT)) {
 			clearNavGrid();
-		} else if (e.getType().equals(DisplayNoteEvent.DISPLAY_NOTE_EVENT)) {
-			DisplayNoteEvent dne = (DisplayNoteEvent)e;
-			if (dne.getSlot() == curSeqBank || dne.getSlot() == -1) {
-				onDisplayNote(dne);
-			}
-		} else if (e.getType().equals(LocatorEvent.LOCATOR_EVENT)) {
-			LocatorEvent le = (LocatorEvent)e;
-			if (le.getSlot() == curSeqBank || le.getSlot() == -1) {
-				onLocator(le);
-			}
 		} 
 	}
 	
-	private void onDisplayNote(DisplayNoteEvent dne) {
-		displayNote[dne.getPitch()] = dne.getDisplayGridState();
-	}
-	
-	public void onLocator(LocatorEvent le) {
-		if(model.sequences.containsKey(curSeqBank))
-		{
-			model.sequences.get(curSeqBank).locatorEvent();
-		}
-	}
-
-
 	public void updateDisplayGrid()
 	{
 		//System.out.println("Update melodizer display grid");
@@ -173,7 +145,7 @@ public class MelodizerView extends Mode {
 			{
 				for(int k=0;k<8;k++)
 				{
-					noteStatus = displayNote[model.convertGridPositionToNote(j, k, curSeqBank)];
+					noteStatus = model.displayNote[curSeqBank][model.convertGridPositionToNote(j, k, curSeqBank)];
 
 					if (model.currentMode == MelodizerModel.eMelodizerMode.KEYBOARD && k < 7) {
 						if(noteStatus != DisplayGrid.OFF)
@@ -210,7 +182,7 @@ public class MelodizerView extends Mode {
 
 		navGrid[myNavRow] = DisplayGrid.SOLID;
 
-		if(model.isRecording)
+		if(model.isRecording(curSeqBank))
 			navGrid[getYCoordFromSubMenu(curSeqBank)] = DisplayGrid.SLOWBLINK;
 		else
 			navGrid[getYCoordFromSubMenu(curSeqBank)] = DisplayGrid.FASTBLINK;
@@ -236,11 +208,11 @@ public class MelodizerView extends Mode {
 		melodyPitch = model.convertGridPositionToNote(x, y, curSeqBank);
 		model.heldNote[melodyPitch] = false;
 		if(model.currentMode != MelodizerModel.eMelodizerMode.CLIP)
-			displayNote[melodyPitch] = DisplayGrid.OFF;
+			model.displayNote[curSeqBank][melodyPitch] = DisplayGrid.OFF;
 		Note melodyRelease;
 		melodyRelease = new Note(melodyPitch,0, 0);
 		model.midiMelodyOut[curSeqBank].sendNoteOff(melodyRelease);
-		model.addEvent(melodyRelease);
+		model.addEvent(curSeqBank, melodyRelease);
 		updateDisplayGrid();
 	}
 
@@ -249,7 +221,7 @@ public class MelodizerView extends Mode {
 		int pressedSeq = getSubMenuFromYCoord(y);
 
 		//If they press the current bank and it is not already recording, begin cuing in that bank
-		if (pressedSeq == curSeqBank && model.isRecording == false)
+		if (pressedSeq == curSeqBank && model.isRecording(curSeqBank) == false)
 		{
 			if(model.getSeqStatus(pressedSeq) == MonomeUp.PLAYING)
 			{
@@ -262,20 +234,20 @@ public class MelodizerView extends Mode {
 					note = noteList.get(i);
 					model.midiMelodyOut[pressedSeq].sendNoteOff(note);
 					if(pressedSeq == curSeqBank)
-						displayNote[note.getPitch()] = DisplayGrid.OFF;
+						model.displayNote[curSeqBank][note.getPitch()] = DisplayGrid.OFF;
 				}
 			}
 			//Reset displayNote container
-			displayNote = new int[128];
-			model.isRecording = true;
+			model.displayNote = new int[7][128];
+			model.setIsRecording(curSeqBank, true);
 
 			model.beginCue(pressedSeq);
 		}
 		//Stop recording
-		else if(pressedSeq == curSeqBank && model.isRecording == true)
+		else if(pressedSeq == curSeqBank && model.isRecording(curSeqBank) == true)
 		{
-			model.isRecording = false;
-			model.endRecording();
+			model.setIsRecording(curSeqBank, false);
+			model.endRecording(curSeqBank);
 			//immediately begin playing the recorded sequence
 			model.playSeq(pressedSeq);
 		}
@@ -283,7 +255,7 @@ public class MelodizerView extends Mode {
 		{
 			curSeqBank = pressedSeq;
 			//Reset displayNote container
-			displayNote = new int[128];
+			model.displayNote = new int[7][128];
 		}
 
 		updateNavGrid();
@@ -319,9 +291,9 @@ public class MelodizerView extends Mode {
 			melodySend = new Note(melodyPitch,100, 0);
 			model.heldNote[melodyPitch] = true;
 			if(model.currentMode != MelodizerModel.eMelodizerMode.CLIP)
-				displayNote[melodyPitch] = DisplayGrid.SOLID;
+				model.displayNote[curSeqBank][melodyPitch] = DisplayGrid.SOLID;
 			model.midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
-			model.addEvent(melodySend);
+			model.addEvent(curSeqBank, melodySend);
 		}
 		//User is pressing a button in the key area
 		else if (model.currentMode == MelodizerModel.eMelodizerMode.KEYBOARD)
@@ -331,7 +303,7 @@ public class MelodizerView extends Mode {
 			{
 				// If transposing we want the old pitch here
 				if (model.transpose) 
-					displayNote[i] = DisplayGrid.OFF;
+					model.displayNote[curSeqBank][i] = DisplayGrid.OFF;
 				
 			}
 
@@ -352,12 +324,12 @@ public class MelodizerView extends Mode {
 					Note melodyRelease;
 					melodyRelease = new Note(i,0, 0);
 					model.midiMelodyOut[curSeqBank].sendNoteOff(melodyRelease);
-					model.addEvent(melodyRelease);
+					model.addEvent(curSeqBank, melodyRelease);
 					model.heldNote[i] = false;
 					
 					// If !transposing we want the new pitch here
 					if (!model.transpose) 
-						displayNote[i] = DisplayGrid.OFF;
+						model.displayNote[curSeqBank][i] = DisplayGrid.OFF;
 					
 					if ((i-keyDif) >= 0)
 						model.newHeldNote[i-keyDif] = true;
@@ -374,9 +346,9 @@ public class MelodizerView extends Mode {
 					Note melodySend;
 					melodySend = new Note(i,100, 0);
 					model.midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
-					model.addEvent(melodySend);
+					model.addEvent(curSeqBank, melodySend);
 					model.heldNote[i]=true;
-					displayNote[i] = DisplayGrid.SOLID;
+					model.displayNote[curSeqBank][i] = DisplayGrid.SOLID;
 					model.newHeldNote[i] = false;
 					//System.out.println("Sending " + i);
 				}
@@ -393,7 +365,7 @@ public class MelodizerView extends Mode {
 				
 				// If transposing we want the old pitch here
 				if (model.transpose) 
-					displayNote[i] = DisplayGrid.OFF;
+					model.displayNote[curSeqBank][i] = DisplayGrid.OFF;
 				
 			}
 
@@ -411,12 +383,12 @@ public class MelodizerView extends Mode {
 					Note melodyRelease;
 					melodyRelease = new Note(i,0, 0);
 					model.midiMelodyOut[curSeqBank].sendNoteOff(melodyRelease);
-					model.addEvent(melodyRelease);
+					model.addEvent(curSeqBank, melodyRelease);
 					model.heldNote[i] = false;
 					
 					// If !transposing we want the new pitch here
 					if (!model.transpose)
-						displayNote[i] = DisplayGrid.OFF;
+						model.displayNote[curSeqBank][i] = DisplayGrid.OFF;
 					
 					// Can't compute if we don't know the original position
 					if (oldPositions[i] != null) { 
@@ -435,9 +407,9 @@ public class MelodizerView extends Mode {
 					Note melodySend;
 					melodySend = new Note(i,100, 0);
 					model.midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
-					model.addEvent(melodySend);
+					model.addEvent(curSeqBank, melodySend);
 					model.heldNote[i]=true;
-					displayNote[i] = DisplayGrid.SOLID;
+					model.displayNote[curSeqBank][i] = DisplayGrid.SOLID;
 					model.newHeldNote[i]=false;
 				}
 			}

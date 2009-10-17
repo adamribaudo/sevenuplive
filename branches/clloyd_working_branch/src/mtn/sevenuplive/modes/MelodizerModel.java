@@ -7,11 +7,9 @@ import java.util.List;
 import mtn.sevenuplive.main.MonomeUp;
 import mtn.sevenuplive.modes.events.ClearDisplayEvent;
 import mtn.sevenuplive.modes.events.ClearNavEvent;
-import mtn.sevenuplive.modes.events.DisplayNoteEvent;
 import mtn.sevenuplive.modes.events.Event;
 import mtn.sevenuplive.modes.events.EventDispatcherImpl;
 import mtn.sevenuplive.modes.events.EventListener;
-import mtn.sevenuplive.modes.events.LocatorEvent;
 import mtn.sevenuplive.modes.events.MenuFocusEvent;
 import mtn.sevenuplive.modes.events.UpdateDisplayEvent;
 import mtn.sevenuplive.modes.events.UpdateNavEvent;
@@ -47,6 +45,8 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	/** This is the scale offset/position in degrees for each slot */
 	public int offset[];
 	
+	public int displayNote[][]; //Array of ints holding [pitch] of notes being played back in a sequence and hence being displayed
+	
 	// Different display modes for Melodizer
 	public enum eMelodizerMode {KEYBOARD, CLIP, NONE, POSITION};
 	public eMelodizerMode currentMode = eMelodizerMode.KEYBOARD;
@@ -62,9 +62,9 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	public int lastOffset[];
 
 	public Hashtable <Integer, NoteSequence> sequences;
-	private int cuedIndex;
+	private boolean[] cuedIndex;
 
-	public boolean isRecording;
+	private boolean[] isRecording;
 
 	// Should changing the key or offset transpose the sequence that is playing?
 	public boolean transpose = false;
@@ -85,13 +85,15 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	public MelodizerModel(int _navRow, MidiOut _midiMelodyOut[], int grid_width, int grid_height) {
 		
 		midiMelodyOut = _midiMelodyOut;
+		displayNote = new int[7][128];
 		key = new int[7];
 		offset = new int[7];
 		startingKey = new int[7];
 		startingOffset = new int[7];
 		lastKey = new int[7];
 		lastOffset = new int[7];
-		cuedIndex = -1;
+		cuedIndex = new boolean[7];
+		isRecording = new boolean[7];
 		sequences = new Hashtable<Integer, NoteSequence>();
 		heldNote = new boolean[128];
 		clipNotes = new int[7][128];
@@ -103,13 +105,20 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 		subscribe(new MenuFocusEvent(), this);
 	}
 	
+	public boolean isRecording(int slot) {
+		return isRecording[slot];
+	}
+	
+	public void setIsRecording(int slot, boolean value) {
+		isRecording[slot] = value;
+	}
+	
 	public void onEvent(Event e) {
 		
 		if (e.getType().equals(MenuFocusEvent.MENU_FOCUS_EVENT)) {
 			onMenuFocusChange((MenuFocusEvent)e);
 		}
 	}
-	
 	
 	/**
 	 * Called when NavMenu change is being cued, aborted or committed
@@ -316,7 +325,7 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 				//Loop through old heldnotes 
 				for(int i=0;i< notesHeld.size();i++) {
 					midiMelodyOut[index].sendNoteOff(notesHeld.get(i));
-					displayNote(-1, notesHeld.get(i).getPitch(), DisplayGrid.OFF);
+					displayNote(index, notesHeld.get(i).getPitch(), DisplayGrid.OFF);
 				}	
 				 
 			}
@@ -374,11 +383,23 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	}
 	
 	/**
-	 * Send events to our views to update this slot
-	 * @param slot slot to update or -1 means update All
+	 * Locator event for one pattern slot
+	 * @param slot
 	 */
 	public void locatorEvent(int slot) {
-		sendEvent(new LocatorEvent(slot));
+		if(sequences.containsKey(slot))
+		{
+			sequences.get(slot).locatorEvent();
+		}
+	}
+	
+	/**
+	 * Locator event for all slots
+	 */
+	public void locatorEvent() {
+		for (int i = 0; i < 7; i++) {
+			locatorEvent(i);
+		}
 	}
 	
 	/**
@@ -404,15 +425,14 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	}
 	
 	/**
-	 * Send events to our views to display this note in a certain way
+	 * Display this note in a certain way
 	 * @param slot slot to update or -1 means update All
 	 * @param pitch pitch to set in display
 	 * @param displaystate for example  DisplayGrid.SOLID or DisplayGrid.OFF
 	 */
 	public void displayNote(int slot, int pitch, int displaystate) {
-		sendEvent(new DisplayNoteEvent(slot, pitch, displaystate));
+		displayNote[slot][pitch] = displaystate;
 	}
-	
 
 	/**
 	 * Beginning a cue creates a new sequence if one does not exist at the specified index.  Otherwise, it begins cueing on the existing sequence.
@@ -431,26 +451,26 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 		}
 		sequences.get(seqIndex).beginCue();
 
-		cuedIndex = seqIndex;
+		cuedIndex[seqIndex] = true;
 	}
 
-	public void endRecording()
+	public void endRecording(int slot)
 	{
-		sequences.get(cuedIndex).endRecording();
-		snapToMarkedSequenceOffsets(cuedIndex);
-		cuedIndex = -1;
+		sequences.get(slot).endRecording();
+		snapToMarkedSequenceOffsets(slot);
+		cuedIndex = new boolean[7];
 	}
 
 	/**
-	 * Sends a note to the currently cued sequence.  If no sequence is cued, the note will be ignored.
+	 * Sends a note to the currently cued sequence in a slot.  If no sequence is cued, the note will be ignored.
 	 * 
 	 * @param note
 	 */
-	public void addEvent(Note note)
+	public void addEvent(int slot, Note note)
 	{
-		if(cuedIndex > -1)
+		if(cuedIndex[slot])
 		{
-			sequences.get(cuedIndex).addEvent(note);
+			sequences.get(slot).addEvent(note);
 		}
 	}
 
@@ -578,7 +598,7 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	public void loadXMLElement(Element xmlMelodizer)
 	{
 		//Clear current info
-		cuedIndex = -1;
+		cuedIndex = new boolean[7];
 		sequences = new Hashtable<Integer, NoteSequence>();
 
 		//Load XML	
@@ -721,7 +741,7 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 			heldNote[note.getPitch()] = true;
 			midiMelodyOut[melodizerChannel].sendNoteOn(note);
 			displayNote(melodizerChannel, note.getPitch(), DisplayGrid.SOLID);
-			addEvent(note);
+			addEvent(melodizerChannel, note);
 		}
 		else
 		{
@@ -729,7 +749,7 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 			midiMelodyOut[melodizerChannel].sendNoteOff(releaseNote);
 			heldNote[note.getPitch()] = false;
 			displayNote(melodizerChannel, note.getPitch(), DisplayGrid.OFF);
-			addEvent(releaseNote);
+			addEvent(melodizerChannel, releaseNote);
 		}
 
 		updateDisplayGrid(-1);

@@ -135,6 +135,16 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 		}
 	}
 	
+	/**
+	 * Reset the notes being displayed in all views attached to this slot 
+	 * @param slot
+	 */
+	public void resetDisplayNotes(int slot) {
+		for (int i = 0; i < 128; i++) {
+			displayNote[slot][i] = DisplayGrid.OFF;
+		}
+		sendEvent(new UpdateDisplayEvent(slot));
+	}
 	
 	/**
 	 * If note is out of midi range 1-128

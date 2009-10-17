@@ -741,6 +741,10 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 
 	}
 
+	public int getMelRecMode() {
+		return recMode;
+	}
+
 	public void extNoteOn(Note note, int channel) {
 
 		//System.out.println("Ext note received channel " + channel);

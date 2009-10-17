@@ -547,10 +547,12 @@ public final class MonomeUp extends MonomeOSC implements MonomeListener {
 		allmodes.getLooper().setLooperMute(mute);
 	}
 
-	public void setMelRecMode(int melRecMode) {
+	public void setMel1RecMode(int melRecMode) {
 		allmodes.getMelodizer1Model().setMelRecMode(melRecMode);
+	}
+	
+	public void setMel2RecMode(int melRecMode) {
 		allmodes.getMelodizer2Model().setMelRecMode(melRecMode);
-		allmodes.getMasterizer().setMelRecMode(melRecMode);
 	}
 	
 	public void setLoopLength(int loopNum, float length) {

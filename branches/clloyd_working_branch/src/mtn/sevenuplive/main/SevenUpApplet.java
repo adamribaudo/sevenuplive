@@ -385,8 +385,12 @@ public class SevenUpApplet extends processing.core.PApplet
 		m.setLooperMute(mute);
 	}
 	
-	public void setMelRecMode(int melRecMode) {
-		m.setMelRecMode(melRecMode);
+	public void setMel1RecMode(int melRecMode) {
+		m.setMel1RecMode(melRecMode);
+	}
+	
+	public void setMel2RecMode(int melRecMode) {
+		m.setMel2RecMode(melRecMode);
 	}
 	
 	public void setLoopLength(int loopNum, float length) {

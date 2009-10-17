@@ -321,24 +321,20 @@ public class MelodizerView extends Mode {
 		{
 			changeKey(true, x, y); // Change directly
 			
-			model.sendEvent(new KeyTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x, y));
-			
 			// If we are in a group then send a group transpose event
-			/*if (model.getTransposeGroup(curSeqBank) != -1) {
+			if (model.getTransposeGroup(curSeqBank) != -1) {
 				AllModes.melody1Model.sendEvent(new KeyTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x, y));
 				AllModes.melody2Model.sendEvent(new KeyTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x, y));
-			} */
+			}
 		} else if (model.currentMode == MelodizerModel.eMelodizerMode.POSITION) {
 			
 			changePosition(true, x); // Change directly
 			
-			model.sendEvent(new PositionTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x));
-			
 			// If we are in a group then send a group transpose event
-			/*if (model.getTransposeGroup(curSeqBank) != -1) {
+			if (model.getTransposeGroup(curSeqBank) != -1) {
 				AllModes.melody1Model.sendEvent(new PositionTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x));
 				AllModes.melody2Model.sendEvent(new PositionTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x));
-			} */
+			}
 		}
 		
 	}

@@ -8,6 +8,8 @@ public class DisplayNoteEvent implements Event {
 	private int displayGridState;
 	private int slot;
 	
+	public DisplayNoteEvent() {}
+	
 	/**
 	 * Event to influence the display grid
 	 * @param slot slot which we are affecting the display state of

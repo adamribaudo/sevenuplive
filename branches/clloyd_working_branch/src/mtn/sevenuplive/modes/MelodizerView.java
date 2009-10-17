@@ -20,7 +20,7 @@ public class MelodizerView extends Mode {
 	/** The model the view depends on */
 	private MelodizerModel model;
 
-	private int curSeqBank = 0;
+	public int curSeqBank = 0;
 	public int displayNote[]; //Array of ints holding [pitch] of notes being played back in a sequence and hence being displayed
 
 	public MelodizerView(int _navRow, int grid_width, int grid_height, MelodizerModel model) {
@@ -30,13 +30,13 @@ public class MelodizerView extends Mode {
 		displayNote = new int[128];
 		
 		// Subscribe to the events we want to receive
-		model.subscribe(new UpdateDisplayEvent(-1), this);
-		model.subscribe(new UpdateNavEvent(-1), this);
+		model.subscribe(new UpdateDisplayEvent(), this);
+		model.subscribe(new UpdateNavEvent(), this);
 		model.subscribe(new ClearDisplayEvent(), this);
 		model.subscribe(new ClearNavEvent(), this);
-		model.subscribe(new DisplayNoteEvent(-1, -1, -1), this);
-		model.subscribe(new LocatorEvent(-1), this);
-		model.subscribe(new MenuFocusEvent(eMenuFocusEvent.MENU_FOCUS_CHANGE_CUED, -1 ,-1), this);
+		model.subscribe(new DisplayNoteEvent(), this);
+		model.subscribe(new LocatorEvent(), this);
+		model.subscribe(new MenuFocusEvent(), this);
 		
 		updateNavGrid();
 		updateDisplayGrid();

@@ -6,6 +6,8 @@ public class UpdateDisplayEvent implements Event {
 	
 	public static final String UPDATE_DISPLAY_EVENT = "UPDATE_DISPLAY_EVENT";
 		
+	public UpdateDisplayEvent(){}
+	
 	/**
 	 * Event sent to cause a view to update their display.
 	 * The current slot is given as a hint to the view as to which

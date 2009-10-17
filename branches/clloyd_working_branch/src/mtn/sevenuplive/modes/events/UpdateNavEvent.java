@@ -6,6 +6,8 @@ public class UpdateNavEvent implements Event {
 	
 	public static final String UPDATE_NAV_EVENT = "UPDATE_NAV_EVENT";
 	
+	public UpdateNavEvent() {}
+	
 	/**
 	 * Event sent to cause a view to update their nav display.
 	 * The current slot is given as a hint to the view as to which

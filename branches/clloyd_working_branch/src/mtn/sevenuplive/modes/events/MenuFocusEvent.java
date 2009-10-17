@@ -10,7 +10,7 @@ public class MenuFocusEvent implements Event {
 	public int oldIndex;
 	public int newIndex;
 	
-	private MenuFocusEvent() {}
+	public MenuFocusEvent() {}
 	
 	public MenuFocusEvent(eMenuFocusEvent type, int oldIndex, int newIndex) {
 		this.type = type;

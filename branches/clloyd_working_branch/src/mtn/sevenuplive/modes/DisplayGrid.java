@@ -311,7 +311,7 @@ public class DisplayGrid {
 					}
 					else if (y == ModeConstants.MELODY2_MODE)
 					{
-						allmodes.getMelodizer2Model().sendEvent(new MenuFocusEvent(MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_CUED, curMode, curMode));
+						allmodes.getMelodizer1Model().sendEvent(new MenuFocusEvent(MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_CUED, curMode, curMode));
 					}
 				}
 				//Else they are moving between sub-menu items

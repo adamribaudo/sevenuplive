@@ -6,6 +6,8 @@ public class LocatorEvent implements Event {
 
 	private int slot;
 	
+	public LocatorEvent() {}
+	
 	/**
 	 * Event to set sequence location
 	 * @param slot slot which we are affecting -1 to affect all

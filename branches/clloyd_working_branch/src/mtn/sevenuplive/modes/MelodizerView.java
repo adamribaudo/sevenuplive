@@ -238,10 +238,10 @@ public class MelodizerView extends Mode {
 				}
 			}
 			//Reset displayNote container
-			model.displayNote = new int[7][128];
+			resetDisplayNotes(curSeqBank);
 			model.setIsRecording(curSeqBank, true);
-
 			model.beginCue(pressedSeq);
+			
 		}
 		//Stop recording
 		else if(pressedSeq == curSeqBank && model.isRecording(curSeqBank) == true)
@@ -255,12 +255,19 @@ public class MelodizerView extends Mode {
 		{
 			curSeqBank = pressedSeq;
 			//Reset displayNote container
-			model.displayNote = new int[7][128];
+			resetDisplayNotes(curSeqBank);
 		}
 
 		updateNavGrid();
 	}
 
+	public void resetDisplayNotes(int slot) {
+		for (int i = 0; i < 128; i++) {
+			model.displayNote[slot][i] = DisplayGrid.OFF;
+		}
+		sendEvent(new UpdateDisplayEvent(slot));
+	}
+	
 	/**
 	 * Determines if the row represents a note row or not
 	 * @param y

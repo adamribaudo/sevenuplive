@@ -111,6 +111,7 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	
 	public void setIsRecording(int slot, boolean value) {
 		isRecording[slot] = value;
+		sendEvent(new UpdateNavEvent(slot));
 	}
 	
 	public void onEvent(Event e) {

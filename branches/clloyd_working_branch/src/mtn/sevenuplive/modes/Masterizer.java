@@ -139,14 +139,14 @@ public class Masterizer extends Mode {
 			seqStatus = AllModes.melody1Model.getSeqStatus(y);
    		 	if(seqStatus == MonomeUp.PLAYING)
    		 	{
-   		 		if(AllModes.melody1Model.getMelRecMode() == ModeConstants.MEL_ON_BUTTON_PRESS)
+   		 		if(AllModes.melody1Model.getRecMode() == ModeConstants.MEL_ON_BUTTON_PRESS)
    		 			stopMel1Seq(y);
    		 		else
    		 			mel1Cue[y] = true;
    		 	}
    		 	else if(seqStatus == MonomeUp.STOPPED)
    		 	{
-   		 		if(AllModes.melody1Model.getMelRecMode() == ModeConstants.MEL_ON_BUTTON_PRESS)
+   		 		if(AllModes.melody1Model.getRecMode() == ModeConstants.MEL_ON_BUTTON_PRESS)
    		 			AllModes.melody1Model.playSeq(y);
 		 		else
 		 			mel1Cue[y] = true;
@@ -158,14 +158,14 @@ public class Masterizer extends Mode {
 			seqStatus = AllModes.melody2Model.getSeqStatus(y);
    		 	if(seqStatus == MonomeUp.PLAYING)
    		 	{	
-   		 		if(AllModes.melody2Model.getMelRecMode() == ModeConstants.MEL_ON_BUTTON_PRESS)
+   		 		if(AllModes.melody2Model.getRecMode() == ModeConstants.MEL_ON_BUTTON_PRESS)
 		 			stopMel2Seq(y);
 		 		else
 		 			mel2Cue[y] = true;
    		 	}
    		 	else if(seqStatus == MonomeUp.STOPPED)
    		 	{
-   		 		if(AllModes.melody2Model.getMelRecMode() == ModeConstants.MEL_ON_BUTTON_PRESS)
+   		 		if(AllModes.melody2Model.getRecMode() == ModeConstants.MEL_ON_BUTTON_PRESS)
    		 			AllModes.melody2Model.playSeq(y);
 		 		else
 		 			mel2Cue[y] = true;

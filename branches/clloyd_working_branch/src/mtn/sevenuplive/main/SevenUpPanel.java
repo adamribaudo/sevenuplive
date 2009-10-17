@@ -37,6 +37,8 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	JComboBox drpMelodizerModeChoices1;
 	JComboBox drpMelodizerModeChoices2;
 	JComboBox drpLoopChoke;
+	JComboBox drpTransposeGroup1;
+	JComboBox drpTransposeGroup2;
 	JComboBox drpLoopLength;
 	JComboBox drpLoopType;
 	JComboBox drpGateLoopChoke;
@@ -48,7 +50,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	JCheckBox chkTranspose1;
 	JCheckBox chkTranspose2;
 	JFrame parentFrame;
-	JPanel secondPanel;
+	JPanel looperPanel;
 	JTabbedPane tabPanel;
 	
 	boolean isPatchPack = false;
@@ -114,7 +116,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			
 			JPanel melodizer1Panel = new JPanel(twocolumn);
 			JPanel melodizer2Panel = new JPanel(twocolumn);
-			JPanel looperPanel = new JPanel(fourcolumn);
+			looperPanel = new JPanel(fourcolumn);
 			JPanel thirdPanel = new JPanel(twocolumnstraight);
 			
 			tabPanel.add("Looper", looperPanel);
@@ -335,6 +337,67 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        melodizer1Panel.add(childP, c);
 	        melodizer2Panel.add(child2P, c);
 	        
+	        
+	        // Transpose groups
+	        JLabel lblSetTransposeGroup;
+	        
+	        for(Integer i=0; i<7;i++)
+	        {
+	        	lblSetTransposeGroup = new JLabel("Pattern " + (i+1) + " Transpose Group");
+	        	setSizeSmall(lblSetTransposeGroup);
+	        	lblSetTransposeGroup.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
+	            String[] transposeChoices = { "Nope", "1", "2", "3", "4", "5", "6", "7"};
+	            drpTransposeGroup1 = new JComboBox(transposeChoices);
+	            setSizeSmall(drpTransposeGroup1);
+	            drpTransposeGroup1.setName(i.toString() + "transpose");
+	            drpTransposeGroup1.setSelectedIndex(0);
+	            drpTransposeGroup1.addActionListener(
+	            		new ActionListener(){
+	            			public void actionPerformed(ActionEvent e) {
+	            				setDirty(true);
+	            				JComboBox cb = (JComboBox)e.getSource();
+	            				if(cb.getSelectedIndex() == 0)
+	            					sevenUpApplet.setMel1TransposeGroup(Integer.parseInt(cb.getName().substring(0,1)), -1);
+	            				else 
+	            					sevenUpApplet.setMel1TransposeGroup(Integer.parseInt(cb.getName().substring(0,1)), cb.getSelectedIndex());
+	            			}
+	            		}
+	            );
+	            
+	            c.gridx = 0; c.gridy = 2 + i; melodizer1Panel.add(lblSetTransposeGroup, c);
+	            c.gridx = 1; melodizer1Panel.add(drpTransposeGroup1, c);
+	        }
+	        
+	        for(Integer i=0; i<7;i++)
+	        {
+	        	lblSetTransposeGroup = new JLabel("Pattern " + (i+1) + " Transpose Group");
+	        	setSizeSmall(lblSetTransposeGroup);
+	        	lblSetTransposeGroup.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
+	            String[] transposeChoices = { "Nope", "1", "2", "3", "4", "5", "6", "7"};
+	            drpTransposeGroup2 = new JComboBox(transposeChoices);
+	            setSizeSmall(drpTransposeGroup2);
+	            drpTransposeGroup2.setName(i.toString() + "transpose");
+	            drpTransposeGroup2.setSelectedIndex(0);
+	            drpTransposeGroup2.addActionListener(
+	            		new ActionListener(){
+	            			public void actionPerformed(ActionEvent e) {
+	            				setDirty(true);
+	            				JComboBox cb = (JComboBox)e.getSource();
+	            				if(cb.getSelectedIndex() == 0)
+	            					sevenUpApplet.setMel2TransposeGroup(Integer.parseInt(cb.getName().substring(0,1)), -1);
+	            				else 
+	            					sevenUpApplet.setMel2TransposeGroup(Integer.parseInt(cb.getName().substring(0,1)), cb.getSelectedIndex());
+	            			}
+	            		}
+	            );
+	            
+	            c.gridx = 0; c.gridy = 2 + i; melodizer2Panel.add(lblSetTransposeGroup, c);
+	            c.gridx = 1; melodizer2Panel.add(drpTransposeGroup2, c);
+	        }
+	        
+	        //////////////////////////////////////////
+	        // Looper
+	        
 	        //Loops
 	        JLabel lblSetLoopGate;
 	        JLabel lblSetLoopLength;
@@ -543,6 +606,8 @@ public class SevenUpPanel extends JPanel implements ActionListener
         chkTranspose1.setSelected(sevenUpApplet.getMelody1Transpose());
         chkTranspose2.setSelected(sevenUpApplet.getMelody2Transpose());
         
+        drpMelRecMode.setSelectedIndex(sevenUpApplet.getMel1RecMode() - 1);
+        drpMelRecMode2.setSelectedIndex(sevenUpApplet.getMel2RecMode()- 1);
         
         // Need to count backwards as the choices go from multiple modes to 1 mode
         for(int i = drpMelodizerModeChoices2.getItemCount() - 1; i > -1; i--)
@@ -566,14 +631,14 @@ public class SevenUpPanel extends JPanel implements ActionListener
     		loopType = sevenUpApplet.getLoopType(i);
     		if(chokeGroup == -1)chokeGroup = 0;
     		
-    		for(int k=0; k<secondPanel.getComponentCount();k++)
+    		for(int k=0; k<looperPanel.getComponentCount();k++)
     		{
     			
-    			if(secondPanel.getComponent(k).getName() != null)
+    			if(looperPanel.getComponent(k).getName() != null)
     			{
-	    			if(secondPanel.getComponent(k).getName().equals(i.toString()+"length"))
+	    			if(looperPanel.getComponent(k).getName().equals(i.toString()+"length"))
 	    			{
-	    				drpLoopLength = (JComboBox)secondPanel.getComponent(k);
+	    				drpLoopLength = (JComboBox)looperPanel.getComponent(k);
 	    				if(length == .5)
 	    					drpLoopLength.setSelectedIndex(0);
 	    				else if(length == 1)
@@ -591,14 +656,14 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	    				
 	    				drpLoopLength.setSelectedItem(length.toString());
 	    			}   
-	    			else if(secondPanel.getComponent(k).getName().equals(i.toString()+"choke"))
+	    			else if(looperPanel.getComponent(k).getName().equals(i.toString()+"choke"))
 	    			{
-	    				drpLoopChoke = (JComboBox)secondPanel.getComponent(k);
+	    				drpLoopChoke = (JComboBox)looperPanel.getComponent(k);
 	    				drpLoopChoke.setSelectedIndex(chokeGroup);
 	    			}
-	    			else if(secondPanel.getComponent(k).getName().equals(i.toString()+"type"))
+	    			else if(looperPanel.getComponent(k).getName().equals(i.toString()+"type"))
 	    			{
-	    				drpLoopType = (JComboBox)secondPanel.getComponent(k);
+	    				drpLoopType = (JComboBox)looperPanel.getComponent(k);
 	    				drpLoopType.setSelectedIndex(loopType);
 	    				drpLoopType.setSelectedItem(Integer.toString(loopType));
 	    			}

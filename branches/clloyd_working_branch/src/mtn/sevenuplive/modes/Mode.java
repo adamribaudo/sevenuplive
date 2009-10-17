@@ -1,7 +1,7 @@
 package mtn.sevenuplive.modes;
 
 
-public abstract class Mode implements ModeConstants{
+public abstract class Mode implements ModeConstants, EventListener {
 	
 	protected int myNavRow;
 	protected int displayGrid[][];
@@ -29,6 +29,7 @@ public abstract class Mode implements ModeConstants{
 		// startup uses -1 as nav row
 		if (navRow > 0 && navRow < grid_height)
 			navGrid[myNavRow] = DisplayGrid.SOLID;
+		
 	}
 	
 	public int getMyNavRow() {
@@ -52,6 +53,10 @@ public abstract class Mode implements ModeConstants{
 	 */
 	public void onMenuFocusChange(MenuFocusEvent event) {
 		
+	}
+	
+	public void onEvent(Event e) {
+		// Do nothing...to be overridden as necessary by concrete class
 	}
 	
 	protected void clearDisplayGrid()

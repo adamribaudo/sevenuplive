@@ -1,7 +1,11 @@
 package mtn.sevenuplive.modes;
 
+import mtn.sevenuplive.modes.events.Event;
+import mtn.sevenuplive.modes.events.EventDispatcherImpl;
+import mtn.sevenuplive.modes.events.EventListener;
 
-public abstract class Mode implements ModeConstants, EventListener {
+
+public abstract class Mode extends EventDispatcherImpl implements ModeConstants, EventListener {
 	
 	protected int myNavRow;
 	protected int displayGrid[][];
@@ -46,15 +50,6 @@ public abstract class Mode implements ModeConstants, EventListener {
 		return navGrid;
 	}
 	
-	/**
-	 * Called when the Nav Menu focus changes
-	 * Override in concrete class as needed 
-	 * @param event
-	 */
-	public void onMenuFocusChange(MenuFocusEvent event) {
-		
-	}
-	
 	public void onEvent(Event e) {
 		// Do nothing...to be overridden as necessary by concrete class
 	}
@@ -84,27 +79,6 @@ public abstract class Mode implements ModeConstants, EventListener {
 		if(ycoord >= myNavRow)
 			return ycoord - 1;
 		else return ycoord;
-	}
-	
-	public static class MenuFocusEvent {
-		public enum eMenuFocusEvent {MENU_FOCUS_CHANGE_CUED, MENU_FOCUS_COMMITTED, MENU_FOCUS_CHANGE_ABORTED};
-		
-		public eMenuFocusEvent type;
-		
-		public int oldIndex;
-		public int newIndex;
-		
-		private MenuFocusEvent() {}
-		
-		public MenuFocusEvent(eMenuFocusEvent type, int oldIndex, int newIndex) {
-			this.type = type;
-			this.oldIndex = oldIndex;
-			this.newIndex = newIndex;
-		}
-		
-		public String toString() {
-			return "MenuFocusEvent->" + type + " oldIndex:" + Integer.toString(oldIndex) + " newIndex:" + Integer.toString(newIndex);
-		}
 	}
 
 }

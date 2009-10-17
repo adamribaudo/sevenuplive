@@ -5,6 +5,13 @@ import java.util.Hashtable;
 import java.util.List;
 
 import mtn.sevenuplive.main.MonomeUp;
+import mtn.sevenuplive.modes.events.ClearDisplayEvent;
+import mtn.sevenuplive.modes.events.ClearNavEvent;
+import mtn.sevenuplive.modes.events.DisplayNoteEvent;
+import mtn.sevenuplive.modes.events.EventDispatcherImpl;
+import mtn.sevenuplive.modes.events.LocatorEvent;
+import mtn.sevenuplive.modes.events.UpdateDisplayEvent;
+import mtn.sevenuplive.modes.events.UpdateNavEvent;
 import mtn.sevenuplive.scales.Scale;
 import mtn.sevenuplive.scales.ScaleName;
 
@@ -87,7 +94,6 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext {
 		melodyScale = new Scale(ScaleName.Major);
 
 	}
-
 	
 	/**
 	 * If note is out of midi range 1-128

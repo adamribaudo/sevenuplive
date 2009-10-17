@@ -1,5 +1,6 @@
 package mtn.sevenuplive.modes;
 
+import mtn.sevenuplive.modes.events.MenuFocusEvent;
 import jklabs.monomic.Monome;
 
 public class DisplayGrid {
@@ -216,9 +217,6 @@ public class DisplayGrid {
 					navGrid[curMode] = DisplayGrid.SOLID;
 					menuLevel = SUBMENU;
 
-					// Send focus change event
-					allmodes.sendMenuFocusChangeEvent(new Mode.MenuFocusEvent(Mode.MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_ABORTED, curMode, curMode));
-					
 					if (curMode == ModeConstants.PATTERN_MODE) {
 						navGrid = allmodes.getPatternizerView(grid_index).getNavGrid();
 					} else if (curMode == ModeConstants.CONTROL_MODE) {
@@ -230,8 +228,12 @@ public class DisplayGrid {
 					} else if (curMode == ModeConstants.LOOP_RECORD_MODE) {
 						navGrid = allmodes.getLoopRecorder().getNavGrid();
 					} else if (curMode == ModeConstants.MELODY_MODE) {
+						// Send focus change event
+						allmodes.getMelodizer1Model().sendEvent(new MenuFocusEvent(MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_ABORTED, curMode, curMode));
 						navGrid = allmodes.getMelodizer1View(grid_index).getNavGrid();
 					} else if (curMode == ModeConstants.MELODY2_MODE) {
+						// Send focus change event
+						allmodes.getMelodizer2Model().sendEvent(new MenuFocusEvent(MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_ABORTED, curMode, curMode));
 						navGrid = allmodes.getMelodizer2View(grid_index).getNavGrid();
 					}	
 				}
@@ -242,8 +244,6 @@ public class DisplayGrid {
 					int oldMode = curMode;
 					curMode = y;
 					menuLevel = SUBMENU;
-					
-					allmodes.sendMenuFocusChangeEvent(new Mode.MenuFocusEvent(Mode.MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_COMMITTED, oldMode, curMode));
 					
 					if(y == ModeConstants.PATTERN_MODE)
 					{
@@ -275,12 +275,14 @@ public class DisplayGrid {
 					}
 					else if(y == ModeConstants.MELODY_MODE)
 					{
+						allmodes.getMelodizer1Model().sendEvent(new MenuFocusEvent(MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_COMMITTED, oldMode, curMode));
 						allmodes.getMelodizer1View(grid_index).updateDisplayGrid();
 						curDisplayGrid = allmodes.getMelodizer1View(grid_index).getDisplayGrid();
 						navGrid = allmodes.getMelodizer1View(grid_index).getNavGrid();
 					}
 					else if(y == ModeConstants.MELODY2_MODE)
 					{
+						allmodes.getMelodizer2Model().sendEvent(new MenuFocusEvent(MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_COMMITTED, oldMode, curMode));
 						allmodes.getMelodizer2View(grid_index).updateDisplayGrid();
 						curDisplayGrid = allmodes.getMelodizer2View(grid_index).getDisplayGrid();
 						navGrid = allmodes.getMelodizer2View(grid_index).getNavGrid();
@@ -302,8 +304,15 @@ public class DisplayGrid {
 					navGrid[curMode] = DisplayGrid.SOLID;
 					menuLevel = MAINMENU;
 					
-					allmodes.sendMenuFocusChangeEvent(new Mode.MenuFocusEvent(Mode.MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_CUED, curMode, curMode));
 					
+					if (y == ModeConstants.MELODY_MODE)
+					{
+						allmodes.getMelodizer1Model().sendEvent(new MenuFocusEvent(MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_CUED, curMode, curMode));
+					}
+					else if (y == ModeConstants.MELODY2_MODE)
+					{
+						allmodes.getMelodizer2Model().sendEvent(new MenuFocusEvent(MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_CUED, curMode, curMode));
+					}
 				}
 				//Else they are moving between sub-menu items
 				else

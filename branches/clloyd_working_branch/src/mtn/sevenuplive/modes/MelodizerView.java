@@ -5,6 +5,15 @@ import java.util.ArrayList;
 import promidi.Note;
 import mtn.sevenuplive.main.MonomeUp;
 import mtn.sevenuplive.modes.MelodizerModel.GridPosition;
+import mtn.sevenuplive.modes.events.ClearDisplayEvent;
+import mtn.sevenuplive.modes.events.ClearNavEvent;
+import mtn.sevenuplive.modes.events.DisplayNoteEvent;
+import mtn.sevenuplive.modes.events.Event;
+import mtn.sevenuplive.modes.events.LocatorEvent;
+import mtn.sevenuplive.modes.events.MenuFocusEvent;
+import mtn.sevenuplive.modes.events.UpdateDisplayEvent;
+import mtn.sevenuplive.modes.events.UpdateNavEvent;
+import mtn.sevenuplive.modes.events.MenuFocusEvent.eMenuFocusEvent;
 
 public class MelodizerView extends Mode {
 	
@@ -27,6 +36,7 @@ public class MelodizerView extends Mode {
 		model.subscribe(new ClearNavEvent(), this);
 		model.subscribe(new DisplayNoteEvent(-1, -1, -1), this);
 		model.subscribe(new LocatorEvent(-1), this);
+		model.subscribe(new MenuFocusEvent(eMenuFocusEvent.MENU_FOCUS_CHANGE_CUED, -1 ,-1), this);
 		
 		updateNavGrid();
 		updateDisplayGrid();
@@ -52,39 +62,37 @@ public class MelodizerView extends Mode {
 		} else if (e.getType().equals(DisplayNoteEvent.DISPLAY_NOTE_EVENT)) {
 			DisplayNoteEvent dne = (DisplayNoteEvent)e;
 			if (dne.getSlot() == curSeqBank || dne.getSlot() == -1) {
-				displayNote(dne.getPitch(), dne.getDisplayGridState());
+				onDisplayNote(dne);
 			}
 		} else if (e.getType().equals(LocatorEvent.LOCATOR_EVENT)) {
 			LocatorEvent le = (LocatorEvent)e;
 			if (le.getSlot() == curSeqBank || le.getSlot() == -1) {
-				locatorEvent();
+				onLocator(le);
 			}
+		} else if (e.getType().equals(MenuFocusEvent.MENU_FOCUS_EVENT)) {
+			onMenuFocusChange((MenuFocusEvent)e);
 		}
 	}
 	
 	/**
 	 * Called when NavMenu change is being cued, aborted or committed
 	 */
-	@Override
 	public void onMenuFocusChange(MenuFocusEvent event) {
-		super.onMenuFocusChange(event);
-
-		//System.out.println(event);
-
+		
 		// We are interested in this case
 		if (event.oldIndex == myNavRow) {
 			// When we toggle current mode button we switch between default modes
-			if (event.type == Mode.MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_ABORTED) {
+			if (event.type == MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_ABORTED) {
 				model.swapModes();
 			}
 		}
 	}
 	
-	private void displayNote(int pitch, int gridstate) {
-		displayNote[pitch] = gridstate;
+	private void onDisplayNote(DisplayNoteEvent dne) {
+		displayNote[dne.getPitch()] = dne.getDisplayGridState();
 	}
 	
-	public void locatorEvent() {
+	public void onLocator(LocatorEvent le) {
 		if(model.sequences.containsKey(curSeqBank))
 		{
 			model.sequences.get(curSeqBank).locatorEvent();

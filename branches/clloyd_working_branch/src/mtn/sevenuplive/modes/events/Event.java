@@ -1,4 +1,4 @@
-package mtn.sevenuplive.modes;
+package mtn.sevenuplive.modes.events;
 
 /**
  * Interface for an Event

@@ -1,4 +1,4 @@
-package mtn.sevenuplive.modes;
+package mtn.sevenuplive.modes.events;
 
 import java.util.ArrayList;
 import java.util.HashMap;

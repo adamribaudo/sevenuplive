@@ -122,7 +122,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			tabPanel.add("Melodizer2", melodizer2Panel);
 			
 			//Scale
-	        JLabel lblSetScale = new JLabel("Melodizer 1 Scale/Mode");
+	        JLabel lblSetScale = new JLabel("Scale/Mode");
 	        setSizeSmall(lblSetScale);
 	        lblSetScale.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        
@@ -150,7 +150,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			c.gridx = 1; melodizer1Panel.add(drpScaleChoices1, c);
 	        
 			//Melodizer 2 Scale
-	        lblSetScale = new JLabel("Melodizer 2 Scale/Mode");
+	        lblSetScale = new JLabel("Scale/Mode");
 	        setSizeSmall(lblSetScale);
 	        lblSetScale.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        
@@ -242,7 +242,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        c.gridx = 2; c.gridy = 0; melodizer2Panel.add(drpMelodizerModeChoices2, c);	        
 	        
 	        //Melodizer record mode
-	        JLabel lblMelRecMode = new JLabel("Melodizer Rec Mode");
+	        JLabel lblMelRecMode = new JLabel("Rec Mode");
 	        setSizeSmall(lblMelRecMode);
 	        lblMelRecMode.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        Vector<String> recModeChoices = new Vector<String>();
@@ -264,7 +264,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        );
 	        
 	        //Melodizer record mode
-	        JLabel lblMelRecMode2 = new JLabel("Melodizer Rec Mode");
+	        JLabel lblMelRecMode2 = new JLabel("Rec Mode");
 	        setSizeSmall(lblMelRecMode2);
 	        lblMelRecMode2.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	        drpMelRecMode2 = new JComboBox(recModeChoices);

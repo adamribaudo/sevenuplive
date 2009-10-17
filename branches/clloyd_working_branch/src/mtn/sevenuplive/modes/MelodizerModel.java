@@ -72,8 +72,8 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	public boolean transposeDirty = false;
 
 	public int clipNotes[][]; //When clipMode=true.  Array of ints holding [channel][pitch] of clips being launched/stopped
-	public boolean heldNote[];
-	public boolean newHeldNote[];
+	public boolean[][] heldNote;
+	public boolean[][] newHeldNote;
 	public MidiOut midiMelodyOut[];
 	private Scale melodyScale;
 	private Scale clipScale = new Scale(ScaleName.Major);
@@ -99,9 +99,9 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 		cuedIndex = new boolean[7];
 		isRecording = new boolean[7];
 		sequences = new Hashtable<Integer, NoteSequence>();
-		heldNote = new boolean[128];
+		heldNote = new boolean[7][128];
 		clipNotes = new int[7][128];
-		newHeldNote = new boolean[128];
+		newHeldNote = new boolean[7][128];
 		melodyScale = new Scale(ScaleName.Major);
 		this._navRow = _navRow;
 		
@@ -780,7 +780,7 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 		//144 = noteOn
 		if(note.getVelocity() > 0 && note.getStatus() == 144)
 		{
-			heldNote[note.getPitch()] = true;
+			heldNote[melodizerChannel][note.getPitch()] = true;
 			midiMelodyOut[melodizerChannel].sendNoteOn(note);
 			displayNote(melodizerChannel, note.getPitch(), DisplayGrid.SOLID);
 			addEvent(melodizerChannel, note);
@@ -789,7 +789,7 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 		{
 			Note releaseNote = new Note(note.getPitch(),0, 0);
 			midiMelodyOut[melodizerChannel].sendNoteOff(releaseNote);
-			heldNote[note.getPitch()] = false;
+			heldNote[melodizerChannel][note.getPitch()] = false;
 			displayNote(melodizerChannel, note.getPitch(), DisplayGrid.OFF);
 			addEvent(melodizerChannel, releaseNote);
 		}

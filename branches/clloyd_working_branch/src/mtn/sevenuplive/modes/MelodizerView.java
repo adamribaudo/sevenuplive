@@ -224,7 +224,7 @@ public class MelodizerView extends Mode {
 	{
 		int melodyPitch;
 		melodyPitch = model.convertGridPositionToNote(x, y, curSeqBank);
-		model.heldNote[melodyPitch] = false;
+		model.heldNote[curSeqBank][melodyPitch] = false;
 		if(model.currentMode != MelodizerModel.eMelodizerMode.CLIP)
 			model.displayNote[curSeqBank][melodyPitch] = DisplayGrid.OFF;
 		Note melodyRelease;
@@ -310,7 +310,7 @@ public class MelodizerView extends Mode {
 			
 			Note melodySend;
 			melodySend = new Note(melodyPitch,100, 0);
-			model.heldNote[melodyPitch] = true;
+			model.heldNote[curSeqBank][melodyPitch] = true;
 			if(model.currentMode != MelodizerModel.eMelodizerMode.CLIP)
 				model.displayNote[curSeqBank][melodyPitch] = DisplayGrid.SOLID;
 			model.midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
@@ -321,20 +321,24 @@ public class MelodizerView extends Mode {
 		{
 			changeKey(true, x, y); // Change directly
 			
+			model.sendEvent(new KeyTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x, y));
+			
 			// If we are in a group then send a group transpose event
-			if (model.getTransposeGroup(curSeqBank) != -1) {
+			/*if (model.getTransposeGroup(curSeqBank) != -1) {
 				AllModes.melody1Model.sendEvent(new KeyTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x, y));
 				AllModes.melody2Model.sendEvent(new KeyTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x, y));
-			} 
+			} */
 		} else if (model.currentMode == MelodizerModel.eMelodizerMode.POSITION) {
 			
 			changePosition(true, x); // Change directly
 			
+			model.sendEvent(new PositionTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x));
+			
 			// If we are in a group then send a group transpose event
-			if (model.getTransposeGroup(curSeqBank) != -1) {
+			/*if (model.getTransposeGroup(curSeqBank) != -1) {
 				AllModes.melody1Model.sendEvent(new PositionTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x));
 				AllModes.melody2Model.sendEvent(new PositionTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x));
-			} 
+			} */
 		}
 		
 	}
@@ -365,20 +369,20 @@ public class MelodizerView extends Mode {
 		//Release notes from old key
 		for(int i=0; i<128;i++)
 		{ 
-			if(model.heldNote[i])
+			if(model.heldNote[curSeqBank][i])
 			{
 				Note melodyRelease;
 				melodyRelease = new Note(i,0, 0);
 				model.midiMelodyOut[curSeqBank].sendNoteOff(melodyRelease);
 				model.addEvent(curSeqBank, melodyRelease);
-				model.heldNote[i] = false;
+				model.heldNote[curSeqBank][i] = false;
 				
 				// If !transposing we want the new pitch here
 				if (!model.transpose) 
 					model.displayNote[curSeqBank][i] = DisplayGrid.OFF;
 				
 				if ((i-keyDif) >= 0)
-					model.newHeldNote[i-keyDif] = true;
+					model.newHeldNote[curSeqBank][i-keyDif] = true;
 
 				//System.out.println("  Killing " + i);
 			}
@@ -387,15 +391,15 @@ public class MelodizerView extends Mode {
 		//Send notes for new key
 		for(int i=0; i<128;i++)
 		{ 
-			if(model.newHeldNote[i])
+			if(model.newHeldNote[curSeqBank][i])
 			{		
 				Note melodySend;
 				melodySend = new Note(i,100, 0);
 				model.midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
 				model.addEvent(curSeqBank, melodySend);
-				model.heldNote[i]=true;
+				model.heldNote[curSeqBank][i] = true;
 				model.displayNote[curSeqBank][i] = DisplayGrid.SOLID;
-				model.newHeldNote[i] = false;
+				model.newHeldNote[curSeqBank][i] = false;
 				//System.out.println("Sending " + i);
 			}
 		}
@@ -428,13 +432,13 @@ public class MelodizerView extends Mode {
 		//Release notes from old offset
 		for(int i=0; i<128;i++)
 		{ 
-			if(model.heldNote[i])
+			if(model.heldNote[curSeqBank][i])
 			{
 				Note melodyRelease;
 				melodyRelease = new Note(i,0, 0);
 				model.midiMelodyOut[curSeqBank].sendNoteOff(melodyRelease);
 				model.addEvent(curSeqBank, melodyRelease);
-				model.heldNote[i] = false;
+				model.heldNote[curSeqBank][i] = false;
 				
 				// If !transposing we want the new pitch here
 				if (!model.transpose)
@@ -444,7 +448,7 @@ public class MelodizerView extends Mode {
 				if (oldPositions[i] != null) { 
 					// Because offset has changed, new note will be a different note from same grid position
 					int newNote = model.convertGridPositionToNote(oldPositions[i].x, oldPositions[i].y, curSeqBank);
-					model.newHeldNote[newNote] = true;
+					model.newHeldNote[curSeqBank][newNote] = true;
 				}
 			}
 		}
@@ -452,15 +456,15 @@ public class MelodizerView extends Mode {
 		//Send notes for new key
 		for(int i=0; i<128;i++)
 		{ 
-			if(model.newHeldNote[i])
+			if(model.newHeldNote[curSeqBank][i])
 			{		
 				Note melodySend;
 				melodySend = new Note(i,100, 0);
 				model.midiMelodyOut[curSeqBank].sendNoteOn(melodySend);
 				model.addEvent(curSeqBank, melodySend);
-				model.heldNote[i]=true;
+				model.heldNote[curSeqBank][i] = true;
 				model.displayNote[curSeqBank][i] = DisplayGrid.SOLID;
-				model.newHeldNote[i]=false;
+				model.newHeldNote[curSeqBank][i] = false;
 			}
 		}
 	}

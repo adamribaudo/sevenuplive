@@ -58,14 +58,14 @@ public class MelodizerView extends Mode {
 			if (model.getCurrentMode() != MelodizerModel.eMelodizerMode.CLIP) {
 				KeyTransposeGroupEvent ktge = (KeyTransposeGroupEvent)e;
 				if (ktge.getGroup() == model.getTransposeGroup(curSeqBank)) {
-					changeKey(ktge.getKeyX(), ktge.getKeyY());
+					changeKey(false, ktge.getKeyX(), ktge.getKeyY());
 				}
 			}
 		} else if (e.getType().equals(PositionTransposeGroupEvent.POSITION_TRANSPOSE_GROUP_EVENT)) {
 			if (model.getCurrentMode() != MelodizerModel.eMelodizerMode.CLIP) {
 				PositionTransposeGroupEvent ptge = (PositionTransposeGroupEvent)e;
 				if (ptge.getGroup() == model.getTransposeGroup(curSeqBank)) {
-					changePosition(ptge.getPosition());
+					changePosition(false, ptge.getPosition());
 				}
 			}
 		}  
@@ -319,28 +319,30 @@ public class MelodizerView extends Mode {
 		//User is pressing a button in the key area
 		else if (model.currentMode == MelodizerModel.eMelodizerMode.KEYBOARD)
 		{
+			changeKey(true, x, y); // Change directly
+			
 			// If we are in a group then send a group transpose event
 			if (model.getTransposeGroup(curSeqBank) != -1) {
 				AllModes.melody1Model.sendEvent(new KeyTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x, y));
 				AllModes.melody2Model.sendEvent(new KeyTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x, y));
-			} else { // Just change key here
-				changeKey(x, y);
-			}
-			
+			} 
 		} else if (model.currentMode == MelodizerModel.eMelodizerMode.POSITION) {
+			
+			changePosition(true, x); // Change directly
 			
 			// If we are in a group then send a group transpose event
 			if (model.getTransposeGroup(curSeqBank) != -1) {
 				AllModes.melody1Model.sendEvent(new PositionTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x));
 				AllModes.melody2Model.sendEvent(new PositionTransposeGroupEvent(model.getTransposeGroup(curSeqBank), x));
-			} else {
-				changePosition(x); // Just change
-			}
+			} 
 		}
 		
 	}
 	
-	private void changeKey(int x, int y) {
+	private void changeKey(boolean direct, int x, int y) {
+		// If we are already here then don't transpose further
+		if (!direct && model.key[curSeqBank] == model.getKeyFromCoords( x, y))
+			return;
 		
 		//User is changing keys
 		for(int i=0; i<128;i++)
@@ -399,7 +401,11 @@ public class MelodizerView extends Mode {
 		}
 	}
 	
-	private void changePosition(int x) {
+	private void changePosition(boolean direct, int x) {
+		// If already here then do nothing
+		if (!direct && model.offset[curSeqBank] == x)
+			return;
+		
 		GridPosition[] oldPositions = new GridPosition[128]; 
 
 		// Mark all old positions

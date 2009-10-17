@@ -475,7 +475,7 @@ public final class MonomeUp extends MonomeOSC implements MonomeListener {
 
 	public int getMel2TransposeGroup(int slotNum)
 	{
-		return allmodes.getMelodizer1Model().getTransposeGroup(slotNum);
+		return allmodes.getMelodizer2Model().getTransposeGroup(slotNum);
 	}
 
 	public Document toXMLDocument(String fileName)

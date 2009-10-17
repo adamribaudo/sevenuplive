@@ -51,6 +51,8 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	JCheckBox chkTranspose2;
 	JFrame parentFrame;
 	JPanel looperPanel;
+	JPanel melodizer1Panel;
+	JPanel melodizer2Panel;
 	JTabbedPane tabPanel;
 	
 	boolean isPatchPack = false;
@@ -71,7 +73,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
     	
     	// Resize a bit
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,500,420);
+    	parentFrame.setBounds(screenSize.width / 2,screenSize.height / 2,515,420);
  
     	try
     	{
@@ -114,8 +116,8 @@ public class SevenUpPanel extends JPanel implements ActionListener
 			
 			tabPanel = new JTabbedPane();
 			
-			JPanel melodizer1Panel = new JPanel(twocolumn);
-			JPanel melodizer2Panel = new JPanel(twocolumn);
+			melodizer1Panel = new JPanel(twocolumn);
+			melodizer2Panel = new JPanel(twocolumn);
 			looperPanel = new JPanel(fourcolumn);
 			JPanel thirdPanel = new JPanel(twocolumnstraight);
 			
@@ -576,6 +578,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
     private void updateGui()
     {
     	int chokeGroup;
+    	int transposeGroup;
     	int loopType;
     	Float length;
     	boolean gateLoopChokes;
@@ -623,6 +626,42 @@ public class SevenUpPanel extends JPanel implements ActionListener
     			break;
     		}
     	}
+        
+        for(Integer i=0;i<7;i++)
+    	{
+        	transposeGroup = sevenUpApplet.getMel1TransposeGroup(i);
+    		if(transposeGroup == -1)transposeGroup = 0;
+    		
+    		for(int k=0; k<melodizer1Panel.getComponentCount();k++)
+    		{
+    			if(melodizer1Panel.getComponent(k).getName() != null)
+    			{
+	    			if(melodizer1Panel.getComponent(k).getName().equals(i.toString()+"transpose"))
+	    			{
+	    				drpTransposeGroup1 = (JComboBox)melodizer1Panel.getComponent(k);
+	    				drpTransposeGroup1.setSelectedIndex(transposeGroup);
+	    			}
+    			}
+			}
+		}
+        
+        for(Integer i=0;i<7;i++)
+    	{
+        	transposeGroup = sevenUpApplet.getMel2TransposeGroup(i);
+    		if(transposeGroup == -1)transposeGroup = 0;
+    		
+    		for(int k=0; k<melodizer2Panel.getComponentCount();k++)
+    		{
+    			if(melodizer2Panel.getComponent(k).getName() != null)
+    			{
+	    			if(melodizer2Panel.getComponent(k).getName().equals(i.toString()+"transpose"))
+	    			{
+	    				drpTransposeGroup2 = (JComboBox)melodizer2Panel.getComponent(k);
+	    				drpTransposeGroup2.setSelectedIndex(transposeGroup);
+	    			}
+    			}
+			}
+		}
 		
 		for(Integer i =0;i<7;i++)
     	{

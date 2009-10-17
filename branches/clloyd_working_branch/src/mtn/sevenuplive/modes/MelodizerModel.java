@@ -546,6 +546,17 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 		xmlMelodizer.setAttribute(new Attribute("transpose", Boolean.toString(transpose)));
 		xmlMelodizer.setAttribute(new Attribute("recMode", Integer.toString(recMode)));
 		
+		// Serialize the transpose group in each pattern slot
+		String groupString = "";
+		for(int i=0;i<transposeGroup.length;i++)
+		{
+			groupString += transposeGroup[i];
+			if(i!=transposeGroup.length-1)
+				groupString+= ",";
+		}
+
+		xmlMelodizer.setAttribute(new Attribute("groups", groupString));
+
 		// Serialize the Key in each pattern slot
 		String keyString = "";
 		for(int i=0;i<key.length;i++)
@@ -640,6 +651,16 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 		} catch (Throwable t) {
 			// Do nothing
 		} 
+		try {
+			String groupString = xmlMelodizer.getAttribute("groups").getValue();
+			int i=0;
+			for(String strGroup : groupString.split(","))
+			{
+				transposeGroup[i] = Integer.parseInt(strGroup);
+				i++;
+			}
+		} catch (Throwable t) {}
+		
 		try {
 			String keyString = xmlMelodizer.getAttribute("key").getValue();
 			int i=0;

@@ -10,10 +10,8 @@ import mtn.sevenuplive.modes.events.ClearNavEvent;
 import mtn.sevenuplive.modes.events.DisplayNoteEvent;
 import mtn.sevenuplive.modes.events.Event;
 import mtn.sevenuplive.modes.events.LocatorEvent;
-import mtn.sevenuplive.modes.events.MenuFocusEvent;
 import mtn.sevenuplive.modes.events.UpdateDisplayEvent;
 import mtn.sevenuplive.modes.events.UpdateNavEvent;
-import mtn.sevenuplive.modes.events.MenuFocusEvent.eMenuFocusEvent;
 
 public class MelodizerView extends Mode {
 	
@@ -36,7 +34,6 @@ public class MelodizerView extends Mode {
 		model.subscribe(new ClearNavEvent(), this);
 		model.subscribe(new DisplayNoteEvent(), this);
 		model.subscribe(new LocatorEvent(), this);
-		model.subscribe(new MenuFocusEvent(), this);
 		
 		updateNavGrid();
 		updateDisplayGrid();
@@ -69,23 +66,7 @@ public class MelodizerView extends Mode {
 			if (le.getSlot() == curSeqBank || le.getSlot() == -1) {
 				onLocator(le);
 			}
-		} else if (e.getType().equals(MenuFocusEvent.MENU_FOCUS_EVENT)) {
-			onMenuFocusChange((MenuFocusEvent)e);
-		}
-	}
-	
-	/**
-	 * Called when NavMenu change is being cued, aborted or committed
-	 */
-	public void onMenuFocusChange(MenuFocusEvent event) {
-		
-		// We are interested in this case
-		if (event.oldIndex == myNavRow) {
-			// When we toggle current mode button we switch between default modes
-			if (event.type == MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_ABORTED) {
-				model.swapModes();
-			}
-		}
+		} 
 	}
 	
 	private void onDisplayNote(DisplayNoteEvent dne) {

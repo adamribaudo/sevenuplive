@@ -8,8 +8,11 @@ import mtn.sevenuplive.main.MonomeUp;
 import mtn.sevenuplive.modes.events.ClearDisplayEvent;
 import mtn.sevenuplive.modes.events.ClearNavEvent;
 import mtn.sevenuplive.modes.events.DisplayNoteEvent;
+import mtn.sevenuplive.modes.events.Event;
 import mtn.sevenuplive.modes.events.EventDispatcherImpl;
+import mtn.sevenuplive.modes.events.EventListener;
 import mtn.sevenuplive.modes.events.LocatorEvent;
+import mtn.sevenuplive.modes.events.MenuFocusEvent;
 import mtn.sevenuplive.modes.events.UpdateDisplayEvent;
 import mtn.sevenuplive.modes.events.UpdateNavEvent;
 import mtn.sevenuplive.scales.Scale;
@@ -27,7 +30,7 @@ import promidi.Note;
  * 
  * Contains the logic involved in recording and playing back sequences of melodies for a MonomeUp.
  */
-public class MelodizerModel extends EventDispatcherImpl implements PlayContext {
+public class MelodizerModel extends EventDispatcherImpl implements PlayContext, EventListener {
 
 	/** 
 	 * This is used to record the key state when a recorded pattern
@@ -76,6 +79,8 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext {
 	private Scale clipScale = new Scale(ScaleName.Major);
 
 	private int recMode = ModeConstants.MEL_ON_BUTTON_PRESS;
+	
+	private int _navRow;
 
 	public MelodizerModel(int _navRow, MidiOut _midiMelodyOut[], int grid_width, int grid_height) {
 		
@@ -92,8 +97,34 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext {
 		clipNotes = new int[7][128];
 		newHeldNote = new boolean[128];
 		melodyScale = new Scale(ScaleName.Major);
-
+		this._navRow = _navRow;
+		
+		/** Subscribe to our own events here */
+		subscribe(new MenuFocusEvent(), this);
 	}
+	
+	public void onEvent(Event e) {
+		
+		if (e.getType().equals(MenuFocusEvent.MENU_FOCUS_EVENT)) {
+			onMenuFocusChange((MenuFocusEvent)e);
+		}
+	}
+	
+	
+	/**
+	 * Called when NavMenu change is being cued, aborted or committed
+	 */
+	public void onMenuFocusChange(MenuFocusEvent event) {
+		
+		// We are interested in this case
+		if (event.oldIndex == _navRow) {
+			// When we toggle current mode button we switch between default modes
+			if (event.type == MenuFocusEvent.eMenuFocusEvent.MENU_FOCUS_CHANGE_ABORTED) {
+				swapModes();
+			}
+		}
+	}
+	
 	
 	/**
 	 * If note is out of midi range 1-128

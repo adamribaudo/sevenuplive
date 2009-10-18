@@ -358,10 +358,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	            			public void actionPerformed(ActionEvent e) {
 	            				setDirty(true);
 	            				JComboBox cb = (JComboBox)e.getSource();
-	            				if(cb.getSelectedIndex() == 0)
-	            					sevenUpApplet.setMel1TransposeGroup(Integer.parseInt(cb.getName().substring(0,1)), -1);
-	            				else 
-	            					sevenUpApplet.setMel1TransposeGroup(Integer.parseInt(cb.getName().substring(0,1)), cb.getSelectedIndex());
+	            				sevenUpApplet.setMel1TransposeGroup(Integer.parseInt(cb.getName().substring(0,1)), cb.getSelectedIndex() - 1);
 	            			}
 	            		}
 	            );
@@ -385,10 +382,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	            			public void actionPerformed(ActionEvent e) {
 	            				setDirty(true);
 	            				JComboBox cb = (JComboBox)e.getSource();
-	            				if(cb.getSelectedIndex() == 0)
-	            					sevenUpApplet.setMel2TransposeGroup(Integer.parseInt(cb.getName().substring(0,1)), -1);
-	            				else 
-	            					sevenUpApplet.setMel2TransposeGroup(Integer.parseInt(cb.getName().substring(0,1)), cb.getSelectedIndex());
+	            				sevenUpApplet.setMel2TransposeGroup(Integer.parseInt(cb.getName().substring(0,1)), cb.getSelectedIndex() - 1);
 	            			}
 	            		}
 	            );
@@ -630,7 +624,6 @@ public class SevenUpPanel extends JPanel implements ActionListener
         for(Integer i=0;i<7;i++)
     	{
         	transposeGroup = sevenUpApplet.getMel1TransposeGroup(i);
-    		if(transposeGroup == -1)transposeGroup = 0;
     		
     		for(int k=0; k<melodizer1Panel.getComponentCount();k++)
     		{
@@ -639,7 +632,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	    			if(melodizer1Panel.getComponent(k).getName().equals(i.toString()+"transpose"))
 	    			{
 	    				drpTransposeGroup1 = (JComboBox)melodizer1Panel.getComponent(k);
-	    				drpTransposeGroup1.setSelectedIndex(transposeGroup);
+	    				drpTransposeGroup1.setSelectedIndex(transposeGroup + 1);
 	    			}
     			}
 			}
@@ -648,7 +641,6 @@ public class SevenUpPanel extends JPanel implements ActionListener
         for(Integer i=0;i<7;i++)
     	{
         	transposeGroup = sevenUpApplet.getMel2TransposeGroup(i);
-    		if(transposeGroup == -1)transposeGroup = 0;
     		
     		for(int k=0; k<melodizer2Panel.getComponentCount();k++)
     		{
@@ -657,7 +649,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	    			if(melodizer2Panel.getComponent(k).getName().equals(i.toString()+"transpose"))
 	    			{
 	    				drpTransposeGroup2 = (JComboBox)melodizer2Panel.getComponent(k);
-	    				drpTransposeGroup2.setSelectedIndex(transposeGroup);
+	    				drpTransposeGroup2.setSelectedIndex(transposeGroup + 1);
 	    			}
     			}
 			}

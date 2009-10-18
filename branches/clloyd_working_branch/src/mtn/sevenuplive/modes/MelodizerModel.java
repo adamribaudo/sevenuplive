@@ -1,6 +1,7 @@
 package mtn.sevenuplive.modes;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -82,6 +83,16 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	
 	/** Transpose groups for slots 0-7. -1 value means no group */
 	private int[] transposeGroup;
+	
+	/** 
+	 * These Note off messages are delayed until next note off or on is played in that sequence.
+	 * This helps transposition retriggering to appear smoother
+	 * Keyed by sequence # 
+	 */
+	private HashMap<Integer, ArrayList<Note>> delayedNoteOffs = new HashMap<Integer, ArrayList<Note>>();
+	
+	/** Delay the sending off note offs on transposed notes */
+	private boolean delayNoteOffs = true;
 	
 	private int _navRow;
 
@@ -338,9 +349,19 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 				// Collect held notes before the heartbeat
 				ArrayList<Note> notesHeld = s.getHeldNotesAtPlayedPitch(index);
 				
-				//Loop through old heldnotes 
+				//Loop through old heldnotes and turn them off
 				for(int i=0;i< notesHeld.size();i++) {
-					midiMelodyOut[index].sendNoteOff(notesHeld.get(i));
+					// If delayedNoteOffs
+					if (delayNoteOffs) {
+						ArrayList<Note> delayedNotes = delayedNoteOffs.get(index);
+						if (delayedNotes == null) {
+							delayedNotes = new ArrayList<Note>();
+							 delayedNoteOffs.put(index, delayedNotes);
+						}
+						delayedNotes.add(notesHeld.get(i));
+					} else { // Send immediately
+						midiMelodyOut[index].sendNoteOff(notesHeld.get(i));
+					}
 					displayNote(index, notesHeld.get(i).getPitch(), DisplayGrid.OFF);
 				}	
 				 
@@ -353,6 +374,11 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 			{
 				//package the note
 				notePackage.put(index, noteList);
+			}
+
+			if (transposeDirty[index] && transpose) {
+				transposeDirty[index] = false; // reset flag
+				markStartTransposeOffsets(index);
 			}
 		}
 
@@ -370,24 +396,39 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 				note = noteList.get(i);
 				if(note.getVelocity() > 0)
 				{
+					sendDelayedNoteOffs(index);
+					
 					//System.out.println("Playing note " + note.getPitch());
 					midiMelodyOut[index].sendNoteOn(note);
 					displayNote(index, note.getPitch(), DisplayGrid.SOLID);
 				}
 				else
 				{
+					sendDelayedNoteOffs(index);
+					
 					//System.out.println("Releasing note " + note.getPitch());
 					midiMelodyOut[index].sendNoteOff(note);
 					displayNote(index, note.getPitch(), DisplayGrid.OFF);
 				}
 				updateDisplayGrid(index);
 			}
-			if (transposeDirty[index] && transpose) {
-				transposeDirty[index] = false; // reset flag
-				markStartTransposeOffsets(index);
-			}
 		}
-		
+	}
+	
+	/**
+	 * Send any delayed note offs
+	 * @param index
+	 */
+	private void sendDelayedNoteOffs(int index) {
+		ArrayList<Note> delayedNotes = delayedNoteOffs.get(index);
+		if (delayedNotes == null)
+			return;
+			
+		for (Note note : delayedNotes) {
+			midiMelodyOut[index].sendNoteOff(note);
+		}
+		// Clear it out
+		delayedNoteOffs.put(index, new ArrayList<Note>());
 	}
 	
 	/**
@@ -448,6 +489,16 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	 */
 	public void displayNote(int slot, int pitch, int displaystate) {
 		displayNote[slot][pitch] = displaystate;
+	}
+
+	/**
+	 * Return the display value of a note
+	 * @param slot
+	 * @param pitch
+	 * @return
+	 */
+	public int getDisplayNote(int slot, int pitch) {
+		return displayNote[slot][pitch];
 	}
 
 	/**
@@ -519,6 +570,7 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 				midiMelodyOut[seqIndex].sendNoteOff(noteList.get(i));
 				displayNote(seqIndex, noteList.get(i).getPitch(), DisplayGrid.OFF);
 			}
+			sendDelayedNoteOffs(seqIndex);
 			updateDisplayGrid(seqIndex);
 		}
 	}

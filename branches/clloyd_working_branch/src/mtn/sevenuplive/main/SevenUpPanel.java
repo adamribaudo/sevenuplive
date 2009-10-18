@@ -29,6 +29,7 @@ import org.jdom.Document;
 
 public class SevenUpPanel extends JPanel implements ActionListener
 {
+	private enum eTransposeOptions {GATE, SUSTAIN};
 	
 	private static final long serialVersionUID = 1L;
 	SevenUpApplet sevenUpApplet;
@@ -39,6 +40,8 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	JComboBox drpLoopChoke;
 	JComboBox drpTransposeGroup1;
 	JComboBox drpTransposeGroup2;
+	JComboBox drpTransposeOptions1;
+	JComboBox drpTransposeOptions2;
 	JComboBox drpLoopLength;
 	JComboBox drpLoopType;
 	JComboBox drpGateLoopChoke;
@@ -350,8 +353,11 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        	lblSetTransposeGroup.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	            String[] transposeChoices = { "Nope", "1", "2", "3", "4", "5", "6", "7"};
 	            drpTransposeGroup1 = new JComboBox(transposeChoices);
+	            drpTransposeOptions1 = new JComboBox(eTransposeOptions.values());
 	            setSizeSmall(drpTransposeGroup1);
+	            setSizeSmall(drpTransposeOptions1);
 	            drpTransposeGroup1.setName(i.toString() + "transpose");
+	            drpTransposeOptions1.setName(i.toString() + "options");
 	            drpTransposeGroup1.setSelectedIndex(0);
 	            drpTransposeGroup1.addActionListener(
 	            		new ActionListener(){
@@ -362,9 +368,18 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	            			}
 	            		}
 	            );
-	            
+	            drpTransposeOptions1.addActionListener(
+	            		new ActionListener(){
+	            			public void actionPerformed(ActionEvent e) {
+	            				setDirty(true);
+	            				JComboBox cb = (JComboBox)e.getSource();
+	            				sevenUpApplet.setMel1TransposeSustain(Integer.parseInt(cb.getName().substring(0,1)), cb.getSelectedItem() == eTransposeOptions.SUSTAIN ? true: false);
+	            			}
+	            		}
+	            );
 	            c.gridx = 0; c.gridy = 2 + i; melodizer1Panel.add(lblSetTransposeGroup, c);
 	            c.gridx = 1; melodizer1Panel.add(drpTransposeGroup1, c);
+	            c.gridx = 2; melodizer1Panel.add(drpTransposeOptions1, c);
 	        }
 	        
 	        for(Integer i=0; i<7;i++)
@@ -373,9 +388,12 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	        	setSizeSmall(lblSetTransposeGroup);
 	        	lblSetTransposeGroup.setBorder(new javax.swing.border.EmptyBorder(4,4,4,4));
 	            String[] transposeChoices = { "Nope", "1", "2", "3", "4", "5", "6", "7"};
+	            drpTransposeOptions2 = new JComboBox(eTransposeOptions.values());
 	            drpTransposeGroup2 = new JComboBox(transposeChoices);
 	            setSizeSmall(drpTransposeGroup2);
+	            setSizeSmall(drpTransposeOptions2);
 	            drpTransposeGroup2.setName(i.toString() + "transpose");
+	            drpTransposeOptions2.setName(i.toString() + "options");
 	            drpTransposeGroup2.setSelectedIndex(0);
 	            drpTransposeGroup2.addActionListener(
 	            		new ActionListener(){
@@ -386,9 +404,19 @@ public class SevenUpPanel extends JPanel implements ActionListener
 	            			}
 	            		}
 	            );
+	            drpTransposeOptions2.addActionListener(
+	            		new ActionListener(){
+	            			public void actionPerformed(ActionEvent e) {
+	            				setDirty(true);
+	            				JComboBox cb = (JComboBox)e.getSource();
+	            				sevenUpApplet.setMel2TransposeSustain(Integer.parseInt(cb.getName().substring(0,1)), cb.getSelectedItem() == eTransposeOptions.SUSTAIN ? true: false);
+	            			}
+	            		}
+	            );
 	            
 	            c.gridx = 0; c.gridy = 2 + i; melodizer2Panel.add(lblSetTransposeGroup, c);
 	            c.gridx = 1; melodizer2Panel.add(drpTransposeGroup2, c);
+	            c.gridx = 2; melodizer2Panel.add(drpTransposeOptions2, c);
 	        }
 	        
 	        //////////////////////////////////////////

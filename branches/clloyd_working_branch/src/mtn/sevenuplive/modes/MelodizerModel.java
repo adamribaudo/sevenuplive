@@ -91,8 +91,8 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	 */
 	private HashMap<Integer, ArrayList<Note>> delayedNoteOffs = new HashMap<Integer, ArrayList<Note>>();
 	
-	/** Delay the sending off note offs on transposed notes */
-	private boolean delayNoteOffs = true;
+	/** Delay the sending off note offs on transposed notes for a sequence */
+	private boolean[] delayNoteOffs;
 	
 	private int _navRow;
 
@@ -103,6 +103,7 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 		key = new int[7];
 		transposeGroup = new int[7];
 		offset = new int[7];
+		delayNoteOffs = new boolean[7];
 		transposeDirty = new boolean[7];
 		startingKey = new int[7];
 		startingOffset = new int[7];
@@ -352,7 +353,7 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 				//Loop through old heldnotes and turn them off
 				for(int i=0;i< notesHeld.size();i++) {
 					// If delayedNoteOffs
-					if (delayNoteOffs) {
+					if (delayNoteOffs[index]) {
 						ArrayList<Note> delayedNotes = delayedNoteOffs.get(index);
 						if (delayedNotes == null) {
 							delayedNotes = new ArrayList<Note>();
@@ -896,6 +897,16 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 	public int getTransposeGroup(int slotNum)
 	{
 		return transposeGroup[slotNum];
+	}
+	
+	public void setTransposeSustain(int slotNum, boolean value)
+	{
+		delayNoteOffs[slotNum] = value;
+	}
+
+	public boolean getTransposeSustain(int slotNum)
+	{
+		return delayNoteOffs[slotNum];
 	}
 
 	/**

@@ -401,7 +401,7 @@ public class MelodizerView extends Mode {
 		}
 		
 		if (!direct)
-			updateNavGrid();
+			updateDisplayGrid();
 	}
 	
 	private void changePosition(boolean direct, int x) {
@@ -468,7 +468,7 @@ public class MelodizerView extends Mode {
 		}
 		
 		if (!direct)
-			this.updateNavGrid();
+			updateDisplayGrid();
 	}
 
 }

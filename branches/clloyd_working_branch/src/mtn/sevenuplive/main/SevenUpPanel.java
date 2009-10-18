@@ -601,6 +601,7 @@ public class SevenUpPanel extends JPanel implements ActionListener
     {
     	int chokeGroup;
     	int transposeGroup;
+    	boolean sustain;
     	int loopType;
     	Float length;
     	boolean gateLoopChokes;
@@ -682,6 +683,49 @@ public class SevenUpPanel extends JPanel implements ActionListener
     			}
 			}
 		}
+        
+        for(Integer i=0;i<7;i++)
+    	{
+        	sustain = sevenUpApplet.getMel1TransposeSustain(i);
+    		
+    		for(int k=0; k<melodizer1Panel.getComponentCount();k++)
+    		{
+    			if(melodizer1Panel.getComponent(k).getName() != null)
+    			{
+	    			if(melodizer1Panel.getComponent(k).getName().equals(i.toString()+"options"))
+	    			{
+	    				drpTransposeOptions1 = (JComboBox)melodizer1Panel.getComponent(k);
+	    				if (sustain) {
+	    					drpTransposeOptions1.setSelectedItem(eTransposeOptions.SUSTAIN);
+	    				} else {
+	    					drpTransposeOptions1.setSelectedItem(eTransposeOptions.GATE);
+	    				}
+	    			}
+    			}
+			}
+		}
+        
+        for(Integer i=0;i<7;i++)
+    	{
+        	sustain = sevenUpApplet.getMel2TransposeSustain(i);
+    		
+    		for(int k=0; k<melodizer2Panel.getComponentCount();k++)
+    		{
+    			if(melodizer2Panel.getComponent(k).getName() != null)
+    			{
+	    			if(melodizer2Panel.getComponent(k).getName().equals(i.toString()+"options"))
+	    			{
+	    				drpTransposeOptions2 = (JComboBox)melodizer2Panel.getComponent(k);
+	    				if (sustain) {
+	    					drpTransposeOptions2.setSelectedItem(eTransposeOptions.SUSTAIN);
+	    				} else {
+	    					drpTransposeOptions2.setSelectedItem(eTransposeOptions.GATE);
+	    				}
+	    			}
+    			}
+			}
+		}
+        
 		
 		for(Integer i =0;i<7;i++)
     	{

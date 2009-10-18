@@ -599,7 +599,17 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 		xmlMelodizer.setAttribute(new Attribute("altMode", altMode.toString()));
 		xmlMelodizer.setAttribute(new Attribute("transpose", Boolean.toString(transpose)));
 		xmlMelodizer.setAttribute(new Attribute("recMode", Integer.toString(recMode)));
-		
+
+		// Serialize the sustain mode in each pattern slot
+		String sustainString = "";
+		for(int i=0;i<this.delayNoteOffs.length;i++)
+		{
+			sustainString += delayNoteOffs[i];
+			if(i!=delayNoteOffs.length-1)
+				sustainString+= ",";
+		}
+		xmlMelodizer.setAttribute(new Attribute("sustain", sustainString));
+
 		// Serialize the transpose group in each pattern slot
 		String groupString = "";
 		for(int i=0;i<transposeGroup.length;i++)
@@ -704,7 +714,17 @@ public class MelodizerModel extends EventDispatcherImpl implements PlayContext, 
 			}
 		} catch (Throwable t) {
 			// Do nothing
-		} 
+		}
+		try {
+			String sustainString = xmlMelodizer.getAttribute("sustain").getValue();
+			int i=0;
+			for(String strSustain : sustainString.split(","))
+			{
+				delayNoteOffs[i] = Boolean.parseBoolean(strSustain);
+				i++;
+			}
+		} catch (Throwable t) {}
+		
 		try {
 			String groupString = xmlMelodizer.getAttribute("groups").getValue();
 			int i=0;
